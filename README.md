@@ -13,7 +13,7 @@ inject a TestTdsStream. Which will also lead to easy performance testing
 
 The connectionstring could be a normal Json settings.
 
-# Current status.
+## Current status.
 Execute queries and read a single result set into a poco class. Tested all sqltypes and SqlVariant types
 
 ```
