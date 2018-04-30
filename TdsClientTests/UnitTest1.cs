@@ -11,7 +11,7 @@ using ServerConnectionOptions = XUnitTestProject1.ServerConnectionOptions;
 
 namespace TdsClientTests
 {
-    public class UnitTest1
+    public class TdsTests
     {
         private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
         private const string ConnectionString2 = @"context connection=true";
@@ -103,23 +103,6 @@ namespace TdsClientTests
             tds.Connect();
             tds.Login();
             var x = tds.ExecuteQuery<TestIntType>(@"DECLARE @zz timestamp; Select zz=@zz");
-        }
-
-        [Fact]
-        public void can_Select_query()
-        {
-            var tds = new Tds(ConnectionString);
-            tds.Connect();
-            tds.Login();
-            tds.ExecuteNonQuery(@"Select a=1, b=null, c=3 UNION select a=4, b=16, c=5");
-            tds.Read();
-            Assert.Equal(1, tds.ReadColumn(0));
-            Assert.Null(tds.ReadColumn(1));
-            Assert.Equal(3, tds.ReadColumn(2));
-            tds.Read();
-            Assert.Equal(4, tds.ReadColumn(0));
-            Assert.Equal(16, tds.ReadColumn(1));
-            Assert.Equal(5, tds.ReadColumn(2));
         }
 
         [Fact]

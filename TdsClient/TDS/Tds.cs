@@ -114,10 +114,6 @@ namespace Medella.TdsClient.TDS
             return (Func<TdsColumnReader, T>) Readers.GetOrAdd(key, x => RowReader.GetComplexReader<T>(_reader));
         }
 
-        public object ReadColumn(int index)
-        {
-            return _tdsController.ReadColumn(index);
-        }
 
         private static TdsEnums.FeatureExtension GetRequestedFeatures(SqlConnectionString opt)
         {
