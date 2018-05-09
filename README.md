@@ -10,6 +10,8 @@ Todo:
 * Async
 * Create a TdsStream from connection settings and inject this stream in the TdsClient. This will improve the testing and made it possible to 
 inject a TestTdsStream. Which will also lead to easy performance testing
+* Get rid of a lot a internal corefx classes needed for sspi and sni
+* cleanup
 
 The connectionstring could be a normal Json settings.
 
