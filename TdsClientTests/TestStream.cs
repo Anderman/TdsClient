@@ -6,7 +6,6 @@ using System.Text;
 using Medella.TdsClient.SNI;
 using Medella.TdsClient.SNI.SniNp;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-using Xunit;
 
 namespace TdsClientTests
 {
@@ -34,27 +33,5 @@ namespace TdsClientTests
             throw new NotImplementedException();
         }
 
-        [Fact]
-        public void testAccess()
-        //SspiClientContextStatus
-        //SNIProxy.GenSspiClientContext
-        {
-            var sspiClientContext = typeof(System.Data.SqlClient.SqlCommand).Assembly.GetType("System.Data.SqlClient.SNI.SspiClientContextStatus");
-            var c = sspiClientContext.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
-            var sspiClass = c.Invoke(null);
-
-            var sniProxy = typeof(System.Data.SqlClient.SqlCommand).Assembly.GetType("System.Data.SqlClient.SNI.SNIProxy");
-            var sni = sniProxy.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
-            var sniInstance = sni.Invoke(null);
-            var methodInfo = sniProxy.GetMethod("GenSspiClientContext");
-
-            var server = new byte[200];
-            var client = new byte[200];
-            var servername = $"MSSQLSvc/{Dns.GetHostEntry("localhost").HostName}";
-            var serverspn = Encoding.Unicode.GetBytes(servername);
-            var args = new[] {sspiClass, server, client, serverspn};
-            methodInfo.Invoke(sniInstance, args);
-            var clienttoken = (byte[]) args[2];
-        }
     }
 }

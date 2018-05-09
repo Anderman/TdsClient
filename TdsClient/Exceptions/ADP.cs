@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
+using Medella.TdsClient.System2;
 using ST = System.Transactions;
 
 namespace Medella.TdsClient.Exceptions
@@ -36,10 +37,10 @@ namespace Medella.TdsClient.Exceptions
 
         internal static readonly string[] AzureSqlServerEndpoints =
         {
-            SR.GetString(SR.AZURESQL_GenericEndpoint),
-            SR.GetString(SR.AZURESQL_GermanEndpoint),
-            SR.GetString(SR.AZURESQL_UsGovEndpoint),
-            SR.GetString(SR.AZURESQL_ChinaEndpoint)
+            SR.GetString(Strings.AZURESQL_GenericEndpoint),
+            SR.GetString(Strings.AZURESQL_GermanEndpoint),
+            SR.GetString(Strings.AZURESQL_UsGovEndpoint),
+            SR.GetString(Strings.AZURESQL_ChinaEndpoint)
         };
 
         // The class ADP defines the exceptions that are specific to the Adapters.
@@ -107,7 +108,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static PlatformNotSupportedException DbTypeNotSupported(string dbType)
         {
-            var e = new PlatformNotSupportedException(SR.GetString(SR.SQL_DbTypeNotSupportedOnThisPlatform, dbType));
+            var e = new PlatformNotSupportedException(SR.GetString(Strings.SQL_DbTypeNotSupportedOnThisPlatform, dbType));
             return e;
         }
 
@@ -137,12 +138,12 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception DataTableDoesNotExist(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_DataTableDoesNotExist, collectionName));
+            return Argument(SR.GetString(Strings.MDF_DataTableDoesNotExist, collectionName));
         }
 
         internal static InvalidOperationException MethodCalledTwice(string method)
         {
-            var e = new InvalidOperationException(SR.GetString(SR.ADP_CalledTwice, method));
+            var e = new InvalidOperationException(SR.GetString(Strings.ADP_CalledTwice, method));
             return e;
         }
 
@@ -168,7 +169,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception TooManyRestrictions(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_TooManyRestrictions, collectionName));
+            return Argument(SR.GetString(Strings.MDF_TooManyRestrictions, collectionName));
         }
 
 
@@ -183,7 +184,7 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static ArgumentException InvalidMinMaxPoolSizeValues()
         {
-            return Argument(SR.GetString(SR.ADP_InvalidMinMaxPoolSizeValues));
+            return Argument(SR.GetString(Strings.ADP_InvalidMinMaxPoolSizeValues));
         }
 
 
@@ -192,7 +193,7 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static InvalidOperationException NoConnectionString()
         {
-            return InvalidOperation(SR.GetString(SR.ADP_NoConnectionString));
+            return InvalidOperation(SR.GetString(Strings.ADP_NoConnectionString));
         }
 
         internal static Exception MethodNotImplemented([CallerMemberName] string methodName = "")
@@ -202,7 +203,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception QueryFailed(string collectionName, Exception e)
         {
-            return InvalidOperation(SR.GetString(SR.MDF_QueryFailed, collectionName), e);
+            return InvalidOperation(SR.GetString(Strings.MDF_QueryFailed, collectionName), e);
         }
 
 
@@ -211,12 +212,12 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception InvalidConnectionOptionValueLength(string key, int limit)
         {
-            return Argument(SR.GetString(SR.ADP_InvalidConnectionOptionValueLength, key, limit));
+            return Argument(SR.GetString(Strings.ADP_InvalidConnectionOptionValueLength, key, limit));
         }
 
         internal static Exception MissingConnectionOptionValue(string key, string requiredAdditionalKey)
         {
-            return Argument(SR.GetString(SR.ADP_MissingConnectionOptionValue, key, requiredAdditionalKey));
+            return Argument(SR.GetString(Strings.ADP_MissingConnectionOptionValue, key, requiredAdditionalKey));
         }
 
 
@@ -225,12 +226,12 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception PooledOpenTimeout()
         {
-            return InvalidOperation(SR.GetString(SR.ADP_PooledOpenTimeout));
+            return InvalidOperation(SR.GetString(Strings.ADP_PooledOpenTimeout));
         }
 
         internal static Exception NonPooledOpenTimeout()
         {
-            return TimeoutException(SR.GetString(SR.ADP_NonPooledOpenTimeout));
+            return TimeoutException(SR.GetString(Strings.ADP_NonPooledOpenTimeout));
         }
 
         //
@@ -238,33 +239,33 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static InvalidOperationException TransactionConnectionMismatch()
         {
-            return Provider(SR.GetString(SR.ADP_TransactionConnectionMismatch));
+            return Provider(SR.GetString(Strings.ADP_TransactionConnectionMismatch));
         }
 
         internal static InvalidOperationException TransactionRequired(string method)
         {
-            return Provider(SR.GetString(SR.ADP_TransactionRequired, method));
+            return Provider(SR.GetString(Strings.ADP_TransactionRequired, method));
         }
 
 
         internal static Exception CommandTextRequired(string method)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_CommandTextRequired, method));
+            return InvalidOperation(SR.GetString(Strings.ADP_CommandTextRequired, method));
         }
 
         internal static Exception NoColumns()
         {
-            return Argument(SR.GetString(SR.MDF_NoColumns));
+            return Argument(SR.GetString(Strings.MDF_NoColumns));
         }
 
         internal static InvalidOperationException ConnectionRequired(string method)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_ConnectionRequired, method));
+            return InvalidOperation(SR.GetString(Strings.ADP_ConnectionRequired, method));
         }
 
         internal static InvalidOperationException OpenConnectionRequired(string method, ConnectionState state)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_OpenConnectionRequired, method, ConnectionStateMsg(state)));
+            return InvalidOperation(SR.GetString(Strings.ADP_OpenConnectionRequired, method, ConnectionStateMsg(state)));
         }
 
         internal static Exception OpenReaderExists()
@@ -274,7 +275,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception OpenReaderExists(Exception e)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_OpenReaderExists), e);
+            return InvalidOperation(SR.GetString(Strings.ADP_OpenReaderExists), e);
         }
 
 
@@ -283,22 +284,22 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception NonSeqByteAccess(long badIndex, long currIndex, string method)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_NonSeqByteAccess, badIndex.ToString(CultureInfo.InvariantCulture), currIndex.ToString(CultureInfo.InvariantCulture), method));
+            return InvalidOperation(SR.GetString(Strings.ADP_NonSeqByteAccess, badIndex.ToString(CultureInfo.InvariantCulture), currIndex.ToString(CultureInfo.InvariantCulture), method));
         }
 
         internal static Exception InvalidXml()
         {
-            return Argument(SR.GetString(SR.MDF_InvalidXml));
+            return Argument(SR.GetString(Strings.MDF_InvalidXml));
         }
 
         internal static Exception NegativeParameter(string parameterName)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_NegativeParameter, parameterName));
+            return InvalidOperation(SR.GetString(Strings.ADP_NegativeParameter, parameterName));
         }
 
         internal static Exception InvalidXmlMissingColumn(string collectionName, string columnName)
         {
-            return Argument(SR.GetString(SR.MDF_InvalidXmlMissingColumn, collectionName, columnName));
+            return Argument(SR.GetString(Strings.MDF_InvalidXmlMissingColumn, collectionName, columnName));
         }
 
         //
@@ -306,22 +307,22 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception InvalidMetaDataValue()
         {
-            return Argument(SR.GetString(SR.ADP_InvalidMetaDataValue));
+            return Argument(SR.GetString(Strings.ADP_InvalidMetaDataValue));
         }
 
         internal static InvalidOperationException NonSequentialColumnAccess(int badCol, int currCol)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_NonSequentialColumnAccess, badCol.ToString(CultureInfo.InvariantCulture), currCol.ToString(CultureInfo.InvariantCulture)));
+            return InvalidOperation(SR.GetString(Strings.ADP_NonSequentialColumnAccess, badCol.ToString(CultureInfo.InvariantCulture), currCol.ToString(CultureInfo.InvariantCulture)));
         }
 
         internal static Exception InvalidXmlInvalidValue(string collectionName, string columnName)
         {
-            return Argument(SR.GetString(SR.MDF_InvalidXmlInvalidValue, collectionName, columnName));
+            return Argument(SR.GetString(Strings.MDF_InvalidXmlInvalidValue, collectionName, columnName));
         }
 
         internal static Exception CollectionNameIsNotUnique(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_CollectionNameISNotUnique, collectionName));
+            return Argument(SR.GetString(Strings.MDF_CollectionNameISNotUnique, collectionName));
         }
 
 
@@ -330,62 +331,62 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception InvalidCommandTimeout(int value, [CallerMemberName] string property = "")
         {
-            return Argument(SR.GetString(SR.ADP_InvalidCommandTimeout, value.ToString(CultureInfo.InvariantCulture)), property);
+            return Argument(SR.GetString(Strings.ADP_InvalidCommandTimeout, value.ToString(CultureInfo.InvariantCulture)), property);
         }
 
         internal static Exception UninitializedParameterSize(int index, Type dataType)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_UninitializedParameterSize, index.ToString(CultureInfo.InvariantCulture), dataType.Name));
+            return InvalidOperation(SR.GetString(Strings.ADP_UninitializedParameterSize, index.ToString(CultureInfo.InvariantCulture), dataType.Name));
         }
 
         internal static Exception UnableToBuildCollection(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_UnableToBuildCollection, collectionName));
+            return Argument(SR.GetString(Strings.MDF_UnableToBuildCollection, collectionName));
         }
 
         internal static Exception PrepareParameterType(DbCommand cmd)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_PrepareParameterType, cmd.GetType().Name));
+            return InvalidOperation(SR.GetString(Strings.ADP_PrepareParameterType, cmd.GetType().Name));
         }
 
         internal static Exception UndefinedCollection(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_UndefinedCollection, collectionName));
+            return Argument(SR.GetString(Strings.MDF_UndefinedCollection, collectionName));
         }
 
         internal static Exception UnsupportedVersion(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_UnsupportedVersion, collectionName));
+            return Argument(SR.GetString(Strings.MDF_UnsupportedVersion, collectionName));
         }
 
         internal static Exception AmbigousCollectionName(string collectionName)
         {
-            return Argument(SR.GetString(SR.MDF_AmbigousCollectionName, collectionName));
+            return Argument(SR.GetString(Strings.MDF_AmbigousCollectionName, collectionName));
         }
 
         internal static Exception PrepareParameterSize(DbCommand cmd)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_PrepareParameterSize, cmd.GetType().Name));
+            return InvalidOperation(SR.GetString(Strings.ADP_PrepareParameterSize, cmd.GetType().Name));
         }
 
         internal static Exception PrepareParameterScale(DbCommand cmd, string type)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_PrepareParameterScale, cmd.GetType().Name, type));
+            return InvalidOperation(SR.GetString(Strings.ADP_PrepareParameterScale, cmd.GetType().Name, type));
         }
 
         internal static Exception MissingDataSourceInformationColumn()
         {
-            return Argument(SR.GetString(SR.MDF_MissingDataSourceInformationColumn));
+            return Argument(SR.GetString(Strings.MDF_MissingDataSourceInformationColumn));
         }
 
         internal static Exception IncorrectNumberOfDataSourceInformationRows()
         {
-            return Argument(SR.GetString(SR.MDF_IncorrectNumberOfDataSourceInformationRows));
+            return Argument(SR.GetString(Strings.MDF_IncorrectNumberOfDataSourceInformationRows));
         }
 
         internal static Exception MismatchedAsyncResult(string expectedMethod, string gotMethod)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_MismatchedAsyncResult, expectedMethod, gotMethod));
+            return InvalidOperation(SR.GetString(Strings.ADP_MismatchedAsyncResult, expectedMethod, gotMethod));
         }
 
         //
@@ -393,57 +394,57 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception ClosedConnectionError()
         {
-            return InvalidOperation(SR.GetString(SR.ADP_ClosedConnectionError));
+            return InvalidOperation(SR.GetString(Strings.ADP_ClosedConnectionError));
         }
 
         internal static Exception ConnectionAlreadyOpen(ConnectionState state)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_ConnectionAlreadyOpen, ConnectionStateMsg(state)));
+            return InvalidOperation(SR.GetString(Strings.ADP_ConnectionAlreadyOpen, ConnectionStateMsg(state)));
         }
 
         internal static Exception TransactionPresent()
         {
-            return InvalidOperation(SR.GetString(SR.ADP_TransactionPresent));
+            return InvalidOperation(SR.GetString(Strings.ADP_TransactionPresent));
         }
 
         internal static Exception LocalTransactionPresent()
         {
-            return InvalidOperation(SR.GetString(SR.ADP_LocalTransactionPresent));
+            return InvalidOperation(SR.GetString(Strings.ADP_LocalTransactionPresent));
         }
 
         internal static Exception OpenConnectionPropertySet(string property, ConnectionState state)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_OpenConnectionPropertySet, property, ConnectionStateMsg(state)));
+            return InvalidOperation(SR.GetString(Strings.ADP_OpenConnectionPropertySet, property, ConnectionStateMsg(state)));
         }
 
         internal static Exception EmptyDatabaseName()
         {
-            return Argument(SR.GetString(SR.ADP_EmptyDatabaseName));
+            return Argument(SR.GetString(Strings.ADP_EmptyDatabaseName));
         }
 
         internal static Exception MissingRestrictionColumn()
         {
-            return Argument(SR.GetString(SR.MDF_MissingRestrictionColumn));
+            return Argument(SR.GetString(Strings.MDF_MissingRestrictionColumn));
         }
 
         internal static Exception InternalConnectionError(ConnectionError internalError)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_InternalConnectionError, (int) internalError));
+            return InvalidOperation(SR.GetString(Strings.ADP_InternalConnectionError, (int) internalError));
         }
 
         internal static Exception InvalidConnectRetryCountValue()
         {
-            return Argument(SR.GetString(SR.SQLCR_InvalidConnectRetryCountValue));
+            return Argument(SR.GetString(Strings.SQLCR_InvalidConnectRetryCountValue));
         }
 
         internal static Exception MissingRestrictionRow()
         {
-            return Argument(SR.GetString(SR.MDF_MissingRestrictionRow));
+            return Argument(SR.GetString(Strings.MDF_MissingRestrictionRow));
         }
 
         internal static Exception InvalidConnectRetryIntervalValue()
         {
-            return Argument(SR.GetString(SR.SQLCR_InvalidConnectRetryIntervalValue));
+            return Argument(SR.GetString(Strings.SQLCR_InvalidConnectRetryIntervalValue));
         }
 
         //
@@ -451,7 +452,7 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static InvalidOperationException AsyncOperationPending()
         {
-            return InvalidOperation(SR.GetString(SR.ADP_PendingAsyncOperation));
+            return InvalidOperation(SR.GetString(Strings.ADP_PendingAsyncOperation));
         }
 
         //
@@ -459,52 +460,52 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static IOException ErrorReadingFromStream(Exception internalException)
         {
-            return IO(SR.GetString(SR.SqlMisc_StreamErrorMessage), internalException);
+            return IO(SR.GetString(Strings.SqlMisc_StreamErrorMessage), internalException);
         }
 
         internal static ArgumentException InvalidDataType(TypeCode typecode)
         {
-            return Argument(SR.GetString(SR.ADP_InvalidDataType, typecode.ToString()));
+            return Argument(SR.GetString(Strings.ADP_InvalidDataType, typecode.ToString()));
         }
 
         internal static ArgumentException UnknownDataType(Type dataType)
         {
-            return Argument(SR.GetString(SR.ADP_UnknownDataType, dataType.FullName));
+            return Argument(SR.GetString(Strings.ADP_UnknownDataType, dataType.FullName));
         }
 
         internal static ArgumentException DbTypeNotSupported(DbType type, Type enumtype)
         {
-            return Argument(SR.GetString(SR.ADP_DbTypeNotSupported, type.ToString(), enumtype.Name));
+            return Argument(SR.GetString(Strings.ADP_DbTypeNotSupported, type.ToString(), enumtype.Name));
         }
 
         internal static ArgumentException UnknownDataTypeCode(Type dataType, TypeCode typeCode)
         {
-            return Argument(SR.GetString(SR.ADP_UnknownDataTypeCode, ((int) typeCode).ToString(CultureInfo.InvariantCulture), dataType.FullName));
+            return Argument(SR.GetString(Strings.ADP_UnknownDataTypeCode, ((int) typeCode).ToString(CultureInfo.InvariantCulture), dataType.FullName));
         }
 
         internal static ArgumentException InvalidOffsetValue(int value)
         {
-            return Argument(SR.GetString(SR.ADP_InvalidOffsetValue, value.ToString(CultureInfo.InvariantCulture)));
+            return Argument(SR.GetString(Strings.ADP_InvalidOffsetValue, value.ToString(CultureInfo.InvariantCulture)));
         }
 
         internal static ArgumentException InvalidSizeValue(int value)
         {
-            return Argument(SR.GetString(SR.ADP_InvalidSizeValue, value.ToString(CultureInfo.InvariantCulture)));
+            return Argument(SR.GetString(Strings.ADP_InvalidSizeValue, value.ToString(CultureInfo.InvariantCulture)));
         }
 
         internal static ArgumentException ParameterValueOutOfRange(decimal value)
         {
-            return Argument(SR.GetString(SR.ADP_ParameterValueOutOfRange, value.ToString((IFormatProvider) null)));
+            return Argument(SR.GetString(Strings.ADP_ParameterValueOutOfRange, value.ToString((IFormatProvider) null)));
         }
 
         internal static ArgumentException ParameterValueOutOfRange(SqlDecimal value)
         {
-            return Argument(SR.GetString(SR.ADP_ParameterValueOutOfRange, value.ToString()));
+            return Argument(SR.GetString(Strings.ADP_ParameterValueOutOfRange, value.ToString()));
         }
 
         internal static ArgumentException VersionDoesNotSupportDataType(string typeName)
         {
-            return Argument(SR.GetString(SR.ADP_VersionDoesNotSupportDataType, typeName));
+            return Argument(SR.GetString(Strings.ADP_VersionDoesNotSupportDataType, typeName));
         }
 
         internal static Exception ParameterConversionFailed(object value, Type destType, Exception inner)
@@ -513,7 +514,7 @@ namespace Medella.TdsClient.Exceptions
             Debug.Assert(null != inner, "null inner on conversion failure");
 
             Exception e;
-            var message = SR.GetString(SR.ADP_ParameterConversionFailed, value.GetType().Name, destType.Name);
+            var message = SR.GetString(Strings.ADP_ParameterConversionFailed, value.GetType().Name, destType.Name);
             if (inner is ArgumentException)
                 e = new ArgumentException(message, inner);
             else if (inner is FormatException)
@@ -560,12 +561,12 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception ParallelTransactionsNotSupported(DbConnection obj)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_ParallelTransactionsNotSupported, obj.GetType().Name));
+            return InvalidOperation(SR.GetString(Strings.ADP_ParallelTransactionsNotSupported, obj.GetType().Name));
         }
 
         internal static Exception TransactionZombied(DbTransaction obj)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_TransactionZombied, obj.GetType().Name));
+            return InvalidOperation(SR.GetString(Strings.ADP_TransactionZombied, obj.GetType().Name));
         }
 
         internal static Delegate FindBuilder(MulticastDelegate mcd)
@@ -729,21 +730,21 @@ namespace Medella.TdsClient.Exceptions
 
         internal static ArgumentException SingleValuedProperty(string propertyName, string value)
         {
-            var e = new ArgumentException(SR.GetString(SR.ADP_SingleValuedProperty, propertyName, value));
+            var e = new ArgumentException(SR.GetString(Strings.ADP_SingleValuedProperty, propertyName, value));
             TraceExceptionAsReturnValue(e);
             return e;
         }
 
         internal static ArgumentException DoubleValuedProperty(string propertyName, string value1, string value2)
         {
-            var e = new ArgumentException(SR.GetString(SR.ADP_DoubleValuedProperty, propertyName, value1, value2));
+            var e = new ArgumentException(SR.GetString(Strings.ADP_DoubleValuedProperty, propertyName, value1, value2));
             TraceExceptionAsReturnValue(e);
             return e;
         }
 
         internal static ArgumentException InvalidPrefixSuffix()
         {
-            var e = new ArgumentException(SR.GetString(SR.ADP_InvalidPrefixSuffix));
+            var e = new ArgumentException(SR.GetString(Strings.ADP_InvalidPrefixSuffix));
             TraceExceptionAsReturnValue(e);
             return e;
         }
@@ -767,19 +768,19 @@ namespace Medella.TdsClient.Exceptions
 
         internal static ArgumentException BadParameterName(string parameterName)
         {
-            var e = new ArgumentException(SR.GetString(SR.ADP_BadParameterName, parameterName));
+            var e = new ArgumentException(SR.GetString(Strings.ADP_BadParameterName, parameterName));
             TraceExceptionAsReturnValue(e);
             return e;
         }
 
         internal static Exception DeriveParametersNotSupported(IDbCommand value)
         {
-            return DataAdapter(SR.GetString(SR.ADP_DeriveParametersNotSupported, value.GetType().Name, value.CommandType.ToString()));
+            return DataAdapter(SR.GetString(Strings.ADP_DeriveParametersNotSupported, value.GetType().Name, value.CommandType.ToString()));
         }
 
         internal static Exception NoStoredProcedureExists(string sproc)
         {
-            return InvalidOperation(SR.GetString(SR.ADP_NoStoredProcedureExists, sproc));
+            return InvalidOperation(SR.GetString(Strings.ADP_NoStoredProcedureExists, sproc));
         }
 
         //
@@ -787,7 +788,7 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static InvalidOperationException TransactionCompletedButNotDisposed()
         {
-            return Provider(SR.GetString(SR.ADP_TransactionCompletedButNotDisposed));
+            return Provider(SR.GetString(Strings.ADP_TransactionCompletedButNotDisposed));
         }
 
         internal static ArgumentOutOfRangeException InvalidUserDefinedTypeSerializationFormat(object value)
@@ -1026,7 +1027,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static ArgumentOutOfRangeException NotSupportedEnumerationValue(Type type, string value, string method)
         {
-            return ArgumentOutOfRange(SR.Format(SR.ADP_NotSupportedEnumerationValue, type.Name, value, method), type.Name);
+            return ArgumentOutOfRange(SR.Format(Strings.ADP_NotSupportedEnumerationValue, type.Name, value, method), type.Name);
         }
 
         internal static InvalidOperationException DataAdapter(string error)
@@ -1041,21 +1042,21 @@ namespace Medella.TdsClient.Exceptions
 
         internal static ArgumentException InvalidMultipartName(string property, string value)
         {
-            var e = new ArgumentException(SR.Format(SR.ADP_InvalidMultipartName, property, value));
+            var e = new ArgumentException(SR.Format(Strings.ADP_InvalidMultipartName, property, value));
             TraceExceptionAsReturnValue(e);
             return e;
         }
 
         internal static ArgumentException InvalidMultipartNameIncorrectUsageOfQuotes(string property, string value)
         {
-            var e = new ArgumentException(SR.Format(SR.ADP_InvalidMultipartNameQuoteUsage, property, value));
+            var e = new ArgumentException(SR.Format(Strings.ADP_InvalidMultipartNameQuoteUsage, property, value));
             TraceExceptionAsReturnValue(e);
             return e;
         }
 
         internal static ArgumentException InvalidMultipartNameToManyParts(string property, string value, int limit)
         {
-            var e = new ArgumentException(SR.Format(SR.ADP_InvalidMultipartNameToManyParts, property, value, limit));
+            var e = new ArgumentException(SR.Format(Strings.ADP_InvalidMultipartNameToManyParts, property, value, limit));
             TraceExceptionAsReturnValue(e);
             return e;
         }
@@ -1101,7 +1102,7 @@ namespace Medella.TdsClient.Exceptions
         // Invalid Enumeration
         internal static ArgumentOutOfRangeException InvalidEnumerationValue(Type type, int value)
         {
-            return ArgumentOutOfRange(SR.Format(SR.ADP_InvalidEnumerationValue, type.Name, value.ToString(CultureInfo.InvariantCulture)), type.Name);
+            return ArgumentOutOfRange(SR.Format(Strings.ADP_InvalidEnumerationValue, type.Name, value.ToString(CultureInfo.InvariantCulture)), type.Name);
         }
 
         //
@@ -1109,17 +1110,17 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static ArgumentException ConnectionStringSyntax(int index)
         {
-            return Argument(SR.Format(SR.ADP_ConnectionStringSyntax, index));
+            return Argument(SR.Format(Strings.ADP_ConnectionStringSyntax, index));
         }
 
         internal static ArgumentException KeywordNotSupported(string keyword)
         {
-            return Argument(SR.Format(SR.ADP_KeywordNotSupported, keyword));
+            return Argument(SR.Format(Strings.ADP_KeywordNotSupported, keyword));
         }
 
         internal static ArgumentException ConvertFailed(Type fromType, Type toType, Exception innerException)
         {
-            return Argument(SR.Format(SR.SqlConvert_ConvertFailed, fromType.FullName, toType.FullName), innerException);
+            return Argument(SR.Format(Strings.SqlConvert_ConvertFailed, fromType.FullName, toType.FullName), innerException);
         }
 
         //
@@ -1132,7 +1133,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception InvalidConnectionOptionValue(string key, Exception inner)
         {
-            return Argument(SR.Format(SR.ADP_InvalidConnectionOptionValue, key), inner);
+            return Argument(SR.Format(Strings.ADP_InvalidConnectionOptionValue, key), inner);
         }
 
         //
@@ -1140,27 +1141,27 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static ArgumentException CollectionRemoveInvalidObject(Type itemType, ICollection collection)
         {
-            return Argument(SR.Format(SR.ADP_CollectionRemoveInvalidObject, itemType.Name, collection.GetType().Name));
+            return Argument(SR.Format(Strings.ADP_CollectionRemoveInvalidObject, itemType.Name, collection.GetType().Name));
         }
 
         internal static ArgumentNullException CollectionNullValue(string parameter, Type collection, Type itemType)
         {
-            return ArgumentNull(parameter, SR.Format(SR.ADP_CollectionNullValue, collection.Name, itemType.Name));
+            return ArgumentNull(parameter, SR.Format(Strings.ADP_CollectionNullValue, collection.Name, itemType.Name));
         }
 
         internal static IndexOutOfRangeException CollectionIndexInt32(int index, Type collection, int count)
         {
-            return IndexOutOfRange(SR.Format(SR.ADP_CollectionIndexInt32, index.ToString(CultureInfo.InvariantCulture), collection.Name, count.ToString(CultureInfo.InvariantCulture)));
+            return IndexOutOfRange(SR.Format(Strings.ADP_CollectionIndexInt32, index.ToString(CultureInfo.InvariantCulture), collection.Name, count.ToString(CultureInfo.InvariantCulture)));
         }
 
         internal static IndexOutOfRangeException CollectionIndexString(Type itemType, string propertyName, string propertyValue, Type collection)
         {
-            return IndexOutOfRange(SR.Format(SR.ADP_CollectionIndexString, itemType.Name, propertyName, propertyValue, collection.Name));
+            return IndexOutOfRange(SR.Format(Strings.ADP_CollectionIndexString, itemType.Name, propertyName, propertyValue, collection.Name));
         }
 
         internal static InvalidCastException CollectionInvalidType(Type collection, Type itemType, object invalidValue)
         {
-            return InvalidCast(SR.Format(SR.ADP_CollectionInvalidType, collection.Name, itemType.Name, invalidValue.GetType().Name));
+            return InvalidCast(SR.Format(Strings.ADP_CollectionInvalidType, collection.Name, itemType.Name, invalidValue.GetType().Name));
         }
 
         //
@@ -1172,17 +1173,17 @@ namespace Medella.TdsClient.Exceptions
             {
                 case ConnectionState.Closed:
                 case ConnectionState.Connecting | ConnectionState.Broken: // treated the same as closed
-                    return SR.ADP_ConnectionStateMsg_Closed;
+                    return Strings.ADP_ConnectionStateMsg_Closed;
                 case ConnectionState.Connecting:
-                    return SR.ADP_ConnectionStateMsg_Connecting;
+                    return Strings.ADP_ConnectionStateMsg_Connecting;
                 case ConnectionState.Open:
-                    return SR.ADP_ConnectionStateMsg_Open;
+                    return Strings.ADP_ConnectionStateMsg_Open;
                 case ConnectionState.Open | ConnectionState.Executing:
-                    return SR.ADP_ConnectionStateMsg_OpenExecuting;
+                    return Strings.ADP_ConnectionStateMsg_OpenExecuting;
                 case ConnectionState.Open | ConnectionState.Fetching:
-                    return SR.ADP_ConnectionStateMsg_OpenFetching;
+                    return Strings.ADP_ConnectionStateMsg_OpenFetching;
                 default:
-                    return SR.Format(SR.ADP_ConnectionStateMsg, state.ToString());
+                    return SR.Format(Strings.ADP_ConnectionStateMsg, state.ToString());
             }
         }
 
@@ -1191,7 +1192,7 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception StreamClosed([CallerMemberName] string method = "")
         {
-            return InvalidOperation(SR.Format(SR.ADP_StreamClosed, method));
+            return InvalidOperation(SR.Format(Strings.ADP_StreamClosed, method));
         }
 
         internal static string BuildQuotedString(string quotePrefix, string quoteSuffix, string unQuotedString)
@@ -1218,17 +1219,17 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static ArgumentException ParametersIsNotParent(Type parameterType, ICollection collection)
         {
-            return Argument(SR.Format(SR.ADP_CollectionIsNotParent, parameterType.Name, collection.GetType().Name));
+            return Argument(SR.Format(Strings.ADP_CollectionIsNotParent, parameterType.Name, collection.GetType().Name));
         }
 
         internal static ArgumentException ParametersIsParent(Type parameterType, ICollection collection)
         {
-            return Argument(SR.Format(SR.ADP_CollectionIsNotParent, parameterType.Name, collection.GetType().Name));
+            return Argument(SR.Format(Strings.ADP_CollectionIsNotParent, parameterType.Name, collection.GetType().Name));
         }
 
         internal static Exception InternalError(InternalErrorCode internalError)
         {
-            return InvalidOperation(SR.Format(SR.ADP_InternalProviderError, (int) internalError));
+            return InvalidOperation(SR.Format(Strings.ADP_InternalProviderError, (int) internalError));
         }
 
         //
@@ -1236,27 +1237,27 @@ namespace Medella.TdsClient.Exceptions
         //
         internal static Exception DataReaderClosed([CallerMemberName] string method = "")
         {
-            return InvalidOperation(SR.Format(SR.ADP_DataReaderClosed, method));
+            return InvalidOperation(SR.Format(Strings.ADP_DataReaderClosed, method));
         }
 
         internal static ArgumentOutOfRangeException InvalidSourceBufferIndex(int maxLen, long srcOffset, string parameterName)
         {
-            return ArgumentOutOfRange(SR.Format(SR.ADP_InvalidSourceBufferIndex, maxLen.ToString(CultureInfo.InvariantCulture), srcOffset.ToString(CultureInfo.InvariantCulture)), parameterName);
+            return ArgumentOutOfRange(SR.Format(Strings.ADP_InvalidSourceBufferIndex, maxLen.ToString(CultureInfo.InvariantCulture), srcOffset.ToString(CultureInfo.InvariantCulture)), parameterName);
         }
 
         internal static ArgumentOutOfRangeException InvalidDestinationBufferIndex(int maxLen, int dstOffset, string parameterName)
         {
-            return ArgumentOutOfRange(SR.Format(SR.ADP_InvalidDestinationBufferIndex, maxLen.ToString(CultureInfo.InvariantCulture), dstOffset.ToString(CultureInfo.InvariantCulture)), parameterName);
+            return ArgumentOutOfRange(SR.Format(Strings.ADP_InvalidDestinationBufferIndex, maxLen.ToString(CultureInfo.InvariantCulture), dstOffset.ToString(CultureInfo.InvariantCulture)), parameterName);
         }
 
         internal static IndexOutOfRangeException InvalidBufferSizeOrIndex(int numBytes, int bufferIndex)
         {
-            return IndexOutOfRange(SR.Format(SR.SQL_InvalidBufferSizeOrIndex, numBytes.ToString(CultureInfo.InvariantCulture), bufferIndex.ToString(CultureInfo.InvariantCulture)));
+            return IndexOutOfRange(SR.Format(Strings.SQL_InvalidBufferSizeOrIndex, numBytes.ToString(CultureInfo.InvariantCulture), bufferIndex.ToString(CultureInfo.InvariantCulture)));
         }
 
         internal static Exception InvalidDataLength(long length)
         {
-            return IndexOutOfRange(SR.Format(SR.SQL_InvalidDataLength, length.ToString(CultureInfo.InvariantCulture)));
+            return IndexOutOfRange(SR.Format(Strings.SQL_InvalidDataLength, length.ToString(CultureInfo.InvariantCulture)));
         }
 
         internal static bool CompareInsensitiveInvariant(string strvalue, string strconst)
@@ -1282,7 +1283,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception InvalidSeekOrigin(string parameterName)
         {
-            return ArgumentOutOfRange(SR.ADP_InvalidSeekOrigin, parameterName);
+            return ArgumentOutOfRange(Strings.ADP_InvalidSeekOrigin, parameterName);
         }
 
         internal static void SetCurrentTransaction(ST.Transaction transaction)

@@ -7,6 +7,7 @@ using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.SNI.Native;
+using Medella.TdsClient.System2;
 using Medella.TdsClient.TDS;
 
 namespace Medella.TdsClient.LocalDb
@@ -91,7 +92,7 @@ namespace Medella.TdsClient.LocalDb
                             if (functionAddr == IntPtr.Zero)
                             {
                                 var hResult = Marshal.GetLastWin32Error();
-                                throw CreateLocalDBException(SR.LocalDB_MethodNotFound);
+                                throw CreateLocalDBException(Strings.LocalDB_MethodNotFound);
                             }
 
                             s_localDBFormatMessage = Marshal.GetDelegateForFunctionPointer<LocalDBFormatMessageDelegate>(functionAddr);
@@ -123,11 +124,11 @@ namespace Medella.TdsClient.LocalDb
                     buffer, ref len);
                 if (hResult >= 0)
                     return buffer.ToString();
-                return string.Format(CultureInfo.CurrentCulture, "{0} (0x{1:X}).", SR.LocalDB_UnobtainableMessage, hResult);
+                return string.Format(CultureInfo.CurrentCulture, "{0} (0x{1:X}).", Strings.LocalDB_UnobtainableMessage, hResult);
             }
             catch (SqlException exc)
             {
-                return string.Format(CultureInfo.CurrentCulture, "{0} ({1}).", SR.LocalDB_UnobtainableMessage, exc.Message);
+                return string.Format(CultureInfo.CurrentCulture, "{0} ({1}).", Strings.LocalDB_UnobtainableMessage, exc.Message);
             }
         }
 
