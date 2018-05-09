@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Exceptions;
 
-namespace SqlClient.ConnectionStringParser
+namespace Medella.TdsClient.Cleanup
 {
     public class DbConnectionOptions
     {

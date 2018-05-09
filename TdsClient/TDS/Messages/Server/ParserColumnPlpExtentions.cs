@@ -27,16 +27,16 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 : new byte[plpLength > int.MaxValue ? int.MaxValue : plpLength];
 
             var offset = 0;
-            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int) chungLength;
+            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int)chungLength;
             while (true)
             {
-                bytesToRead = (uint) offset + (uint) bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
+                bytesToRead = (uint)offset + (uint)bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
                 if (buff.Length < offset + bytesToRead)
                     ResizeArray(ref buff, bytesToRead);
 
                 reader.ReadByteArray(buff, offset, bytesToRead);
                 offset += bytesToRead;
-                chungLength -= (uint) bytesToRead;
+                chungLength -= (uint)bytesToRead;
 
                 // Read the next chunk or cleanup state if hit the end
                 if (chungLength == 0)
@@ -65,10 +65,10 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 return string.Empty;
 
 
-            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int) chungLength;
-            if (plpLength == (ulong) bytesToRead)
+            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int)chungLength;
+            if (plpLength == (ulong)bytesToRead)
             {
-                var v=reader.ReadString(encoding, bytesToRead);
+                var v = reader.ReadString(encoding, bytesToRead);
                 reader.ReadPlpBlobChunkLength(); //read the 0 chunklen
                 return v;
             }
@@ -78,11 +78,11 @@ namespace Medella.TdsClient.TDS.Messages.Server
             var bytesRead = 0;
             while (true)
             {
-                bytesToRead = (uint) bytesRead + (uint) bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
+                bytesToRead = (uint)bytesRead + (uint)bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
 
                 reader.ReadString(sb, encoding, bytesToRead);
                 bytesRead += bytesToRead;
-                chungLength -= (uint) bytesToRead;
+                chungLength -= (uint)bytesToRead;
 
                 // Read the next chunk or cleanup state if hit the end
                 if (chungLength == 0)
@@ -99,34 +99,41 @@ namespace Medella.TdsClient.TDS.Messages.Server
             if (plpLength == 0)
                 return string.Empty;
 
-            var chungLength = reader.ReadPlpBlobChunkLength();
+            var chungLength = reader.ReadPlpBlobChunkLength(); //chunck is always smaller than packetsize
             if (chungLength == 0)
                 return string.Empty;
 
             // If total length is known up front, allocate the whole buffer in one shot instead of realloc'ing and copying over each time
 
-            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int) chungLength;
-            if (plpLength == (ulong) bytesToRead)
+            if (plpLength == chungLength)
             {
-                var v= reader.ReadUnicodeChars(bytesToRead);
+                var v = reader.ReadUnicodeChars((int)chungLength);
                 reader.ReadPlpBlobChunkLength(); //read the 0 chunklen
                 return v;
             }
 
             var sb = new StringBuilder();
-            var bytesRead = 0;
+            byte? byte1 = null;
             while (true)
             {
-                bytesToRead = (uint) bytesRead + (uint) bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
-
-                reader.ReadUnicodeChars(sb, bytesToRead);
-                bytesRead += bytesToRead;
-                chungLength -= (uint) bytesToRead;
-
+                if (byte1 != null)
+                {
+                    var byte2 = reader.ReadByte();
+                    sb.Append((char)((int)(byte1 << 8) + byte2));
+                    chungLength--;
+                    byte1 = null;
+                }
+                var byteToRead = chungLength & 0xFFFFFFFE;
+                if (byteToRead != chungLength)
+                {
+                    reader.ReadUnicodeChars(sb, (int)byteToRead);
+                    byte1 = reader.ReadByte();
+                }
+                else
+                    reader.ReadUnicodeChars(sb, (int)chungLength);
                 // Read the next chunk or cleanup state if hit the end
-                if (chungLength == 0)
-                    chungLength = reader.ReadPlpBlobChunkLength();
-                if (chungLength == 0 || bytesRead == int.MaxValue) // Data read complete. bytesleft>0 if len > blob.Length and SQL_PLP_UNKNOWNLEN
+                chungLength = reader.ReadPlpBlobChunkLength();
+                if (chungLength == 0) // Data read complete. bytesleft>0 if len > blob.Length and SQL_PLP_UNKNOWNLEN
                     break;
             }
 

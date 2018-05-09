@@ -8,14 +8,14 @@ namespace Medella.TdsClient.TDS.Messages.Server
 {
     public static class ParserPreLogin
     {
-        public static TdsConnection ParseConnect(this TdsPackageReader reader, EncryptionOptions encryptionRequested)
+        public static EncryptionOptions ParseConnect(this TdsPackageReader reader, EncryptionOptions encryptionRequested)
         {
             var result = ParsePreLoginHandshake(reader.ReadBuffer, TdsEnums.HEADER_LEN, encryptionRequested);
             reader.PackageDone();
             return result;
         }
 
-        public static TdsConnection ParsePreLoginHandshake(byte[] payload, int payloadOffset, EncryptionOptions encryptionRequested)
+        public static EncryptionOptions ParsePreLoginHandshake(byte[] payload, int payloadOffset, EncryptionOptions encryptionRequested)
         {
             if (payload[payloadOffset] == 0xaa) throw SQL.InvalidSQLServerVersionUnknown();
             var result = new TdsConnection();
@@ -29,7 +29,6 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 {
                     case (int) PreLoginOptions.VERSION:
                         result.Version = payload[dataOffset];
-                        result.IsMarsCapable = result.IsYukonOrLater;
                         break;
 
                     case (int) PreLoginOptions.ENCRYPT:
@@ -98,7 +97,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 option = payload[offset++];
             }
 
-            return result;
+            return result.EncryptionOption;
         }
     }
 }

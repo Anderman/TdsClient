@@ -1,11 +1,9 @@
 using System;
 using System.Linq;
 using System.Net;
-using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.LocalDb;
-using Medella.TdsClient.TDS.Controller.Sspi;
 
-namespace XUnitTestProject1
+namespace TdsClientTests
 {
     public class ServerConnectionOptions
     {
@@ -18,16 +16,12 @@ namespace XUnitTestProject1
         public string PipeName;
         public string PipeServerName;
         //cached intantcename for connect
-        public byte[] InstanceNameBytes = new byte[1]; //needed when connect
-        //cached spn for login
         private const string SqlServerSpnHeader = "MSSQLSvc";
         private const int DefaultSqlServerPort = 1433;
         private const string DefaultHostName = "localhost";
 
         private const string LocalDbHost = "(localdb)";
         internal Protocol ConnectionProtocol = Protocol.None;
-
-        public SspiHelper Sspi { get; private set; }
 
         public ServerConnectionOptions(string dataSource, bool isIntegratedSecurity)
         {
@@ -127,13 +121,10 @@ namespace XUnitTestProject1
                 : (!string.IsNullOrWhiteSpace(InstanceName))
                     ? InstanceName
                     // For handling tcp:<hostname> format
-                    : (ConnectionProtocol == Protocol.TCP)
-                        ? DefaultSqlServerPort.ToString()
-                        : null;
+                    : DefaultSqlServerPort.ToString();
 
 
             var sqlServerSpn = GetSqlServerSpn(hostName, portOrInstanceName);
-            Sspi = new SspiHelper(sqlServerSpn);
         }
         private static bool IsLocalHost(string serverName)
         {

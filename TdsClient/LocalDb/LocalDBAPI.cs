@@ -6,7 +6,7 @@ using System.Text;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
-using Medella.TdsClient.SNI.Internal;
+using Medella.TdsClient.SNI.Native;
 using Medella.TdsClient.TDS;
 
 namespace Medella.TdsClient.LocalDb
@@ -101,13 +101,6 @@ namespace Medella.TdsClient.LocalDb
                 return s_localDBFormatMessage;
             }
         }
-
-        internal static void ReleaseDLLHandles()
-        {
-            s_userInstanceDLLHandle = IntPtr.Zero;
-            s_localDBFormatMessage = null;
-        }
-
 
         internal static string GetLocalDBMessage(int hrCode)
         {

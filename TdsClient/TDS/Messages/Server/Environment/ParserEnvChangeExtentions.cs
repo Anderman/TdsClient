@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TDS.Package;
 using SqlClient.TDS.Messages.Server.Environment;
 
@@ -11,9 +10,6 @@ namespace Medella.TdsClient.TDS.Messages.Server.Environment
     {
         public static void EnvChange(this TdsPackageReader reader, int tokenLength)
         {
-#if DEBUG
-            //var envBytes = new Span<byte>(reader.ReadBuffer, reader.GetReadPos(), tokenLength);
-#endif
             // There could be multiple environment change messages following this token.
             var processedLength = 0;
 

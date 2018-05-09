@@ -19,8 +19,8 @@ namespace Medella.TdsClient.TDS.Reader.StringHelpers
         private const uint MaskLcidVersion = unchecked((uint) (0xf << LcidVersionBitOffset));
         private const uint MaskCompareOpt = IgnoreCase | IgnoreNonSpace | IgnoreWidth | IgnoreKanaType | BinarySort;
 
-        internal uint Info;
-        internal byte SortId;
+        public uint Info;
+        public byte SortId;
 
         internal int LcId
         {

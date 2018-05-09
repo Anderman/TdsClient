@@ -15,7 +15,6 @@ namespace Medella.TdsClient.TDS.Messages.Server
             var status = reader.ReadUInt16();
             var curCmd = reader.ReadUInt16();
             var count = (int) reader.ReadInt64();
-            //Debug.WriteLine($"status:{status} curCmd:{curCmd} count:{count}");
 
 
             // We get a done token with the attention bit set

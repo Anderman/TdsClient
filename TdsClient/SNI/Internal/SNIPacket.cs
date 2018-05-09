@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.SNI.Native;
 
 namespace Medella.TdsClient.SNI.Internal
 {
     public sealed class SniPacket : SafeHandle
     {
-        internal SniPacket(SafeHandle sniHandle) : base(IntPtr.Zero, true)
+        public SniPacket(IntPtr invalidHandleValue, bool ownsHandle) : base(invalidHandleValue, ownsHandle)
         {
-            SniNativeMethodWrapper.SNIPacketAllocate(sniHandle, SniNativeMethodWrapper.IOType.WRITE, ref handle);
-            if (IntPtr.Zero == handle) throw SQL.SNIPacketAllocationFailure();
         }
 
         public override bool IsInvalid => IntPtr.Zero == handle;

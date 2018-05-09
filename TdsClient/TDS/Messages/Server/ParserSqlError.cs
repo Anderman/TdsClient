@@ -1,27 +1,28 @@
 ﻿using System;
 using Medella.TdsClient.Contants;
+using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Messages.Server
 {
     public static class ParserSqlError
     {
-        public static SqlInfoAndError SqlErrorAndInfo(this TdsPackageReader tdsPackageReader, byte token, int tokenLength)
+        public static void SqlErrorAndInfo(this TdsPackageReader reader, byte token, int tokenLength)
         {
-            var start = tdsPackageReader.GetReadPos();
+            var start = reader.GetReadPos();
            var error =new SqlInfoAndError
             {
-                Number = tdsPackageReader.ReadInt32(),
-                State = tdsPackageReader.ReadByte(),
-                Class = tdsPackageReader.ReadByte(),
-                Message = tdsPackageReader.ReadString(tdsPackageReader.ReadUInt16()),
-                Server = tdsPackageReader.ReadString(tdsPackageReader.ReadByte()),
-                Procedure = tdsPackageReader.ReadString(tdsPackageReader.ReadByte()),
+                Number = reader.ReadInt32(),
+                State = reader.ReadByte(),
+                Class = reader.ReadByte(),
+                Message = reader.ReadString(reader.ReadUInt16()),
+                Server = reader.ReadString(reader.ReadByte()),
+                Procedure = reader.ReadString(reader.ReadByte()),
             };
-            var current = tdsPackageReader.GetReadPos();
-            error.LineNumber = tokenLength - (current - start) > 2 ? tdsPackageReader.ReadInt32() : tdsPackageReader.ReadInt16();
+            var current = reader.GetReadPos();
+            error.LineNumber = tokenLength - (current - start) > 2 ? reader.ReadInt32() : reader.ReadInt16();
             if (error.Class >= TdsEnums.MIN_ERROR_CLASS) throw new Exception(error.Message);
-            return error;
+            reader.CurrentSession.Errors.Add(error);
         }
     }
 }

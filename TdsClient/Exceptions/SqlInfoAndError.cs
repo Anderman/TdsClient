@@ -1,7 +1,7 @@
 ﻿using System;
 using Medella.TdsClient.Contants;
 
-namespace Medella.TdsClient.TDS
+namespace Medella.TdsClient.Exceptions
 {
     public class SqlInfoAndError
     {

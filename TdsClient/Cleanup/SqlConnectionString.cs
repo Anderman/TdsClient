@@ -4,7 +4,6 @@ using System.Diagnostics;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.LocalDb;
-using SqlClient.ConnectionStringParser;
 
 namespace Medella.TdsClient.Cleanup
 {
@@ -41,6 +40,7 @@ namespace Medella.TdsClient.Cleanup
 
             // Network Library has its own special error message
             if (ContainsKey(KEY.Network_Library)) throw SQL.NetworkLibraryKeywordNotSupported();
+            ConnectionString = connectionString;
 
             IntegratedSecurity = ConvertValueToIntegratedSecurity();
             Encrypt = ConvertValueToBoolean(KEY.Encrypt, DEFAULT.Encrypt);
@@ -162,6 +162,7 @@ namespace Medella.TdsClient.Cleanup
             if (ConnectRetryInterval < 1 || ConnectRetryInterval > 60) throw ADP.InvalidConnectRetryIntervalValue();
         }
 
+
         // This c-tor is used to create SSE and user instance connection strings when user instance is set to true
         // BUG (VSTFDevDiv) 479687: Using TransactionScope with Linq2SQL against user instances fails with "connection has been broken" message
         internal SqlConnectionString(SqlConnectionString connectionOptions, string dataSource, bool userInstance, bool? setEnlistValue) : base(connectionOptions)
@@ -201,6 +202,7 @@ namespace Medella.TdsClient.Cleanup
             ValidateValueLength(DataSource, TdsEnums.MAXLEN_SERVERNAME, KEY.Data_Source);
         }
 
+        public string ConnectionString { get; set; }
         public bool IntegratedSecurity { get; }
 
         // We always initialize in Async mode so that both synchronous and asynchronous methods
@@ -371,7 +373,7 @@ namespace Medella.TdsClient.Cleanup
         {
             if (!TryGetParsetableValue(KEY.ApplicationIntent, out var value)) return DEFAULT.ApplicationIntent;
 
-            // when wrong value is used in the connection string provided to SqlConnection.ConnectionString or c-tor,
+            // when wrong value is used in the connection string provided to LoginProcessor.ConnectionString or c-tor,
             // wrap Format and Overflow exceptions with Argument one, to be consistent with rest of the keyword types (like int and bool)
             try
             {
@@ -428,7 +430,7 @@ namespace Medella.TdsClient.Cleanup
             internal const int Connect_Retry_Interval = 10;
         }
 
-        // SqlConnection ConnectionString Options
+        // LoginProcessor ConnectionString Options
         // keys must be lowercase!
         internal static class KEY
         {

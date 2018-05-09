@@ -22,16 +22,5 @@ namespace Medella.TdsClient.SNI.Internal
             ErrorMessage = errorMessage;
             Exception = null;
         }
-
-        public SniError(SniProviders provider, uint sniErrorCode, Exception sniException)
-        {
-            LineNumber = 0;
-            Function = string.Empty;
-            Provider = provider;
-            NativeError = 0;
-            Error = sniErrorCode;
-            ErrorMessage = string.Empty;
-            Exception = sniException;
-        }
     }
 }

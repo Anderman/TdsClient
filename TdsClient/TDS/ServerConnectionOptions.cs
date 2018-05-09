@@ -1,40 +1,66 @@
 using System;
 using System.Linq;
 using System.Net;
-using Medella.TdsClient.TDS.Controller.Sspi;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Medella.TdsClient.SNI;
+using Medella.TdsClient.SNI.Native;
+using Medella.TdsClient.SNI.SniNp;
+using Medella.TdsClient.SNI.TcpIp;
 
 namespace Medella.TdsClient.TDS
 {
     public class ServerConnectionOptions
     {
-        public string InstanceName;
-        //TCp properties
-        public string IpServerName;
-        public int IpPort = -1;
-        public bool IsSsrpRequired;
-        //NamedPpipe  properties
-        public string PipeName;
-        public string PipeServerName;
-        //cached intantcename for connect
-        public byte[] InstanceNameBytes = new byte[1]; //needed when connect
         //cached spn for login
         private const string SqlServerSpnHeader = "MSSQLSvc";
-        private const int DefaultSqlServerPort = 1433;
         private const string DefaultHostName = "localhost";
         private const string LocalDbHost = "(localdb)";
-        internal Protocol ConnectionProtocol = Protocol.None;
+        private Protocol _connectionProtocol = Protocol.None;
 
-        public SspiHelper Sspi { get; private set; }
+        public string InstanceName { get; set; }
 
-        public ServerConnectionOptions(string dataSource, bool isIntegratedSecurity)
+        //cached intantcename for connect
+
+
+        public int IpPort = -1;
+        private readonly bool _isLocalDb;
+        private readonly bool _isTcpIp;
+
+        //TCp properties
+        public string IpServerName { get; set; }
+
+        public bool IsSsrpRequired { get; set; }
+        public string SqlServerSpn { get; set; }
+
+        //NamedPpipe  properties
+        private string PipeName { get; set; }
+        private string PipeServerName { get; set; }
+        //public SspiHelper Sspi { get; private set; }
+
+        public ServerConnectionOptions(string dataSource)
         {
             //datasource is localDb or tcp:servername,port
-            var lower = dataSource.Trim().ToLowerInvariant();
-            if (IsLocalDbServer(lower))
-                SetNpProperties(lower, isIntegratedSecurity);
-            else if (IsTcpIp(lower))
-                SetTcpProperties(lower, isIntegratedSecurity);
+            var lowercaseDataSource = dataSource.Trim().ToLowerInvariant();
+            _isLocalDb = IsLocalDbServer(lowercaseDataSource);
+            _isTcpIp = IsTcpIp(lowercaseDataSource);
+            if (_isLocalDb)
+                SetNpProperties(lowercaseDataSource);
+            else if (_isTcpIp)
+                SetTcpProperties(lowercaseDataSource);
         }
+
+        public ISniHandle CreateTdsStream(int timeout)
+        {
+            //return new SniNative(IpServerName, 15);
+            return _isLocalDb
+                ? new SniNpHandle(PipeServerName, PipeName, timeout)
+                : _isTcpIp
+                    ? new SniTcpHandle(IpServerName,IpPort,timeout)
+                    : (ISniHandle)null;
+        }
+
+        public byte[] InstanceNameBytes { get; set; }
+
         public static bool IsLocalDbServer(string fullServername)
         {
             // All LocalDb endpoints are of the format host\instancename where host is always (LocalDb) (case-insensitive)
@@ -42,6 +68,7 @@ namespace Medella.TdsClient.TDS
 
             return parts.Length == 2 && LocalDbHost.Equals(parts[0].TrimStart());
         }
+
         public static string GetNamedPipename(string fullServername)
         {
             // All LocalDb endpoints are of the format host\instancename where host is always (LocalDb) (case-insensitive)
@@ -51,16 +78,13 @@ namespace Medella.TdsClient.TDS
         }
 
 
-        private void SetTcpProperties(string lower, bool isIntegratedSecurity)
+        private void SetTcpProperties(string lower)
         {
             var temp = lower.Split(':');
             temp = temp.Length == 2
                 ? temp[1].Split(',')
                 : lower.Split(',');
-            if (temp.Length == 2)
-            {
-                int.TryParse(temp[1], out IpPort);
-            }
+            if (temp.Length == 2) int.TryParse(temp[1], out IpPort);
 
             IpServerName = temp[0].Split('\\')[0];
             temp = temp[0].Split('\\');
@@ -68,21 +92,18 @@ namespace Medella.TdsClient.TDS
                 InstanceName = temp[1];
             if (temp.Length == 2 && IpPort == -1)
                 IsSsrpRequired = true;
-            ConnectionProtocol = Protocol.TCP;
-            if (isIntegratedSecurity)
-                SetSqlServerSpn(IpServerName);
+            _connectionProtocol = Protocol.TCP;
+            if (IsLocalHost(IpServerName)) IpServerName = DefaultHostName;
         }
 
-        private void SetNpProperties(string fullServerName, bool isIntegratedSecurity)
+        private void SetNpProperties(string fullServerName)
         {
             var protocolParts = GetNamedPipename(fullServerName).ToLower().Split('\\');
 
             PipeName = string.Join(@"\", protocolParts.Skip(4)); //localdb#678e2031\tsql\query
             PipeServerName = string.Join(@"\", protocolParts[2]); //.
             InstanceName = "";
-            ConnectionProtocol = Protocol.NP;
-            if (isIntegratedSecurity)
-                SetSqlServerSpn(PipeServerName);
+            _connectionProtocol = Protocol.NP;
         }
 
 
@@ -104,7 +125,7 @@ namespace Medella.TdsClient.TDS
             var temp = servername.Split(';');
             if (temp.Length > 2)
                 return false;
-            if (temp.Length == 2 && !int.TryParse(temp[1], out int _))
+            if (temp.Length == 2 && !int.TryParse(temp[1], out _))
                 return false;
             temp = servername.Split(':');
             if (temp.Length > 2)
@@ -113,25 +134,9 @@ namespace Medella.TdsClient.TDS
                 return false;
             return true;
         }
-        private void SetSqlServerSpn(string serverName)
-        {
-            // If Server name is empty or a localhost name, then use "localhost"
-            if (IsLocalHost(serverName))
-                serverName = ConnectionProtocol == Protocol.Admin ? Environment.MachineName : DefaultHostName;
-            var hostName = serverName;
-            var portOrInstanceName = (IpPort != -1)
-                ? IpPort.ToString()
-                : (!string.IsNullOrWhiteSpace(InstanceName))
-                    ? InstanceName
-                    // For handling tcp:<hostname> format
-                    : (ConnectionProtocol == Protocol.TCP)
-                        ? DefaultSqlServerPort.ToString()
-                        : null;
 
 
-            var sqlServerSpn = GetSqlServerSpn(hostName, portOrInstanceName);
-            Sspi = new SspiHelper(sqlServerSpn);
-        }
+
         private static bool IsLocalHost(string serverName)
         {
             return string.IsNullOrEmpty(serverName) || ".".Equals(serverName) || "(local)".Equals(serverName) || "localhost".Equals(serverName);
@@ -145,6 +150,7 @@ namespace Medella.TdsClient.TDS
             if (!string.IsNullOrWhiteSpace(portOrInstanceName)) serverSpn += ":" + portOrInstanceName;
             return serverSpn;
         }
+
         internal enum Protocol
         {
             TCP,

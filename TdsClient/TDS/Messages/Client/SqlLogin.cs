@@ -1,6 +1,5 @@
 ﻿using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Controller.Sspi;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
@@ -21,6 +20,9 @@ namespace Medella.TdsClient.TDS.Messages.Client
         public string userName = ""; // user id
         public bool useSSPI = false; // use integrated security
         public TdsEnums.FeatureExtension RequestedFeatures { get; set; }
-        public SspiHelper Sspi { get; set; }
+
+        public byte[] ClientToken { get; set; }
+
+        //public SspiHelper Sspi { get; set; }
     }
 }

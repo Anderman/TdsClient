@@ -1,0 +1,254 @@
+using System;
+using Medella.TdsClient.Contants;
+using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.SNI.SniNp;
+using Medella.TdsClient.TDS;
+using Medella.TdsClient.TDS.Messages.Client;
+using Medella.TdsClient.TDS.Messages.Server;
+using Medella.TdsClient.TDS.Package;
+using Xunit;
+
+namespace TdsClientTests
+{
+    public class TdsTests
+    {
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;";
+        private const string ConnectionString2 = @"Server=.;Database=tmp;Trusted_Connection=True;";
+
+        [Fact]
+        public void can_login()
+        {
+            using (var tds = Tds.GetConnection(ConnectionString))
+                tds.ExecuteNonQuery("print 1");
+            using (var tds = Tds.GetConnection(ConnectionString))
+                tds.ExecuteNonQuery("print 1");
+        }
+        [Fact]
+        public void Connection_returned_cleaned_to_the_pool()
+        {
+            using (var tds = Tds.GetConnection(ConnectionString))
+            {
+                tds.ExecuteNonQuery("print 1");
+                Assert.Equal(3, tds.SqlMessages.Count);
+            }
+            using (var tds = Tds.GetConnection(ConnectionString))
+                Assert.Equal(2, tds.SqlMessages.Count);
+
+        }
+        [Fact]
+        public void ReadLargeColumn()
+        {
+            using (var tds = Tds.GetConnection(ConnectionString))
+            {
+                var result = tds.ExecuteQuery<TestLongStringType>(@"
+DECLARE @v nvarchar(max)=CAST( replicate('1',32768) AS nvarchar(max) )
+SELECT s=@v");
+                Assert.Equal(8000, result[0].s.Length);
+            }
+        }
+
+        [Fact]
+        public void ReadLargeColumn2()
+        {
+            using (var tds = Tds.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;"))
+            {
+                var result = tds.ExecuteQuery<TestLongStringType>(@"SELECT s=test FROM TestVarCharmax");
+                Assert.Equal(16000, result[0].s.Length);
+            }
+        }
+
+        [Fact]
+        public void ReadXml()
+        {
+            using (var tds = Tds.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;"))
+            {
+                var result = tds.ExecuteQuery<TestLongStringType>(@"
+DECLARE @v xml=CAST( '<Data><DepartmentID>x</DepartmentID></Data>' AS xml )
+SELECT s=@v");
+                ;
+                Assert.Equal(43, result[0].s.Length);
+            }
+        }
+
+        [Fact]
+        public void ReadWmptyXml()
+        {
+            using (var tds = Tds.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;"))
+            {
+                var result = tds.ExecuteQuery<TestLongStringType>(@"SELECT s=cast('' as xml)");
+                ;
+                Assert.Equal(0, result[0].s.Length);
+            }
+        }
+
+        [Fact]
+        public void can_login_toSql()
+        {
+            var tds = Tds.GetConnection(ConnectionString2);
+            tds.ExecuteNonQuery("print 1");
+        }
+
+        [Fact]
+        public void can_read_not_null_fields()
+        {
+            var tds = Tds.GetConnection(ConnectionString);
+            var x = tds.ExecuteQuery<NotNullTypes>(TestStatements.NotNullTable);
+        }
+        [Fact]
+        public void can_read_a_large_column()
+        {
+            var tds = Tds.GetConnection(ConnectionString);
+            var x = tds.ExecuteQuery<NotNullTypes>(TestStatements.NotNullTable);
+        }
+
+        [Fact]
+        public void can_read_timestamp()
+        {
+            var tds = Tds.GetConnection(ConnectionString);
+            var x = tds.ExecuteQuery<TestIntType>(@"DECLARE @zz timestamp; Select zz=@zz");
+        }
+
+        [Fact]
+        public void can_Serailize_all_nulls()
+        {
+            var tds = Tds.GetConnection(ConnectionString);
+            var x = tds.ExecuteQuery<TestNullType>(TestStatements.SelectAllNullTypes);
+            var v = x[0];
+            Assert.Null(v.a);
+            Assert.Null(v.b);
+            Assert.Null(v.c);
+            Assert.Null(v.d);
+            Assert.Null(v.e);
+            Assert.Null(v.f);
+            Assert.Null(v.g);
+            Assert.Null(v.h);
+            Assert.Null(v.i);
+            Assert.Null(v.j);
+            Assert.Null(v.k);
+            Assert.Null(v.l);
+            Assert.Null(v.m);
+            Assert.Null(v.n);
+            Assert.Null(v.o);
+            Assert.Null(v.p);
+            Assert.Null(v.q);
+            Assert.Null(v.r);
+            Assert.Null(v.s);
+            Assert.Null(v.t);
+            Assert.Null(v.u);
+            Assert.Null(v.v);
+            Assert.Null(v.w);
+            Assert.Null(v.x);
+            Assert.Null(v.y);
+            Assert.Null(v.z);
+            Assert.Null(v.zz);
+        }
+
+        [Fact]
+        public void can_Serailize_normal_sqltype_to_object()
+        {
+            var tds = Tds.GetConnection(ConnectionString);
+            var x = tds.ExecuteQuery<TestNullType>(TestStatements.SelectAllNotNullTypes);
+            var v = x[0].a == null ? x[1] : x[0];
+            Assert.Equal(new DateTime(2018, 12, 31), v.a);
+            Assert.Equal(new TimeSpan(10, 11, 12), v.b);
+            Assert.Equal(new DateTime(2018, 12, 31, 10, 11, 12), v.c);
+            Assert.Equal(new DateTimeOffset(2018, 12, 31, 10, 11, 12, new TimeSpan(5, 0, 0)), v.d);
+            Assert.True(v.e);
+            Assert.Equal((byte?)1, v.f);
+            Assert.Equal((short?)1, v.g);
+            Assert.Equal(1, v.h);
+            Assert.Equal(1, v.i);
+            Assert.Equal(1, v.j);
+            Assert.Equal(1, v.k);
+            Assert.Equal(1, v.l);
+            Assert.Equal(1, v.m);
+            Assert.Equal(new DateTime(2018, 12, 31), v.n);
+            Assert.Equal(new DateTime(2018, 12, 31), v.o);
+            Assert.Equal(new Guid("9e383328-69d7-4e73-8126-e25a1be94ae9"), v.p);
+            Assert.Equal(new byte[] { 1 }, v.q);
+            Assert.Equal(new byte[] { 49, 50, 51, 52, 53, 54, 55, 56, 57 }, v.r);
+            Assert.Equal(new[] { '1' }, v.s);
+            Assert.Equal("123456789", v.t);
+            Assert.Equal(new[] { '1' }, v.u);
+            Assert.StartsWith("123456789", v.v);
+            Assert.Equal(1, v.x);
+            Assert.Equal(1_000_000_000_000_000_000, v.y);
+            Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
+            Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }, v.zz);
+        }
+
+        [Fact]
+        public void can_Serailize_normal_varianttype_to_object()
+        {
+            var tds = Tds.GetConnection(ConnectionString);
+            var x = tds.ExecuteQuery<TestNullType>(TestStatements.SelectAllVariantTypes);
+            var v = x[0].a == null ? x[1] : x[0];
+            Assert.Equal(new DateTime(2018, 12, 31), v.a);
+            Assert.Equal(new TimeSpan(10, 11, 12), v.b);
+            Assert.Equal(new DateTime(2018, 12, 31, 10, 11, 12), v.c);
+            Assert.Equal(new DateTimeOffset(2018, 12, 31, 10, 11, 12, new TimeSpan(5, 0, 0)), v.d);
+            Assert.True(v.e);
+            Assert.Equal((byte?)1, v.f);
+            Assert.Equal((short?)1, v.g);
+            Assert.Equal(1, v.h);
+            Assert.Equal(1, v.i);
+            Assert.Equal(1, v.j);
+            Assert.Equal(1, v.k);
+            Assert.Equal(1, v.l);
+            Assert.Equal(1, v.m);
+            Assert.Equal(new DateTime(2018, 12, 31), v.n);
+            Assert.Equal(new DateTime(2018, 12, 31), v.o);
+            Assert.Equal(new Guid("9e383328-69d7-4e73-8126-e25a1be94ae9"), v.p);
+            Assert.Equal(new byte[] { 1 }, v.q);
+            Assert.Equal(new[] { '1' }, v.s);
+            Assert.Equal(new[] { '1' }, v.u);
+            Assert.Equal(1, v.x);
+            Assert.Equal(1_000_000_000_000_000_000, v.y);
+            Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
+        }
+
+
+        [Fact]
+        public void get_connection_properties()
+        {
+            Assert.True(ServerConnectionOptions.IsNamedPipe(@"np:\\.\pipe\LOCALDB#678E2031\tsql\query".Split(@"\")));
+            //Act
+            var p = new ServerConnectionOptions(@"(localdb)\mssqllocaldb", false);
+            //
+            Assert.StartsWith(@"localdb#", p.PipeName);
+            Assert.EndsWith(@"\tsql\query", p.PipeName);
+            Assert.Equal(@".", p.PipeServerName);
+
+            //Act
+            p = new ServerConnectionOptions(@"tcp:localhost,1444", false);
+            //
+            Assert.Equal(@"localhost", p.IpServerName);
+            Assert.Null(p.InstanceName);
+            Assert.Equal(1444, p.IpPort);
+            Assert.False(p.IsSsrpRequired);
+            //Act
+            p = new ServerConnectionOptions(@"tcp:localhost\instance", false);
+            //Assert
+            Assert.Equal(@"localhost", p.IpServerName);
+            Assert.Equal("instance", p.InstanceName);
+            Assert.Equal(-1, p.IpPort);
+            Assert.True(p.IsSsrpRequired);
+        }
+
+        [Fact]
+        public void get_npSniHandle()
+        {
+            const bool marsOn = false;
+            var p = new ServerConnectionOptions(@"(localdb)\mssqllocaldb", false);
+            var handle = new SniNpHandle(p.PipeServerName, p.PipeName, 15);
+            var writer = new TdsPackageWriter(handle);
+            var reader = new TdsPackageReader(handle);
+
+            writer.SendPreLoginHandshake("", marsOn);
+            var status = reader.ReadPackage();
+            Assert.Equal(TdsEnums.ST_EOM, status);
+            var result = ParserPreLogin.ParsePreLoginHandshake(reader.ReadBuffer, TdsEnums.HEADER_LEN, EncryptionOptions.OFF);
+            Assert.Equal(EncryptionOptions.OFF, result);
+        }
+    }
+}

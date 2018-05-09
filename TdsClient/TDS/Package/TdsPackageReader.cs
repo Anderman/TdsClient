@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Text;
 using Medella.TdsClient.Contants;
+using Medella.TdsClient.SNI;
 using Medella.TdsClient.SNI.SniNp;
+using Medella.TdsClient.TDS.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Package
 {
@@ -11,14 +14,14 @@ namespace Medella.TdsClient.TDS.Package
     {
         private const int BufferSize = 16000;
         private const int Guidsize = 16;
-        private readonly SniNpHandle _sniHandle;
+        private readonly ISniHandle _sniHandle;
         private int _packageEnd;
         private byte _packageStatus;
         private int _pos;
         private int _readEndPos;
         public byte[] ReadBuffer = new byte[BufferSize];
 
-        public TdsPackageReader(SniNpHandle sniHandle)
+        public TdsPackageReader(ISniHandle sniHandle)
         {
             _sniHandle = sniHandle;
         }
@@ -28,7 +31,7 @@ namespace Medella.TdsClient.TDS.Package
         public TdsRow CurrentRow { get; } = new TdsRow();
 
         [Conditional("DEBUG")]
-        public void GetBytesString(string prefix)
+        public void WriteDebugString(string prefix)
         {
             var sb = new StringBuilder($"{prefix}lentgh:{_packageEnd - _pos,4:##0} ");
             sb.Append("data: ");
@@ -36,7 +39,15 @@ namespace Medella.TdsClient.TDS.Package
                 sb.Append($"{ReadBuffer[i],2:X2} ");
             Debug.WriteLine(sb.ToString());
         }
-
+        public void CheckBuffer(int size)
+        {
+            var left = _readEndPos - _pos;
+            if (size <= left)
+                return;
+            Buffer.BlockCopy(ReadBuffer, _pos, ReadBuffer, 0, left);
+            _readEndPos = _sniHandle.Receive(ReadBuffer, left, BufferSize - left) + left;
+            _pos = 8;
+        }
         public void Receive(int minsize, int startPackage)
         {
             int len;
@@ -53,7 +64,7 @@ namespace Medella.TdsClient.TDS.Package
                 return _packageStatus;
             if (_pos + 8 >= _readEndPos)
                 CompletePackage(8);
-            if (_readEndPos == 0) return 0;
+            if (_readEndPos == 0) return 255;
             _packageStatus = ReadBuffer[_pos + 1];
             var size = (ReadBuffer[_pos + TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer[_pos + TdsEnums.HEADER_LEN_FIELD_OFFSET + 1];
             if (_pos + size > _readEndPos)
@@ -85,14 +96,20 @@ namespace Medella.TdsClient.TDS.Package
         {
             return _pos;
         }
+        public int GetReadEndPos()
+        {
+            return _readEndPos;
+        }
 
         public byte ReadByte()
         {
+            CheckBuffer(1);
             return ReadBuffer[_pos++];
         }
 
         public int ReadInt32()
         {
+            CheckBuffer(4);
             var v = BitConverter.ToInt32(ReadBuffer, _pos);
             _pos += 4;
             return v;
@@ -100,6 +117,7 @@ namespace Medella.TdsClient.TDS.Package
 
         public uint ReadUInt32()
         {
+            CheckBuffer(4);
             var v = BitConverter.ToUInt32(ReadBuffer, _pos);
             _pos += 4;
             return v;
@@ -107,6 +125,7 @@ namespace Medella.TdsClient.TDS.Package
 
         public short ReadInt16()
         {
+            CheckBuffer(2);
             var v = BitConverter.ToInt16(ReadBuffer, _pos);
             _pos += 2;
             return v;
@@ -114,6 +133,7 @@ namespace Medella.TdsClient.TDS.Package
 
         public ushort ReadUInt16()
         {
+            CheckBuffer(2);
             var v = BitConverter.ToUInt16(ReadBuffer, _pos);
             _pos += 2;
             return v;
@@ -121,24 +141,41 @@ namespace Medella.TdsClient.TDS.Package
 
         public long ReadInt64()
         {
+            CheckBuffer(8);
             var v = BitConverter.ToInt64(ReadBuffer, _pos);
             _pos += 8;
             return v;
         }
-
-        public Span<byte> GetBytes(int length)
+        public void GetBytes(byte[] dst, int length)
         {
-            if (length > _packageEnd - _pos) length = _packageEnd - _pos;
-            var v = new Span<byte>(ReadBuffer, _pos, length);
+            CheckBuffer(length);
+            Buffer.BlockCopy(ReadBuffer, _pos, dst, 0, length);
+            _pos += length;
+        }
+
+        public byte[] GetBytes(int length)
+        {
+            if (length == 0) return new byte[0];
+            CheckBuffer(length);
+            var v = new byte[length];
+            Buffer.BlockCopy(ReadBuffer, _pos, v, 0, length);
             _pos += length;
             return v;
         }
+        //public Span<byte> GetBytes(int length)
+        //{
+        //    if (length > _packageEnd - _pos) length = _packageEnd - _pos;
+        //    var v = new Span<byte>(ReadBuffer, _pos, length);
+        //    _pos += length;
+        //    return v;
+        //}
 
         public byte[] ReadByteArray(byte[] dstArray, int offset, int length)
         {
+            CheckBuffer(length);
             while (length > 0)
             {
-                var packageLength = _packageEnd - _pos;
+                var packageLength = _readEndPos - _pos;
                 var count = length > packageLength ? packageLength : length;
 
                 Buffer.BlockCopy(ReadBuffer, _pos, dstArray, offset, count);
@@ -154,94 +191,78 @@ namespace Medella.TdsClient.TDS.Package
 
         public string ReadString(Encoding encoding, int length)
         {
-            StringBuilder sb = null;
-            while (length > 0)
-            {
-                var packageLength = _packageEnd - _pos;
-                var count = length > packageLength ? packageLength : length;
+            CheckBuffer(length);
+            var packageLength = _readEndPos - _pos;
+            var count = length > packageLength ? packageLength : length;
 
-                var str = encoding.GetString(ReadBuffer, _pos, count);
-                _pos += count;
-                length -= count;
-                if (length == 0) return str;
-                if (sb == null)
-                    sb = new StringBuilder(str, length);
-                else sb.Append(str);
-                ReadPackage();
-            }
+            var str = encoding.GetString(ReadBuffer, _pos, count);
+            _pos += count;
+            return str;
 
-            return sb.ToString();
         }
 
         public void ReadString(StringBuilder sb, Encoding encoding, int length)
         {
-            while (length > 0)
-            {
-                var packageLength = _packageEnd - _pos;
-                var count = length > packageLength ? packageLength : length;
+            CheckBuffer(length);
+            var packageLength = _readEndPos - _pos;
+            var count = length > packageLength ? packageLength : length;
 
-                var str = encoding.GetString(ReadBuffer, _pos, count);
-                _pos += count;
-                length -= count;
-                sb.Append(str);
-                if (length == 0) return;
-                ReadPackage();
-            }
+            var str = encoding.GetString(ReadBuffer, _pos, count);
+            _pos += count;
+            sb.Append(str);
         }
 
         public string ReadUnicodeChars(int length)
         {
-            StringBuilder sb = null;
-            while (length > 0)
-            {
-                var packageLength = _packageEnd - _pos;
-                var count = length > packageLength ? packageLength : length;
-                var unicode = MemoryMarshal.Cast<byte, char>(new ReadOnlySpan<byte>(ReadBuffer, _pos, count));
-                _pos += count;
-
-                if (length == count) return new string(unicode);
-                length -= count;
-                if (sb == null)
-                    sb = new StringBuilder(new string(unicode), length);
-                else sb.Append(unicode);
-                ReadPackage();
-            }
-
-            return sb?.ToString();
+            CheckBuffer(length);
+            var packageLength = _readEndPos - _pos;
+            var count = length > packageLength ? packageLength : length;
+            var unicode = Encoding.Unicode.GetString(ReadBuffer, _pos, count);
+            //var unicode = MemoryMarshal.Cast<byte, char>(new ReadOnlySpan<byte>(ReadBuffer, _pos, count));
+            _pos += count;
+            return unicode;
         }
 
         public void ReadUnicodeChars(StringBuilder sb, int length)
         {
-            while (length > 0)
-            {
-                var packageLength = _packageEnd - _pos;
-                var count = length > packageLength ? packageLength : length;
-                var unicode = MemoryMarshal.Cast<byte, char>(new ReadOnlySpan<byte>(ReadBuffer, _pos, count));
-                _pos += count;
-
-                length -= count;
-                sb.Append(unicode);
-                if (length == 0) return;
-                ReadPackage();
-            }
+            CheckBuffer(length);
+            var packageLength = _readEndPos - _pos;
+            var count = length > packageLength ? packageLength : length;
+            var unicode = Encoding.Unicode.GetString(ReadBuffer, _pos, count);
+            //var unicode = MemoryMarshal.Cast<byte, char>(new ReadOnlySpan<byte>(ReadBuffer, _pos, count));
+            _pos += count;
+            sb.Append(unicode);
         }
 
-        public T ReadType<T>(int length) where T : struct
+        public float ReadFloat()
         {
-            var v = MemoryMarshal.Cast<byte, T>(new ReadOnlySpan<byte>(ReadBuffer, _pos, length))[0];
-            _pos += length;
+            CheckBuffer(4);
+            var v = BitConverter.ToSingle(ReadBuffer, _pos);
+            _pos += 4;
+            return v;
+        }
+        public double ReadDouble()
+        {
+            CheckBuffer(8);
+            var v = BitConverter.ToDouble(ReadBuffer, _pos);
+            _pos += 8;
             return v;
         }
 
         public Guid ReadGuid()
         {
-            var v = MemoryMarshal.Cast<byte, Guid>(new ReadOnlySpan<byte>(ReadBuffer, _pos, Guidsize))[0];
+            CheckBuffer(16);
+            var b = ReadBuffer;
+            var i = _pos;
+            var guid = new Guid(new[] { b[i + 0], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7], b[i + 8], b[i + 9], b[i + 10], b[i + 11], b[i + 12], b[i + 13], b[i + 14], b[i + 15] });
             _pos += Guidsize;
-            return v;
+            return guid;
         }
 
         public string ReadString(int length)
         {
+            if (length == 0) return null;
+            CheckBuffer(length);
             return ReadUnicodeChars(length * 2);
         }
     }

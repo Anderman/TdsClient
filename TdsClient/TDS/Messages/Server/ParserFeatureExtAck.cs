@@ -20,13 +20,13 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 if (featureId == TdsEnums.FEATUREEXT_TERMINATOR)
                     break;
                 var dataLen = reader.ReadUInt32();
-                var data = reader.GetBytes(checked((int) dataLen));
+                var data = reader.GetBytes(checked((int)dataLen));
                 if (dataLen > 0)
                     OnFeatureExtAck(featureId, data);
             }
         }
 
-        public static void OnFeatureExtAck(byte featureId, Span<byte> data)
+        public static void OnFeatureExtAck(byte featureId, byte[] data)
         {
             var initialState = new byte[MaxNumberOfSessionStates][];
             var delta = new SessionStateRecord[MaxNumberOfSessionStates];
@@ -37,39 +37,40 @@ namespace Medella.TdsClient.TDS.Messages.Server
             switch (featureId)
             {
                 case TdsEnums.FEATUREEXT_SRECOVERY:
-                {
-                    var i = 0;
-                    while (i < data.Length)
                     {
-                        var stateId = data[i++];
-                        var bLen = data[i++];
-                        var len = bLen == 0xFF ? BitConverter.ToInt32(data.Slice(i, 4).ToArray()) : bLen;
-                        i += bLen == 0xFF ? 4 : 0;
+                        var i = 0;
+                        while (i < data.Length)
+                        {
+                            var stateId = data[i++];
+                            var bLen = data[i++];
+                            var len = bLen == 0xFF ? BitConverter.ToInt32(data, i) : bLen;
+                            i += bLen == 0xFF ? 4 : 0;
 
-                        var stateData = data.Slice(i, len);
-                        i += len;
-                        if (recoverySessionData == null)
-                        {
-                            initialState[stateId] = stateData.ToArray();
+                            var stateData = new byte[len];
+                            Buffer.BlockCopy(data, i, stateData, 0, len);
+                            i += len;
+                            if (recoverySessionData == null)
+                            {
+                                initialState[stateId] = stateData;
+                            }
+                            else
+                            {
+                                delta[stateId] = new SessionStateRecord { Data = stateData, DataLength = len, Recoverable = true, Version = 0 };
+                                DeltaDirty = true;
+                            }
                         }
-                        else
-                        {
-                            delta[stateId] = new SessionStateRecord {Data = stateData.ToArray(), DataLength = len, Recoverable = true, Version = 0};
-                            DeltaDirty = true;
-                        }
+
+                        break;
                     }
 
-                    break;
-                }
-
                 case TdsEnums.FEATUREEXT_GLOBALTRANSACTIONS:
-                {
-                    if (data.Length < 1) throw SQL.ParsingError();
+                    {
+                        if (data.Length < 1) throw SQL.ParsingError();
 
-                    isGlobalTransaction = true;
-                    if (1 == data[0]) isGlobalTransactionsEnabledForServer = true;
-                    break;
-                }
+                        isGlobalTransaction = true;
+                        if (1 == data[0]) isGlobalTransactionsEnabledForServer = true;
+                        break;
+                    }
 
                 default:
                     throw SQL.ParsingError();

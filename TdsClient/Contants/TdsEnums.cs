@@ -835,14 +835,14 @@ namespace Medella.TdsClient.Contants
         // Date, Time, DateTime2, DateTimeOffset specific constants
         internal static readonly long[] TICKS_FROM_SCALE =
         {
-            10000000,
-            1000000,
-            100000,
-            10000,
-            1000,
-            100,
-            10,
-            1
+            10000000,//0
+            1000000,//1
+            100000,//2
+            10000,//3
+            1000,//4
+            100,//5
+            10,//6
+            1//7
         };
 
         internal static readonly int[] WHIDBEY_TIME_LENGTH = {8, 10, 11, 12, 13, 14, 15, 16};

@@ -52,7 +52,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             var encryptedPassword = new byte[0];
             if (rec.useSSPI)
             {
-                length += rec.Sspi.ClientToken.Length;
+                length += rec.ClientToken.Length;
             }
             else
             {
@@ -198,13 +198,13 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
             var nicAddress = GetNetworkPhysicalAddressForTdsLoginOnly();
 
-            writer.WriteByteArray(nicAddress, nicAddress.Length);
+            writer.WriteByteArray(nicAddress);
 
             writer.WriteInt16(offset); // ibSSPI offset
             if (rec.useSSPI)
             {
-                writer.WriteInt16(rec.Sspi.ClientToken.Length);
-                offset += rec.Sspi.ClientToken.Length;
+                writer.WriteInt16(rec.ClientToken.Length);
+                offset += rec.ClientToken.Length;
             }
             else
             {
@@ -228,7 +228,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             if (!rec.useSSPI)
             {
                 writer.WriteString(userName);
-                writer.WriteByteArray(encryptedPassword, encryptedPassword.Length);
+                writer.WriteByteArray(encryptedPassword);
             }
 
             writer.WriteString(rec.applicationName);
@@ -243,7 +243,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
             // send over SSPI data if we are using SSPI
             if (rec.useSSPI)
-                writer.WriteByteArray(rec.Sspi.ClientToken, rec.Sspi.ClientToken.Length);
+                writer.WriteByteArray(rec.ClientToken);
 
             writer.WriteString(rec.attachDBFilename);
             if (useFeatureExt)
@@ -327,9 +327,9 @@ namespace Medella.TdsClient.TDS.Messages.Client
             {
                 writer.WriteInt32(8 + initialLength + currentLength); // length of data w/o total length (initial + current + 2 * sizeof(DWORD))
                 writer.WriteInt32(initialLength);
-                writer.WriteIdentifier(reconnectData.InitialDatabase);
+                writer.WriteByteLenString(reconnectData.InitialDatabase);
                 writer.WriteCollation(reconnectData.InitialCollation);
-                writer.WriteIdentifier(reconnectData.InitialLanguage);
+                writer.WriteByteLenString(reconnectData.InitialLanguage);
                 for (var i = 0; i < SessionData.MaxNumberOfSessionStates; i++)
                     if (reconnectData.InitialState[i] != null)
                     {
@@ -344,13 +344,13 @@ namespace Medella.TdsClient.TDS.Messages.Client
                             writer.WriteInt32(reconnectData.InitialState[i].Length);
                         }
 
-                        writer.WriteByteArray(reconnectData.InitialState[i], reconnectData.InitialState[i].Length);
+                        writer.WriteByteArray(reconnectData.InitialState[i]);
                     }
 
                 writer.WriteInt32(currentLength);
-                writer.WriteIdentifier(reconnectData.Database != reconnectData.InitialDatabase ? reconnectData.Database : null);
+                writer.WriteByteLenString(reconnectData.Database != reconnectData.InitialDatabase ? reconnectData.Database : null);
                 writer.WriteCollation(SqlCollations.AreSame(reconnectData.InitialCollation, reconnectData.Collation) ? null : reconnectData.Collation);
-                writer.WriteIdentifier(reconnectData.Language != reconnectData.InitialLanguage ? reconnectData.Language : null);
+                writer.WriteByteLenString(reconnectData.Language != reconnectData.InitialLanguage ? reconnectData.Language : null);
                 for (var i = 0; i < SessionData.MaxNumberOfSessionStates; i++)
                     if (writeState[i])
                     {
@@ -365,7 +365,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                             writer.WriteInt32(reconnectData.Delta[i].DataLength);
                         }
 
-                        writer.WriteByteArray(reconnectData.Delta[i].Data, reconnectData.Delta[i].DataLength);
+                        writer.WriteByteArray(reconnectData.Delta[i].Data);
                     }
             }
         }

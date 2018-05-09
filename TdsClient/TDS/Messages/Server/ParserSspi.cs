@@ -1,4 +1,4 @@
-﻿using Medella.TdsClient.TDS.Controller.Sspi;
+﻿using Medella.TdsClient.SNI.Sspi;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Messages.Server
@@ -8,7 +8,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
         public static void ParseToken(this TdsPackageReader reader, SspiHelper sspi, int length)
         {
             var token = reader.GetBytes(length);
-            var buf = token.ToArray();
+            var buf = token;
             sspi.CreateClientToken(buf);
         }
     }

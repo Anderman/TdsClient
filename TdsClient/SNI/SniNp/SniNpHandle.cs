@@ -1,18 +1,18 @@
 ﻿using System.Diagnostics;
 using System.IO.Pipes;
+using System.Net;
 using System.Net.Security;
 using System.Text;
+using Medella.TdsClient.SNI.Sspi;
 
 namespace Medella.TdsClient.SNI.SniNp
 {
-    public class SniNpHandle
+    public class SniNpHandle : ISniHandle
     {
         private readonly SslOverTdsStream _sslOverTdsStream;
         private SslStream _sslStream;
         public NamedPipeClientStream Stream;
-        private int _lastcount;
-        private int _lastWriteCount;
-        private int _lastReadCount;
+        private SspiHelper _sspi;
 
 
         public SniNpHandle(string serverName, string pipeName, long timeOut)
@@ -22,32 +22,27 @@ namespace Medella.TdsClient.SNI.SniNp
             if (timeOut >= int.MaxValue)
                 pipeStream.Connect();
             else
-                pipeStream.Connect((int)timeOut);
+                pipeStream.Connect((int) timeOut);
 
             Stream = pipeStream;
+            _sspi = new SspiHelper(ServerSpn);
         }
+
+        public string ServerSpn => $"MSSQLSvc/{Dns.GetHostEntry("localhost").HostName}"; //needed for sspi login
+        public string InstanceName { get; } = ""; //needed when connect 
 
         public int Receive(byte[] readBuffer, int offset, int count)
         {
-            if (_lastcount == _lastWriteCount)
-            {
-                GetBytesString("Read- ", readBuffer, _lastReadCount);
-                return _lastReadCount;
-            }
-            _lastcount = _lastWriteCount;
             var len = Stream.Read(readBuffer, offset, count);
-            _lastReadCount = len;
             GetBytesString("Read- ", readBuffer, len);
             return len;
         }
 
-        internal void FlushBuffer(byte[] writeBuffer, int count)
+        public void FlushBuffer(byte[] writeBuffer, int count)
         {
             GetBytesString("Write-", writeBuffer, count);
             //Stream.WriteAsync(writeBuffer, 0, count);
-            if (count != _lastWriteCount)
-                Stream.Write(writeBuffer, 0, count);
-            _lastWriteCount = count;
+            Stream.Write(writeBuffer, 0, count);
         }
 
         [Conditional("DEBUG")]
@@ -58,23 +53,18 @@ namespace Medella.TdsClient.SNI.SniNp
             for (var i = 0; i < length; i++)
                 sb.Append($"{buffer[i],2:X2} ");
             Debug.WriteLine(sb.ToString());
+            sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            sb.Append("data: ");
+            for (var i = 0; i < length; i++)
+                if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)
+                    sb.Append($"{(char) buffer[i]}");
+            Debug.WriteLine(sb.ToString());
         }
 
-        //private void CheckBuffer(int size)
-        //{
-        //    var left = _endPos - _readEndPos;
-        //    if (size <= left)
-        //        return;
-        //    if (size > BufferSize)
-        //    {
-        //        ResultInLargeBuffer(size, left);
-        //    }
-        //    else
-        //    {
-        //        Buffer.BlockCopy(ReadBuffer, _readEndPos, ReadBuffer, 0, left);
-        //        _endPos = Stream.Read(ReadBuffer, left, BufferSize - left) + left;
-        //        _readEndPos = 0;
-        //    }
-        //}
+        public byte[] GetClientToken(byte[] serverToken)
+        {
+            _sspi.CreateClientToken(serverToken);
+            return _sspi.ClientToken;
+        }
     }
 }

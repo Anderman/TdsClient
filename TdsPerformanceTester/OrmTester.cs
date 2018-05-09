@@ -5,17 +5,15 @@ namespace TdsPerformanceTester
 {
     public class OrmTester
     {
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tempdb;Trusted_Connection=True;";
 
         public static void EnsureDBSetup()
         {
-            var tds = new Tds(ConnectionString);
-            tds.Connect();
-            tds.Login();
+            var tds = Tds.GetConnection(ConnectionString);
             tds.ExecuteNonQuery(@"
 If (Object_Id('Posts') Is Null)
 Begin
-	Create Table Posts
+	SendExcuteBatch Table Posts
 	(
 		Id int identity primary key, 
 		[Text] varchar(max) not null, 

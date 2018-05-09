@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Transactions;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI.Internal;
+using Medella.TdsClient.SNI.Native;
 using Medella.TdsClient.TDS;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
@@ -727,7 +727,6 @@ namespace Medella.TdsClient.Exceptions
             return SR.GetResourceString(errorMessageId, errorMessageId);
         }
     }
-
 
     internal class SqlInternalConnectionTds
     {

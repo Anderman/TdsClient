@@ -7,8 +7,8 @@ namespace Medella.TdsClient.TDS.Messages.Server
     {
         public static void SaveNbcBitmap(this TdsPackageReader reader)
         {
-            var bitmap = reader.CurrentRow.NbcBitmap.AsSpan();
-            reader.GetBytes(bitmap.Length).CopyTo(bitmap);
+            var bitmap = reader.CurrentRow.NbcBitmap;
+            reader.GetBytes(bitmap, bitmap.Length);
             reader.CurrentRow.IsNbcRow = true;
         }
 

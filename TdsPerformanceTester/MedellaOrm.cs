@@ -1,19 +1,18 @@
 ﻿using System.Linq;
 using Medella.TdsClient.TDS;
+using TdsConnection = Medella.TdsClient.TDS.Controller.TdsConnection;
 
 namespace TdsPerformanceTester
 {
     public class MedellaOrm 
     {
-        private readonly Tds _tds;
+        private readonly TdsConnection _tds;
         private int i = 1;
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=127.0.0.1;Database=tempdb;Trusted_Connection=True;";
 
         public MedellaOrm()
         {
-            _tds = new Tds(ConnectionString);
-            _tds.Connect();
-            _tds.Login();
+            _tds = Tds.GetConnection(ConnectionString);
         }
 
         public void Run()
@@ -21,7 +20,10 @@ namespace TdsPerformanceTester
             if (i++ > 5000)
                 i = 1;
 
-            var x=_tds.ExecuteQuery<Post>($"select * from Posts where id={i}").ToArray();
+            //using (var tds = Tds.GetConnection(ConnectionString))
+            {
+                var x= _tds.ExecuteQuery<Post>($@"select * from Posts where Id = 1");
+            }
         }
     }
 }

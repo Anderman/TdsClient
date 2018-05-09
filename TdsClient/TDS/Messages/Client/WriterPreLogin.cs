@@ -9,7 +9,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
     {
         private const int GuidSize = 16;
 
-        public static void SendPreLoginHandshake(this TdsPackageWriter writer, byte[] instanceName, bool marsOn)
+        public static void SendPreLoginHandshake(this TdsPackageWriter writer, string instanceName, bool marsOn)
         {
             // PreLoginHandshake buffer consists of:
             // 1) Standard header, with type = MT_PRELOGIN
@@ -28,7 +28,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.FlushBuffer();
         }
 
-        private static void WriteOptions(TdsPackageWriter writer, byte[] instanceName, bool marsOn)
+        private static void WriteOptions(TdsPackageWriter writer, string instanceName, bool marsOn)
         {
             for (var option = (int) PreLoginOptions.VERSION; option < (int) PreLoginOptions.NUMOPT; option++)
                 switch (option)
@@ -50,9 +50,10 @@ namespace Medella.TdsClient.TDS.Messages.Client
                         break;
 
                     case (int) PreLoginOptions.INSTANCE:
-                        var i = 0;
-                        while (instanceName[i] != 0)
-                            writer.WriteByte(instanceName[i++]);
+                        foreach (var c in instanceName)
+                        {
+                            writer.WriteByte(c);
+                        }
                         writer.WriteByte(0); // null terminate
                         break;
 
@@ -65,14 +66,14 @@ namespace Medella.TdsClient.TDS.Messages.Client
                         break;
 
                     case (int) PreLoginOptions.TRACEID:
-                        writer.WriteByteArray(new byte[GuidSize], GuidSize);
-                        writer.WriteByteArray(new byte[GuidSize], GuidSize);
+                        writer.WriteByteArray(new byte[GuidSize]);
+                        writer.WriteByteArray(new byte[GuidSize]);
                         writer.WriteUInt32(0);
                         break;
                 }
         }
 
-        private static void WriteHeader(TdsPackageWriter writer, byte[] instanceName)
+        private static void WriteHeader(TdsPackageWriter writer, string instanceName)
         {
             // Initialize option offset into buffer buffer
             // 5 bytes for each option (1 byte length, 2 byte offset, 2 byte buffer length)
@@ -97,7 +98,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.WriteByte((byte) PreLoginOptions.LASTOPT);
         }
 
-        private static byte GetOptionSize(int option, byte[] instanceName)
+        private static byte GetOptionSize(int option, string instanceName)
         {
             switch (option)
             {
@@ -106,7 +107,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 case (int) PreLoginOptions.ENCRYPT:
                     return 1;
                 case (int) PreLoginOptions.INSTANCE:
-                    return (byte) instanceName.Length;
+                    return (byte) (instanceName.Length+1);//null terminated ansistring??
                 case (int) PreLoginOptions.THREADID:
                     return 4;
                 case (int) PreLoginOptions.MARS:

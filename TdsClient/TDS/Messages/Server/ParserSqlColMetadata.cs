@@ -1,29 +1,94 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
-using SqlClient.TDS.Messages.Server;
 
 namespace Medella.TdsClient.TDS.Messages.Server
 {
+    public static class ParserSqlColMetadataBulkCopy
+    {
+        public static MetadataBulkCopy[] ColMetaDataBulkCopy(this TdsPackageReader reader, int columns)
+        {
+            reader.InitNbcBitmap(columns);
+
+            var newMetaData = new MetadataBulkCopy[columns];
+            for (var i = 0; i < columns; i++)
+                newMetaData[i] = ReadMetadata(reader);
+            return newMetaData;
+        }
+
+        private static MetadataBulkCopy ReadMetadata(TdsPackageReader reader)
+        {
+            var col = new MetadataBulkCopy();
+            // read user type - 4 bytes Yukon, 2 backwards
+            reader.ReadUInt32();
+
+            // read the 2 flags and set appropriate flags in structure
+            col.Flag1 = reader.ReadByte();
+            col.Flag2 = reader.ReadByte();
+
+            var tdsType = reader.ReadByte();
+            col.TdsType = tdsType;
+
+            var tmp = col.MetaType = TdsMetaType.TdsTypes[tdsType];
+
+            col.IsPlp = tmp.IsPlp;
+            col.IsTextOrImage = tmp.IsTextOrImage;
+
+            var length = col.Length = reader.ReadTdsTypeLen(tmp.LenBytes);
+            if (length == TdsEnums.SQL_USHORTVARMAXLEN && tmp.LenBytes == 2)
+                col.IsPlp = true;
+
+            if (tdsType == TdsEnums.SQLUDT)
+                reader.ReadUdtMetadata();
+
+            if (tdsType == TdsEnums.SQLXMLTYPE)
+                reader.ReadXmlSchema();
+
+            if (tmp.HasPrecision)
+                col.Precision = reader.ReadByte();
+
+            if (tmp.HasScale)
+                col.Scale = reader.ReadByte();
+
+            if (tmp.HasCollation)
+            {
+                col.Collation = reader.ReadCollation();
+                col.Encoding = reader.CurrentSession.GetEncodingFromCache(col.Collation.GetCodePage());
+            }
+
+            if (col.IsTextOrImage)
+                col.PartTableName = reader.ReadMultiPartTableName();
+
+            //bulkcopy typeCorrection
+            if (tdsType == TdsEnums.SQLXMLTYPE)
+            {
+                col.TdsType = TdsEnums.SQLNVARCHAR;
+                col.Length = TdsEnums.SQL_USHORTVARMAXLEN;
+                col.Collation = new SqlCollations();
+            }
+            if (tdsType == TdsEnums.SQLUDT)
+            {
+                col.TdsType = TdsEnums.SQLBIGVARBINARY;
+                col.Length = TdsEnums.SQL_USHORTVARMAXLEN;
+            }
+
+            col.Column = reader.ReadString(reader.ReadByte());
+            return col;
+        }
+    }
     public static class ParserSqlColMetadata
     {
-        private static readonly ConcurrentDictionary<int, Encoding> EncodingCache = new ConcurrentDictionary<int, Encoding>();
-
-        public static ColumnsMetadata ColMetaData(this TdsPackageReader reader, int columns)
+        public static void ColMetaData(this TdsPackageReader reader, int columns)
         {
             reader.InitNbcBitmap(columns);
 
             var newMetaData = new ColumnsMetadata(columns);
             for (var i = 0; i < columns; i++)
                 ReadMetadata(reader, newMetaData[i]);
-            return newMetaData;
+            reader.CurrentResultset.ColumnsMetadata = newMetaData;
         }
 
         private static void ReadMetadata(TdsPackageReader reader, ColumnMetadata col)
@@ -32,143 +97,108 @@ namespace Medella.TdsClient.TDS.Messages.Server
             reader.ReadUInt32();
 
             // read the 2 flags and set appropriate flags in structure
-            var flags = reader.ReadByte();
-            col.Updatability = (byte)((flags & TdsEnums.Updatability) >> 2);
-            col.IsNullable = TdsEnums.Nullable == (flags & TdsEnums.Nullable);
-            col.IsIdentity = TdsEnums.Identity == (flags & TdsEnums.Identity);
-            flags = reader.ReadByte();
-            col.IsColumnSet = TdsEnums.IsColumnSet == (flags & TdsEnums.IsColumnSet);
+            col.Flag1 = reader.ReadByte();
+            col.Flag2 = reader.ReadByte();
 
-            var tdsType = reader.ReadByte();
+            var tdsType = col.TdsType = reader.ReadByte();
 
-            col.TdsType = tdsType;
-
-            var tmp = ReadMetaType.TdsMetaTypeRead[tdsType];
+            var tmp = col.MetaType= TdsMetaType.TdsTypes[tdsType];
             col.IsPlp = tmp.IsPlp;
-            col.IsLong = tmp.IsLong;
-            col.SqlDbType = tmp.SqlDbType;
+            col.IsTextOrImage = tmp.IsTextOrImage;
 
-            var shortLength = ReadTdsTypeLen(reader, tdsType);
-            if (shortLength == TdsEnums.SQL_USHORTVARMAXLEN)
-            {
+
+            var length = ReadTdsTypeLen(reader, tmp.LenBytes);
+            if (length == TdsEnums.SQL_USHORTVARMAXLEN && tmp.LenBytes == 2)
                 col.IsPlp = true;
-                col.IsLong = true;
-            }
+
+            if (tdsType == TdsEnums.SQLUDT)
+                reader.ReadUdtMetadata();
 
             if (tdsType == TdsEnums.SQLXMLTYPE)
-            {
-                var schemapresent = reader.ReadByte();
-
-                if ((schemapresent & 1) != 0)
-                {
-                    var strLen = reader.ReadByte();
-                    if (strLen != 0)
-                        col.XmlSchemaCollectionDatabase = reader.ReadString(strLen);
-
-                    strLen = reader.ReadByte();
-                    if (strLen != 0)
-                        col.XmlSchemaCollectionOwningSchema = reader.ReadString(strLen);
-
-                    var shortLen = reader.ReadUInt16();
-                    if (shortLen != 0)
-                        col.XmlSchemaCollectionName = reader.ReadString(shortLen);
-                }
-            }
+                ReadXmlSchema(reader);
 
             if (tmp.HasPrecision)
-                reader.ReadByte();// precision
+                reader.ReadByte();
+
             if (tmp.HasScale)
                 col.Scale = reader.ReadByte();
 
-            // read the collation for 7.x servers.
-            // We need a conversion from collation to a encoding when we reader string data
             if (tmp.HasCollation)
                 col.Encoding = GetEncodingFromCollation(reader);
 
-            if (col.IsLong && !col.IsPlp)
-                col.PartTableName = TryProcessOneTable(reader);
-            var byteLen = reader.ReadByte();
-            col.Column = reader.ReadString(byteLen);
+            if (col.TdsType == TdsEnums.SQLTEXT || col.TdsType == TdsEnums.SQLNTEXT || col.TdsType == TdsEnums.SQLIMAGE)
+                ReadMultiPartTableName(reader);
 
-
-            // We get too many DONE COUNTs from the server, causing too many StatementCompleted event firings.
-            // We only need to fire this event when we actually have a meta data stream with 0 or more rows.
+            col.Column = reader.ReadString(reader.ReadByte());
         }
 
-        private static Encoding GetEncodingFromCollation(TdsPackageReader reader)
+        public static XmlSchema ReadXmlSchema(this TdsPackageReader reader)
+        {
+            var schemapresent = reader.ReadByte();
+            if ((schemapresent & 1) != 0)
+                return new XmlSchema
+                {
+                    CollectionDatabase = reader.ReadString(reader.ReadByte()),
+                    CollectionOwningSchema = reader.ReadString(reader.ReadByte()),
+                    CollectionName = reader.ReadString(reader.ReadUInt16())
+                };
+            return null;
+        }
+
+        public static Encoding GetEncodingFromCollation(this TdsPackageReader reader)
         {
             var collation = reader.ReadCollation();
             var codePage = collation.GetCodePage();
-
-            var colEncoding = EncodingCache.GetOrAdd(codePage, x => Encoding.GetEncoding(codePage));
-            return colEncoding;
+            return reader.CurrentSession.GetEncodingFromCache(codePage);
         }
 
-        public static int ReadTdsTypeLen(TdsPackageReader tdsPackageReader, byte tdsType)
+        public static int ReadTdsTypeLen(this TdsPackageReader reader, int len)
         {
-            switch (tdsType)
-            {
-                case TdsEnums.SQLTIME:
-                case TdsEnums.SQLDATETIME2:
-                case TdsEnums.SQLDATETIMEOFFSET:
-                case TdsEnums.SQLDATE:
-                    return 0;
-            }
-
-            if ((tdsType & TdsEnums.SQLLenMask) != TdsEnums.SQLVarLen)
-                return 0;
-            if ((tdsType & 0x80) != 0)
-                return tdsPackageReader.ReadUInt16();
-            if ((tdsType & 0x0c) == 0)
-            {
-                tdsPackageReader.ReadInt32();
-                return 0;
-            }
-            tdsPackageReader.ReadByte();
-            return 0;
+            return len == 0
+                ? 0
+                : len == 1
+                    ? reader.ReadByte()
+                    : len == 2
+                        ? reader.ReadUInt16()
+                        : reader.ReadInt32();
         }
 
-
-        private static MultiPartTableName TryProcessOneTable(TdsPackageReader tdsPackageReader)
+        public static MultiPartTableName ReadMultiPartTableName(this TdsPackageReader reader)
         {
-            ushort tableLen;
-            string value;
-            var mpt = new MultiPartTableName();
             // Find out how many parts in the TDS stream
-            var nParts = tdsPackageReader.ReadByte();
+            var nParts = reader.ReadByte();
+            if (nParts == 0)
+                return null;
 
-            if (nParts == 4)
-            {
-                tableLen = tdsPackageReader.ReadUInt16();
-                value = tdsPackageReader.ReadString(tableLen);
-                mpt.ServerName = value;
-                nParts--;
-            }
+            var mpt = new MultiPartTableName();
+            if (nParts == 4) mpt.ServerName = reader.ReadString(reader.ReadUInt16());
 
-            if (nParts == 3)
-            {
-                tableLen = tdsPackageReader.ReadUInt16();
-                value = tdsPackageReader.ReadString(tableLen);
-                mpt.CatalogName = value;
-                nParts--;
-            }
+            if (nParts >= 3) mpt.CatalogName = reader.ReadString(reader.ReadUInt16());
 
-            if (nParts == 2)
-            {
-                tableLen = tdsPackageReader.ReadUInt16();
-                value = tdsPackageReader.ReadString(tableLen);
-                mpt.SchemaName = value;
-                nParts--;
-            }
+            if (nParts >= 2) mpt.SchemaName = reader.ReadString(reader.ReadUInt16());
 
-            if (nParts == 1)
-            {
-                tableLen = tdsPackageReader.ReadUInt16();
-                value = tdsPackageReader.ReadString(tableLen);
-                mpt.TableName = value;
-            }
+            mpt.TableName = reader.ReadString(reader.ReadUInt16());
 
             return mpt;
         }
+
+        internal static Udt ReadUdtMetadata(this TdsPackageReader reader)
+        {
+            return new Udt
+            {
+                DatabaseName = reader.ReadString(reader.ReadByte()),
+                SchemaName = reader.ReadString(reader.ReadByte()),
+                TypeName = reader.ReadString(reader.ReadByte()),
+                AssemblyQualifiedName = reader.ReadString(reader.ReadUInt16())
+            };
+        }
+    }
+
+    public class Udt
+    {
+        public string DatabaseName { get; set; }
+        public string SchemaName { get; set; }
+        public string TypeName { get; set; }
+        public string AssemblyQualifiedName { get; set; }
     }
 }

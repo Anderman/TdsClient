@@ -7,7 +7,8 @@ namespace Medella.TdsClient.TDS.Messages.Client
     {
         public static void SendSspi(this TdsPackageWriter writer, byte[] sspiData)
         {
-            writer.WriteByteArray(sspiData, sspiData.Length);
+            writer.NewPackage();
+            writer.WriteByteArray(sspiData);
             writer.SetHeader(TdsEnums.ST_EOM, TdsEnums.MT_SSPI);
             writer.FlushBuffer();
         }

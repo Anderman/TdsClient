@@ -24,15 +24,5 @@ namespace Medella.TdsClient.SNI.Internal
 
             set => LastSniError.Value = value;
         }
-
-        /// <summary>
-        ///     SNI library status
-        /// </summary>
-        public uint Status { get; } = TdsEnums.SNI_SUCCESS;
-
-        /// <summary>
-        ///     Encryption options setting
-        /// </summary>
-        public EncryptionOptions Options => EncryptionOption;
     }
 }

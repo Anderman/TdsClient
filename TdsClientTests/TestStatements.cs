@@ -96,7 +96,7 @@ namespace TdsClientTests
 	        ,CAST( replicate('123456789',1) AS varchar(max) )
 	        ,CAST( 1 AS nchar(1) )
 	        ,CAST( replicate('123456789',1) AS nvarchar(max) )
-	        ,'<Data><DepartmentID>{x}</DepartmentID></Data>'
+	        ,'<Data><DepartmentID>x</DepartmentID></Data>'
 	        ,1
 	        ,power(10.0,18)
 	        ,power(10.0,28)
@@ -159,7 +159,7 @@ namespace TdsClientTests
             DECLARE @s char(1)=CAST( 1 AS char(1) )
             DECLARE @t varchar(max)=CAST( replicate('123456789',1) AS varchar(max) )
             DECLARE @u nchar(1)=CAST( 1 AS nchar(1) )
-            DECLARE @v nvarchar(max)=CAST( replicate('123456789',1) AS nvarchar(max) )
+            DECLARE @v nvarchar(max)=CAST( replicate('123456789',8000) AS nvarchar(max) )
             DECLARE @w XML = '<Data><DepartmentID>{x}</DepartmentID></Data>'
             DECLARE @x decimal(4,1)=1
             DECLARE @y decimal(38,0)=power(10.0,18)
