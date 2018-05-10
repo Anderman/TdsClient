@@ -15,7 +15,10 @@ namespace Medella.TdsClient.TDS.Messages.Server
         internal static byte[] ReadPlpBlobBytes(this TdsPackageReader reader, ulong plpLength)
         {
             if (plpLength == 0)
+            {
+                ReadPlpBlobChunkLength(reader); //read terminator
                 return Array.Empty<byte>();
+            }
 
             var chungLength = reader.ReadPlpBlobChunkLength();
             if (chungLength == 0)

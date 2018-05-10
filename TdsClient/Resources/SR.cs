@@ -1,6 +1,6 @@
 ﻿using System.Resources;
 using System.Runtime.CompilerServices;
-using Medella.TdsClient.System2;
+using Medella.TdsClient.Resources;
 
 namespace System
 {

@@ -14,12 +14,18 @@
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <LangVersion>7.3</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="TdsClient.csproj.DotSettings" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="runtime.native.System.Data.SqlClient.sni" Version="4.4.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
@@ -28,11 +34,10 @@
 
   <ItemGroup>
     <Folder Include="SNI\Sspi\" />
-    <Folder Include="TDS\Processes\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="System2\Strings.Designer.cs">
+    <Compile Update="Resources\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Strings.resx</DependentUpon>
@@ -40,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="System2\Strings.resx">
+    <EmbeddedResource Update="Resources\Strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>

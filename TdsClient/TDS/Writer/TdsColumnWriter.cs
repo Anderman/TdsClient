@@ -5,7 +5,7 @@ using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package;
 
-namespace Medella.TdsClient.TDS.Reader
+namespace Medella.TdsClient.TDS.Writer
 {
     public class TdsColumnWriter
     {
@@ -30,68 +30,89 @@ namespace Medella.TdsClient.TDS.Reader
         {
             _writer.WriteByte(value ? 1 : 0);
         }
-        public void WriteNullableSqlByte(byte? value, int index)
-        {
-            _writer.WriteByte(value == null ? 0 : 1);
-            if (value != null)
-                WriteSqlByte((byte)value, index);
-        }
 
         public void WriteSqlByte(byte value, int index)
         {
             _writer.WriteByte(value);
         }
 
-        public void WriteNullableSqlInt16(short? value, int index)
-        {
-            _writer.WriteByte(value == null ? 0 : 2);
-            if (value != null)
-                WriteSqlInt16((short)value, index);
-        }
 
         public void WriteSqlInt16(short value, int index)
         {
             _writer.WriteInt16(value);
         }
 
+        public void WriteNullableSqlInt(long? value, int index)
+        {
+            var len = MetaData[index].Length;
+            _writer.WriteByte(value == null ? 0 : len);
+            if (value == null) return;
+
+            if (len == 1) WriteSqlByte((byte)value, index);
+            if (len == 2) WriteSqlInt16((short)value, index);
+            if (len == 4) WriteSqlInt32((int)value, index);
+            if (len == 8) WriteSqlInt64((long)value, index);
+        }
+        public void WriteNullableSqlByte(byte? value, int index)
+        {
+            _writer.WriteByte(value == null ? 0 : 1);
+            if (value == null) return;
+            WriteSqlByte((byte)value, index);
+        }
+        public void WriteNullableSqlInt16(short? value, int index)
+        {
+            _writer.WriteByte(value == null ? 0 : 2);
+            if (value == null) return;
+
+            WriteSqlInt16((short)value, index);
+        }
         public void WriteNullableSqlInt32(int? value, int index)
         {
             _writer.WriteByte(value == null ? 0 : 4);
-            if (value != null)
-                WriteSqlInt32((int)value, index);
-        }
+            if (value == null) return;
 
-        public void WriteSqlInt32(int value, int index)
-        {
-            _writer.WriteInt32(value);
+            WriteSqlInt32((int)value, index);
         }
         public void WriteNullableSqlInt64(long? value, int index)
         {
             _writer.WriteByte(value == null ? 0 : 8);
-            if (value != null)
-                WriteSqlInt64((long)value, index);
+            if (value == null) return;
+
+            WriteSqlInt64((long)value, index);
+        }
+
+
+        public void WriteSqlInt32(int value, int index)
+        {
+            _writer.WriteInt32(value);
         }
 
         public void WriteSqlInt64(long value, int index)
         {
             _writer.WriteInt64(value);
         }
-        public void WriteNullableSqlMoney4(decimal? value, int index)
-        {
-            _writer.WriteByte(value == null ? 0 : 4);
-            if (value != null)
-                WriteSqlMoney4((decimal)value, index);
-        }
 
         public void WriteSqlMoney4(decimal value, int index)
         {
             _writer.WriteInt32((int)(value * 10000));
         }
+        public void WriteNullableSqlMoneyN(decimal? value, int index)
+        {
+            var len = MetaData[index].Length;
+            if (len == 4) WriteNullableSqlMoney4(value, index);
+            if (len == 8) WriteNullableSqlMoney(value, index);
+        }
+        public void WriteNullableSqlMoney4(decimal? value, int index)
+        {
+            _writer.WriteByte(value == null ? 0 : 4);
+            if (value == null) return;
+            WriteSqlMoney4((decimal)value, index);
+        }
         public void WriteNullableSqlMoney(decimal? value, int index)
         {
             _writer.WriteByte(value == null ? 0 : 8);
-            if (value != null)
-                WriteSqlMoney((decimal)value, index);
+            if (value == null) return;
+            WriteSqlMoney((decimal)value, index);
         }
 
         public void WriteSqlMoney(decimal value, int index)
@@ -116,8 +137,8 @@ namespace Medella.TdsClient.TDS.Reader
         public void WriteNullableSqlDouble(double? value, int index)
         {
             _writer.WriteByte(value == null ? 0 : 8);
-            if (value != null)
-                _writer.WriteDouble((double)value);
+            if (value == null) return;
+            _writer.WriteDouble((double)value);
         }
 
         public void WriteSqlDouble(double value, int index)
@@ -236,9 +257,6 @@ namespace Medella.TdsClient.TDS.Reader
         public static readonly DateTime BaseDate1900 = new DateTime(1900, 1, 1);
         public void WriteSqlDateTime4(DateTime value, int index)
         {
-            //_writer.WriteByte(value == null ? 0 : 4);
-            //if (value == null) return;
-
             var datepart = (ushort)value.Subtract(BaseDate1900).Days;
             var timepart = (ushort)value.TimeOfDay.TotalMinutes;
             _writer.WriteInt16(datepart);
@@ -246,9 +264,6 @@ namespace Medella.TdsClient.TDS.Reader
         }
         public void WriteSqlDateTime(DateTime value, int index)
         {
-            //_writer.WriteByte(value == null ? 0 : 4);
-            //if (value == null) return;
-
             var datepart = (int)value.Subtract(BaseDate1900).Days;
             var timepart = (int)value.TimeOfDay.TotalSeconds * 300;
             _writer.WriteInt32(datepart);
@@ -326,7 +341,7 @@ namespace Medella.TdsClient.TDS.Reader
             else
                 WriteNullableSqlBinary(Encoding.Unicode.GetBytes(value), index);
         }
-        public void WriteSqlVariant(object value, int index)
+        public void WriteNullableSqlVariant(object value, int index)
         {
             if (value == null)
             {
@@ -405,7 +420,7 @@ namespace Medella.TdsClient.TDS.Reader
                     }
                 case byte[] v:
                     {
-                        _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE  + 2 + v.Length);
+                        _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 2 + v.Length);
                         _writer.WriteByte(TdsEnums.SQLBIGBINARY);
                         _writer.WriteByte(2);
                         _writer.WriteInt16(v.Length);

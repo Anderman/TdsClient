@@ -1,6 +1,8 @@
-﻿namespace Medella.TdsClient.SNI
+﻿using System;
+
+namespace Medella.TdsClient.SNI
 {
-    public interface ISniHandle
+    public interface ISniHandle:IDisposable
     {
         string  InstanceName { get; }
         void FlushBuffer(byte[] writeBuffer, int count);

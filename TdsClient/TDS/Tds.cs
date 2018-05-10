@@ -1,32 +1,51 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Medella.TdsClient.Cleanup;
+using Medella.TdsClient.TDS.Controller;
 
 namespace Medella.TdsClient.TDS
 {
     public class Tds
     {
-        private const int Capacity = 100;
-        private static readonly ConcurrentDictionary<string, Queue<Controller.TdsConnection>> FreePool = new ConcurrentDictionary<string, Queue<Controller.TdsConnection>>();
+        private static readonly ConcurrentDictionary<string, TdsConnection> FreePool = new ConcurrentDictionary<string, TdsConnection>();
 
-        public static Controller.TdsConnection GetConnection(string connectionString)
+        public static TdsConnection GetConnection(string connectionString)
         {
-            var freePool = FreePool.GetOrAdd(connectionString, x => new Queue<Controller.TdsConnection>(Capacity));
-            if (freePool.TryDequeue(out var tdsController))
-                return tdsController;
-
-            var options = new SqlConnectionString(connectionString);
-            var serverConnectionOptions = new ServerConnectionOptions(options.DataSource);
-            var tdsStream = serverConnectionOptions.CreateTdsStream(options.ConnectTimeout);
-            var cnn= new Controller.TdsConnection(tdsStream, options);
-            return cnn;
+            return FreePool.GetOrAdd(connectionString, x => new TdsConnection(new SqlConnectionString(connectionString)));
         }
 
-        public static void Return(string connectionString, Controller.TdsConnection tdsConnection)
+        public static void Return(string connectionString, TdsPhysicalConnection tdsPhysicalConnection)
         {
-            var freePool = FreePool.GetOrAdd(connectionString, x => new Queue<Controller.TdsConnection>(Capacity));
-            freePool.Enqueue(tdsConnection);
+            var freePool = FreePool.GetOrAdd(connectionString, x => new TdsConnection(new SqlConnectionString(connectionString)));
+            freePool.Return( tdsPhysicalConnection);
+        }
+    }
 
+    public class TdsConnection
+    {
+        private readonly Queue<TdsPhysicalConnection> _freepool;
+        private readonly SqlConnectionString _options;
+        private const int Capacity = 100;
+
+        public TdsConnection(SqlConnectionString options)
+        {
+            _options = options;
+            _freepool = new Queue<TdsPhysicalConnection>(Capacity);
+        }
+
+        public TdsPhysicalConnection GetConnection()
+        {
+            if (_freepool.TryDequeue(out var tdsController))
+                return tdsController;
+            var options = _options;
+            var serverConnectionOptions = new ServerConnectionOptions(options.DataSource);
+            var cnn = new TdsPhysicalConnection(serverConnectionOptions, options);
+            return cnn;
+        }
+        public void Return(TdsPhysicalConnection cnn)
+        {
+            cnn.ResetToInitialState();
+            _freepool.Enqueue(cnn);
         }
     }
 }

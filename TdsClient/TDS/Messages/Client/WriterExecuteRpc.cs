@@ -12,7 +12,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
     {
         public static void SendRpc(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql)
         {
-            writer.NewPackage();
+            writer.NewPackage(TdsEnums.MT_RPC);
             writer.WriteRpcBatchHeaders();
 
             writer.WriteInt16(0xffff);
@@ -39,8 +39,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 WriteTdsTypeInfo(writer, mt, p.Size, p.IsNull, defaultCollation, p.Scale);
                 WriteValue(writer, value, mt, isNull);
             }
-            writer.SetHeader(TdsEnums.ST_EOM, TdsEnums.MT_RPC);
-            writer.FlushBuffer();
+            writer.SendLastMessage();
 
         }
 

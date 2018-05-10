@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Security;
@@ -17,14 +18,13 @@ namespace Medella.TdsClient.SNI.SniNp
 
         public SniNpHandle(string serverName, string pipeName, long timeOut)
         {
-            var pipeStream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+            Stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
 
             if (timeOut >= int.MaxValue)
-                pipeStream.Connect();
+                Stream.Connect();
             else
-                pipeStream.Connect((int) timeOut);
+                Stream.Connect((int) timeOut);
 
-            Stream = pipeStream;
             _sspi = new SspiHelper(ServerSpn);
         }
 
@@ -65,6 +65,13 @@ namespace Medella.TdsClient.SNI.SniNp
         {
             _sspi.CreateClientToken(serverToken);
             return _sspi.ClientToken;
+        }
+
+        public void Dispose()
+        {
+            _sslOverTdsStream?.Dispose();
+            _sslStream?.Dispose();
+            Stream?.Dispose();
         }
     }
 }

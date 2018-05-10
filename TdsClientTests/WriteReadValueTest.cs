@@ -5,15 +5,11 @@ using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Reader;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Writer;
 using Xunit;
 
 namespace TdsClientTests
 {
-    public class WriteReadValueVariantTest
-    {
-
-    }
-
     public class WriteReadValueTest
     {
         [Fact]
@@ -110,16 +106,16 @@ namespace TdsClientTests
             object result;
             if (nulltest)
             {
-                writer.NewPackage();
+                writer.NewPackage(TdsEnums.MT_RPC);
                 ObjectWriter(columwriter, tdsType, value, nulltest);
-                writer.FlushBuffer();
+                writer.SendLastMessage();
                 result = ObjectReader(columnReader, value);
                 Assert.Null(result);
             }
 
-            writer.NewPackage();
+            writer.NewPackage(TdsEnums.MT_RPC);
             ObjectWriter(columwriter, tdsType, value, false);
-            writer.FlushBuffer();
+            writer.SendLastMessage();
             result = ObjectReader(columnReader, value);
             switch (value)
             {
@@ -219,7 +215,7 @@ namespace TdsClientTests
                 case TdsEnums.SQLFLT8 when v is double b: writer.WriteSqlDouble(b, 0); return;
                 case TdsEnums.SQLDATETIM4 when v is SqlDateTime4 b: writer.WriteSqlDateTime4((DateTime)b, 0); return;
                 case TdsEnums.SQLDATETIME when v is DateTime b: writer.WriteSqlDateTime(b, 0); return;
-                case TdsEnums.SQLVARIANT when v is SqlVariant b: if (writeNull) writer.WriteSqlVariant(null, 0); else writer.WriteSqlVariant(b.Value, 0); return;
+                case TdsEnums.SQLVARIANT when v is SqlVariant b: if (writeNull) writer.WriteNullableSqlVariant(null, 0); else writer.WriteNullableSqlVariant(b.Value, 0); return;
             }
 
             throw new NotImplementedException();

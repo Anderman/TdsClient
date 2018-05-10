@@ -6,9 +6,8 @@ using System.Text;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.Resources;
 using Medella.TdsClient.SNI.Native;
-using Medella.TdsClient.System2;
-using Medella.TdsClient.TDS;
 
 namespace Medella.TdsClient.LocalDb
 {

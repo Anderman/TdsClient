@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Medella.TdsClient.TDS;
-using TdsConnection = Medella.TdsClient.TDS.Controller.TdsConnection;
+using Medella.TdsClient.TDS.Processes;
 
 namespace TdsPerformanceTester
 {

@@ -1,4 +1,6 @@
+using System.Linq;
 using Medella.TdsClient.TDS;
+using Medella.TdsClient.TDS.Processes;
 using Xunit;
 
 namespace TdsClientTests
@@ -31,8 +33,19 @@ namespace TdsClientTests
         [Fact]
         public void can_upload_int_Column()
         {
+            var obj = new[]
+            {
+                new TestBulkcopy { Id = 1, Id1 = 2},
+                new TestBulkcopy { Id = 1, Id1 = 2}
+            };
             var cnn = Tds.GetConnection(ConnectionString);
-            cnn.BulkInsert();
+            cnn.BulkInsert(obj.ToList(), "bulkcopy");
+        }
+
+        public class TestBulkcopy
+        {
+            public int? Id { get; set; }
+            public long? Id1 { get; set; }
         }
     }
 }

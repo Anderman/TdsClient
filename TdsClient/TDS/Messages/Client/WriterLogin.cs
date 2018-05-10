@@ -70,7 +70,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 length++; // for terminator
             }
 
-            writer.NewPackage();
+            writer.NewPackage(TdsEnums.MT_LOGIN7);
             writer.WriteInt32(length);
             if (recoverySessionData == null)
                 writer.WriteInt32((TdsEnums.DENALI_MAJOR << 24) | (TdsEnums.DENALI_INCREMENT << 16) | TdsEnums.DENALI_MINOR);
@@ -252,8 +252,6 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 if ((requestedFeatures & TdsEnums.FeatureExtension.GlobalTransactions) != 0) WriteGlobalTransactionsFeatureRequest(writer);
                 writer.WriteByte(0xFF); // terminator
             }
-
-            writer.SetHeader(TdsEnums.ST_EOM, TdsEnums.MT_LOGIN7);
         }
 
         internal static void WriteGlobalTransactionsFeatureRequest(TdsPackageWriter writer)

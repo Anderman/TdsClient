@@ -4,8 +4,9 @@ using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
+using Medella.TdsClient.TDS.Controller;
 
-namespace Medella.TdsClient.TDS.Controller
+namespace Medella.TdsClient.TDS.Processes
 {
     public class LoginProcessor
     {
@@ -50,7 +51,7 @@ namespace Medella.TdsClient.TDS.Controller
                 RequestedFeatures = GetRequestedFeatures(opt)
             };
             _package.Writer.SendTdsLogin(login, _recoverySessionData);
-            _package.Writer.FlushBuffer();
+            _package.Writer.SendLastMessage();
 
         }
         private static TdsEnums.FeatureExtension GetRequestedFeatures(SqlConnectionString opt)

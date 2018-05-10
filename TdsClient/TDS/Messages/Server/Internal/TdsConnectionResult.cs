@@ -1,8 +1,8 @@
 ﻿using Medella.TdsClient.Exceptions;
 
-namespace Medella.TdsClient.TDS
+namespace Medella.TdsClient.TDS.Messages.Server.Internal
 {
-    public class TdsConnection
+    public class TdsConnectionResult
     {
         public int Version { get; set; }
         public bool IsYukonOrLater => Version >= 9;

@@ -3,7 +3,7 @@ using Medella.TdsClient.Exceptions;
 
 namespace Medella.TdsClient.SNI.Native.Sspi
 {
-    public class SspiNative
+    public class SspiNative:IDisposable
     {
         private static readonly object STdsParserLock = new object();
         private static volatile uint _sMaxSspiLength;
@@ -64,6 +64,11 @@ namespace Medella.TdsClient.SNI.Native.Sspi
             {
                 return SniNativeMethodWrapper.SNISecGenClientContextWrapper(_sniHandle, inBuff, receivedLength, outBuff, ref sendLength, out _, pinServerUserName, (uint) _sniSpnBuffer.Length, null, null);
             }
+        }
+
+        public void Dispose()
+        {
+            _sniHandle?.Dispose();
         }
     }
 }

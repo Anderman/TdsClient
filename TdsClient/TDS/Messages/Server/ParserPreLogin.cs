@@ -2,6 +2,7 @@
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Messages.Client;
+using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Messages.Server
@@ -18,7 +19,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
         public static EncryptionOptions ParsePreLoginHandshake(byte[] payload, int payloadOffset, EncryptionOptions encryptionRequested)
         {
             if (payload[payloadOffset] == 0xaa) throw SQL.InvalidSQLServerVersionUnknown();
-            var result = new TdsConnection();
+            var result = new TdsConnectionResult();
             var offset = payloadOffset;
             int option = payload[offset++];
 

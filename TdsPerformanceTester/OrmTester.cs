@@ -1,5 +1,7 @@
 ﻿using System;
 using Medella.TdsClient.TDS;
+using Medella.TdsClient.TDS.Controller;
+using Medella.TdsClient.TDS.Processes;
 
 namespace TdsPerformanceTester
 {

@@ -5,6 +5,7 @@ using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Processes;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
 using Xunit;
 

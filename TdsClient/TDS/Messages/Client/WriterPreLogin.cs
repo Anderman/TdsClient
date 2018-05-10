@@ -19,13 +19,12 @@ namespace Medella.TdsClient.TDS.Messages.Client
             // NOTE: packet data needs to be big endian - not the standard little endian used by
             // the rest of the parser.
 
-            writer.NewPackage();
+            writer.NewPackage(TdsEnums.MT_PRELOGIN);
             WriteHeader(writer, instanceName);
             WriteOptions(writer, instanceName, marsOn);
 
             // Write out last option - to let server know the second part of packet completed
-            writer.SetHeader(TdsEnums.ST_EOM, TdsEnums.MT_PRELOGIN);
-            writer.FlushBuffer();
+            writer.SendLastMessage();
         }
 
         private static void WriteOptions(TdsPackageWriter writer, string instanceName, bool marsOn)

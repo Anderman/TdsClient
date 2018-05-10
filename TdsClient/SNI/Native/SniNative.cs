@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.SNI.Native.Sspi;
-using Medella.TdsClient.SNI.SniNp;
 
 namespace Medella.TdsClient.SNI.Native
 {
@@ -10,9 +9,9 @@ namespace Medella.TdsClient.SNI.Native
     {
         private readonly Guid _clientConnectionId;
         private readonly SNIHandle _sniHandle;
+        private readonly SspiNative _sspi;
         private SniPacket _writePacket;
         public byte[] InstanceNameBytes;
-        private SspiNative _sspi;
 
         public SniNative(string serverName, int timeout)
         {
@@ -49,6 +48,11 @@ namespace Medella.TdsClient.SNI.Native
             return (int) dataSize;
         }
 
+        public byte[] GetClientToken(byte[] serverToken)
+        {
+            return _sspi.GetClientToken(serverToken);
+        }
+
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
@@ -59,9 +63,11 @@ namespace Medella.TdsClient.SNI.Native
             Debug.WriteLine(sb.ToString());
         }
 
-        public byte[] GetClientToken(byte[] serverToken)
+        public void Dispose()
         {
-            return _sspi.GetClientToken(serverToken);
+            _sniHandle?.Dispose();
+            _writePacket?.Dispose();
+            _sspi?.Dispose();
         }
     }
 }

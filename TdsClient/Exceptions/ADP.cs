@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.System2;
+using Medella.TdsClient.Resources;
 using ST = System.Transactions;
 
 namespace Medella.TdsClient.Exceptions

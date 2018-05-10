@@ -15,7 +15,7 @@ namespace Medella.TdsClient.SNI.TcpIp
     /// <summary>
     ///     TCP connection handle
     /// </summary>
-    internal class SniTcpHandle : ISniHandle, IDisposable
+    internal class SniTcpHandle : ISniHandle
     {
         private const int DefaultSqlServerPort = 1433;
         private readonly SspiHelper _sspi;

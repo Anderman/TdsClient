@@ -1,5 +1,5 @@
 ﻿using System;
-using Medella.TdsClient.System2;
+using Medella.TdsClient.Resources;
 
 namespace Medella.TdsClient.Contants
 {

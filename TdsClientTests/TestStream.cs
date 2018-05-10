@@ -33,5 +33,8 @@ namespace TdsClientTests
             throw new NotImplementedException();
         }
 
+        public void Dispose()
+        {
+        }
     }
 }

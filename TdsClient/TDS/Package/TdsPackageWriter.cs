@@ -23,23 +23,23 @@ namespace Medella.TdsClient.TDS.Package
             _sniHandle = sniHandle;
         }
 
-        //public string ServerSpn => _sniHandle.ServerSpn;
         public string InstanceName => _sniHandle.InstanceName;
         public byte[] GetClientToken(byte[] servertoken) => _sniHandle.GetClientToken(servertoken);
         public MetadataBulkCopy[] ColumnsMetadata { get; set; }
 
         public void SendBatchPackage()
         {
-            var length = WritePosition - _packageStart;
-            WriteBuffer[_packageStart + 1] = TdsEnums.ST_BATCH;
-            WriteBuffer[_packageStart + 2] = (byte)(length >> 8); // length - upper byte
-            WriteBuffer[_packageStart + 3] = (byte)(length & 0xff); // length - lower byte
-            FlushBuffer();
+            WritePosition = BufferSize;
+            SetHeader(TdsEnums.ST_BATCH);
+            _sniHandle.FlushBuffer(WriteBuffer, WritePosition);
+            _packageStart = 0;
+            WritePosition = 8;
+            _packageNumber++;
         }
-        public void SetHeader(byte status, byte messageType)
+        public void SetHeader(byte status)
         {
             var length = WritePosition - _packageStart;
-            WriteBuffer[_packageStart + 0] = messageType;
+            
             WriteBuffer[_packageStart + 1] = status;
             WriteBuffer[_packageStart + 2] = (byte)(length >> 8); // length - upper byte
             WriteBuffer[_packageStart + 3] = (byte)(length & 0xff); // length - lower byte
@@ -49,46 +49,19 @@ namespace Medella.TdsClient.TDS.Package
             WriteBuffer[_packageStart + 7] = 0; // window
         }
 
-        //Do we need this or can we create a new connection
-        //private void SetSmpPackage()
-        //{
-        //    byte SMID = 83;
-        //    var flags = (byte)SNISMUXFlags.SMUX_DATA;
-        //    short sessionId = 1;
-        //    var sequenceNumber = ((flags == (byte)SNISMUXFlags.SMUX_FIN) || (flags == (byte)SNISMUXFlags.SMUX_ACK)) ? _sequenceNumber - 1 : _sequenceNumber++;
-        //    var length = WritePosition - _packageStart;
-        //    WriteBuffer[_packageStart] = SMID;         // Message Type
-        //    WriteBuffer[_packageStart + 1] = flags;
-        //    WriteBuffer[_packageStart + 2] = (byte)(sessionId >> 8); // length - upper byte
-        //    WriteBuffer[_packageStart + 3] = (byte)(sessionId & 0xff); // length - lower byte
-        //    var pos = WritePosition;
-        //    WritePosition = 4;
-        //    WriteInt32(length);
-        //    WriteInt32(sequenceNumber);
-        //    WriteInt32(_highwater);
-        //    WritePosition = pos;
-        //    _packageStart += 0x10;
-        //}
-
-        //public void SendCtrlPackage()
-        //{
-        //    WritePosition = 16;
-        //    _packageStart = 0;
-        //    SetSmpPackage();
-        //    _sniHandle.FlushBuffer(WriteBuffer, WritePosition);
-        //}
-
-        public void NewPackage()
+        public void NewPackage(byte messageType)
         {
             _packageNumber++;
             _packageStart = WritePosition;
+            WriteBuffer[_packageStart + 0] = messageType;
             WritePosition += 8;
         }
 
-        public void FlushBuffer()
+        public void SendLastMessage()
         {
+            SetHeader(TdsEnums.ST_EOM);
             _sniHandle.FlushBuffer(WriteBuffer, WritePosition);
-            if (WriteBuffer[_packageStart + 1] == TdsEnums.ST_EOM) _packageNumber = 0;
+            _packageNumber = 0;
             WritePosition = 0;
         }
 
@@ -172,7 +145,14 @@ namespace Medella.TdsClient.TDS.Package
 
         public void WriteString(string v)
         {
-            WritePosition += Encoding.Unicode.GetBytes(v, 0, v.Length, WriteBuffer, WritePosition);
+            if (v.Length * 2 <= WriteBuffer.Length - WritePosition)
+                WritePosition += Encoding.Unicode.GetBytes(v, 0, v.Length, WriteBuffer, WritePosition);
+            else
+            {
+                var buffer = new byte[v.Length * 2];
+                var bytes= Encoding.Unicode.GetBytes(v, 0, v.Length, buffer, 0);
+                WriteByteArray(buffer);
+            }
         }
 
 
@@ -181,7 +161,7 @@ namespace Medella.TdsClient.TDS.Package
             var length = src.Length;
             var bufferLength = WriteBuffer.Length;
             var srcOffset = 0;
-            var bytesLeft= length- srcOffset;
+            var bytesLeft = length - srcOffset;
             while (bytesLeft > bufferLength - WritePosition)
             {
                 var count = (bufferLength - WritePosition);
