@@ -15,14 +15,15 @@ namespace TdsPerformanceTester
         public HandCodedOrm()
         {
             //_connection = new LoginProcessor("context connection=true");
-            _connection = new SqlConnection(@"Server=127.0.0.1;Database=tempdb;Trusted_Connection=True;");
+            //_connection = new SqlConnection(@"Server=127.0.0.1;Database=tempdb;Trusted_Connection=True;");
+            _connection = new SqlConnection(@"Server=(localdb)\mssqllocaldb;Database=tempdb;Trusted_Connection=True;");
             _connection.Open();
             _postCommand = new SqlCommand
             {
                 Connection = _connection,
-                CommandText = @"select * from Posts where Id = 1"
+                CommandText = @"select * from Posts where Id = @Id"
             };
-            //_idParam = _postCommand.Parameters.Add("@Id", SqlDbType.Int);
+            _idParam = _postCommand.Parameters.Add("@Id", SqlDbType.Int);
         }
 
         public void Run()
@@ -34,9 +35,9 @@ namespace TdsPerformanceTester
 
         public Post SqlCommand()
         {
-            //_idParam.Value = i;
+            _idParam.Value = i;
 
-            using (var reader = _postCommand.ExecuteReader())
+            using (var reader = _postCommand.ExecuteReader(CommandBehavior.SequentialAccess| CommandBehavior.SingleResult))
             {
                 reader.Read();
                 var post = new Post

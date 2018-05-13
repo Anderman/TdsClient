@@ -21,7 +21,8 @@ namespace Medella.TdsClient.TDS.Messages.Server
             };
             var current = reader.GetReadPos();
             error.LineNumber = tokenLength - (current - start) > 2 ? reader.ReadInt32() : reader.ReadInt16();
-            if (error.Class >= TdsEnums.MIN_ERROR_CLASS) throw new Exception(error.Message);
+            if (error.Class >= TdsEnums.MIN_ERROR_CLASS)
+                throw new Exception(error.Message);
             reader.CurrentSession.Errors.Add(error);
         }
     }

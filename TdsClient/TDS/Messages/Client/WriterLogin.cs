@@ -221,31 +221,31 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.WriteInt32(0); // reserved for chSSPI
 
             // write variable length portion
-            writer.WriteString(rec.hostName);
+            writer.WriteUnicodeString(rec.hostName);
 
             // if we are using SSPI, do not send over username/password, since we will use SSPI instead
             // same behavior as Luxor
             if (!rec.useSSPI)
             {
-                writer.WriteString(userName);
+                writer.WriteUnicodeString(userName);
                 writer.WriteByteArray(encryptedPassword);
             }
 
-            writer.WriteString(rec.applicationName);
-            writer.WriteString(rec.serverName);
+            writer.WriteUnicodeString(rec.applicationName);
+            writer.WriteUnicodeString(rec.serverName);
 
             // write ibFeatureExtLong
             if (useFeatureExt) writer.WriteInt32(feOffset);
 
-            writer.WriteString(clientInterfaceName);
-            writer.WriteString(rec.language);
-            writer.WriteString(rec.database);
+            writer.WriteUnicodeString(clientInterfaceName);
+            writer.WriteUnicodeString(rec.language);
+            writer.WriteUnicodeString(rec.database);
 
             // send over SSPI data if we are using SSPI
             if (rec.useSSPI)
                 writer.WriteByteArray(rec.ClientToken);
 
-            writer.WriteString(rec.attachDBFilename);
+            writer.WriteUnicodeString(rec.attachDBFilename);
             if (useFeatureExt)
             {
                 if ((requestedFeatures & TdsEnums.FeatureExtension.SessionRecovery) != 0) WriteSessionRecoveryFeatureRequest(writer, recoverySessionData);

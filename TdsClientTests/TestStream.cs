@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using Medella.TdsClient.SNI;
 using Medella.TdsClient.SNI.SniNp;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;

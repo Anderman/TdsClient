@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace TdsPerformanceTester
 {
@@ -11,15 +12,15 @@ namespace TdsPerformanceTester
         {
             _reporter = reporter;
         }
-        public void Run()
+        public async Task Run()
         {
             //run static initializers
             var orm1 = new MedellaOrm();
             orm1.Run();
-            orm1.Run();
+            //orm1.Run();
             //test
-            //for (var i = 0; i < 10; i++) HandcodedOrm();
-            for (var i = 0; i < 10; i++) MedellaOrm();
+            for (var i = 0; i < 5; i++) HandcodedOrm();
+            for (var i = 0; i < 5; i++) MedellaOrm();
         }
 
         private void MedellaOrm()

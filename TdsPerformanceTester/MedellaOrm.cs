@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Medella.TdsClient.TDS;
 using Medella.TdsClient.TDS.Processes;
 
@@ -6,13 +7,14 @@ namespace TdsPerformanceTester
 {
     public class MedellaOrm 
     {
-        private readonly TdsConnection _tds;
+        private readonly TdsConnectionPool _tds;
         private int i = 1;
-        private const string ConnectionString = @"Server=127.0.0.1;Database=tempdb;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tempdb;Trusted_Connection=True;";
 
         public MedellaOrm()
         {
-            _tds = Tds.GetConnection(ConnectionString);
+            _tds = TdsClient.GetConnection(ConnectionString);
+            OrmTester.EnsureDbSetup(ConnectionString);
         }
 
         public void Run()
@@ -20,9 +22,9 @@ namespace TdsPerformanceTester
             if (i++ > 5000)
                 i = 1;
 
-            //using (var tds = Tds.GetConnection(ConnectionString))
+            //using (var tds = TdsClient.GetConnection(ConnectionString))
             {
-                var x= _tds.ExecuteQuery<Post>($@"select * from Posts where Id = 1");
+                var x = _tds.ExecuteParameterQuery<Post>($@"select * from Posts where Id = {i}");
             }
         }
     }

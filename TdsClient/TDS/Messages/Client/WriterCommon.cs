@@ -17,7 +17,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             else
             {
                 writer.WriteByte(checked((byte)s.Length));
-                writer.WriteString(s);
+                writer.WriteUnicodeString(s);
             }
         }
 
@@ -39,7 +39,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.WriteUInt32(collation.Info);
             writer.WriteByte(collation.SortId);
         }
-        public static void WriteRpcBatchHeaders(this TdsPackageWriter tdsPackageWriter)
+        public static void WriteRpcBatchHeaders(this TdsPackageWriter tdsPackageWriter,long sqlConnectionId)
         {
             /* Header:
                TotalLength  - DWORD  - including all headers and lengths, including itself
@@ -62,12 +62,12 @@ namespace Medella.TdsClient.TDS.Messages.Client
             // Write Mars header length
             tdsPackageWriter.WriteInt32(marsHeaderSize);
             // Write Mars header data
-            WriteMarsHeaderData(tdsPackageWriter);
+            WriteMarsHeaderData(tdsPackageWriter, sqlConnectionId);
         }
-        private static void WriteMarsHeaderData(TdsPackageWriter tdsPackageWriter) //transactions not implemented
+        private static void WriteMarsHeaderData(TdsPackageWriter tdsPackageWriter, long sqlConnectionId) //transactions not implemented
         {
             tdsPackageWriter.WriteInt16(TdsEnums.HEADERTYPE_MARS);
-            tdsPackageWriter.WriteInt64(0);
+            tdsPackageWriter.WriteInt64(sqlConnectionId);
             tdsPackageWriter.WriteInt32(1);
         }
         public static void WriteTypeInfoLen(this TdsPackageWriter writer, TdsMetaType.MetaDataWrite metaType, int size, bool isNull)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Exceptions;
@@ -8,23 +9,13 @@ using Medella.TdsClient.TDS.Processes;
 
 namespace Medella.TdsClient.TDS.Controller
 {
-    public enum ParseStatus
+    public class TdsPhysicalConnection : IDisposable
     {
-        Row,
-        Done,
-        AltRow,
-        Unknown,
-        BeforeFirstColumn,
-        AfterLastColumn
-    }
-
-    public class TdsPhysicalConnection :IDisposable
-    {
-        private readonly string _connectionString;
         private readonly int _messageCountAfterlogin;
+        public long SqlTransactionId { get; set; }
         public readonly TdsStreamParser StreamParser;
         public readonly TdsPackage TdsPackage;
-        private ISniHandle _tdsStream;
+        private readonly ISniHandle _tdsStream;
 
         static TdsPhysicalConnection()
         {
@@ -33,7 +24,6 @@ namespace Medella.TdsClient.TDS.Controller
 
         public TdsPhysicalConnection(ServerConnectionOptions serverConnectionOptions, SqlConnectionString dbConnectionOptions)
         {
-            _connectionString = dbConnectionOptions.ConnectionString;
             _tdsStream = serverConnectionOptions.CreateTdsStream(dbConnectionOptions.ConnectTimeout);
 
             TdsPackage = new TdsPackage(_tdsStream);
@@ -47,18 +37,15 @@ namespace Medella.TdsClient.TDS.Controller
 
         public void ResetToInitialState()
         {
-            // Oeps we are responsible for returning clean to the pool!! The pool should clone the connectionstate.
-            // Fix later when this become complex
-            if (StreamParser.Status == ParseStatus.Done) //Don't return connections to the pool that have problems
-            {
-                if (SqlMessages.Count > _messageCountAfterlogin)
-                    SqlMessages.RemoveAt(_messageCountAfterlogin - 1);
-            }
+            if (SqlMessages.Count > _messageCountAfterlogin)
+                SqlMessages.RemoveAt(_messageCountAfterlogin - 1);
+            SqlTransactionId = 0;
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Debug.WriteLine($"Dispose connection");
+            _tdsStream.Dispose();
         }
     }
 }

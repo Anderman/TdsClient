@@ -53,6 +53,13 @@ namespace Medella.TdsClient.SNI.Native
             return _sspi.GetClientToken(serverToken);
         }
 
+        public void Dispose()
+        {
+            _sniHandle?.Dispose();
+            _writePacket?.Dispose();
+            _sspi?.Dispose();
+        }
+
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
@@ -61,13 +68,6 @@ namespace Medella.TdsClient.SNI.Native
             for (var i = 0; i < length; i++)
                 sb.Append($"{buffer[i],2:X2} ");
             Debug.WriteLine(sb.ToString());
-        }
-
-        public void Dispose()
-        {
-            _sniHandle?.Dispose();
-            _writePacket?.Dispose();
-            _sspi?.Dispose();
         }
     }
 }

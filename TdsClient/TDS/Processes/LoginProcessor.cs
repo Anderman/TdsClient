@@ -2,20 +2,20 @@ using System;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
-using Medella.TdsClient.TDS.Controller;
 
 namespace Medella.TdsClient.TDS.Processes
 {
     public class LoginProcessor
     {
-        private readonly TdsPackage _package;
         private readonly SqlConnectionString _dbConnectionOptions;
+        private readonly TdsPackage _package;
 
         /// <summary>
-        /// Responseble for maintaining the connection to the server.
-        /// Should be able to detect a failing connection and try to recover from a failed connection
+        ///     Responseble for maintaining the connection to the server.
+        ///     Should be able to detect a failing connection and try to recover from a failed connection
         /// </summary>
         private readonly SessionData _recoverySessionData = null;
 
@@ -28,6 +28,7 @@ namespace Medella.TdsClient.TDS.Processes
             Connect(package.Writer.InstanceName, dbConnectionOptions.MARS);
             Login();
         }
+
         private void Login()
         {
             var opt = _dbConnectionOptions;
@@ -52,8 +53,8 @@ namespace Medella.TdsClient.TDS.Processes
             };
             _package.Writer.SendTdsLogin(login, _recoverySessionData);
             _package.Writer.SendLastMessage();
-
         }
+
         private static TdsEnums.FeatureExtension GetRequestedFeatures(SqlConnectionString opt)
         {
             // The GLOBALTRANSACTIONS feature is implicitly requested
@@ -75,7 +76,7 @@ namespace Medella.TdsClient.TDS.Processes
         public void VerifyToken(int tokenLength)
         {
             var token = _package.Reader.GetBytes(tokenLength);
-            var clientToken=_package.Writer.GetClientToken(token);
+            var clientToken = _package.Writer.GetClientToken(token);
 
             if (clientToken.Length != 0)
                 _package.Writer.SendSspi(clientToken);

@@ -1,4 +1,5 @@
 using System.Reflection.Metadata;
+using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.SNI.Native;
 using Xunit;
@@ -26,7 +27,7 @@ namespace TdsClientTests
             var len=m.Receive(readBuffer, 0, readBuffer.Length);
             Assert.Equal(48,len);
             m.FlushBuffer(login, login.Length);
-            len=m.Receive(readBuffer, 0, readBuffer.Length);
+            len= m.Receive(readBuffer, 0, readBuffer.Length);
             Assert.Equal(220,len);
             m.FlushBuffer(sspi, sspi.Length);
             len = m.Receive(readBuffer, 0, readBuffer.Length);

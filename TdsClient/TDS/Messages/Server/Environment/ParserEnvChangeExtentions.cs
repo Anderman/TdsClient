@@ -8,7 +8,7 @@ namespace Medella.TdsClient.TDS.Messages.Server.Environment
 {
     public static class ParserEnvChangeExtentions
     {
-        public static void EnvChange(this TdsPackageReader reader, int tokenLength)
+        public static void EnvChange(this TdsPackageReader reader, int tokenLength, Action<int> transactionAction)
         {
             // There could be multiple environment change messages following this token.
             var processedLength = 0;
@@ -48,7 +48,11 @@ namespace Medella.TdsClient.TDS.Messages.Server.Environment
                     case TdsEnums.ENV_ENLISTDTC:
                     case TdsEnums.ENV_DEFECTDTC:
                     case TdsEnums.ENV_TRANSACTIONENDED:
-                        throw new NotImplementedException();
+                       if(transactionAction==null)
+                           reader.EnvSqlTransaction();
+                       else
+                           transactionAction(type);
+                        break;
 
                     case TdsEnums.ENV_LOGSHIPNODE:
                         throw new NotImplementedException();

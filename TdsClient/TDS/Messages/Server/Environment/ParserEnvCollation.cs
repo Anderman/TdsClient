@@ -23,4 +23,14 @@ namespace Medella.TdsClient.TDS.Messages.Server.Environment
             }
         }
     }
+    public static class ParserEnvSqlTransaction
+    {
+        internal static long EnvSqlTransaction(this TdsPackageReader reader)
+        {
+            var newTransactionId = 0L;
+            if (reader.ReadByte()== 8) newTransactionId=reader.ReadInt64();
+            if (reader.ReadByte()== 8) reader.ReadInt64();
+            return newTransactionId;
+        }
+    }
 }

@@ -14,30 +14,29 @@ namespace Medella.TdsClient.TDS.Processes
 {
     public static class BulkInsertExtentions
     {
-        private static readonly byte[] Done = { 0xFD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        private static readonly byte[] Done = {0xFD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        public static void BulkInsert<T>(this TdsConnection tdsConnection, List<T> objects, string tableName)
+        public static void BulkInsert<T>(this TdsPhysicalConnection cnn, List<T> objects, string tableName)
         {
-            var cnn = tdsConnection.GetConnection();
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;
             var parser = cnn.StreamParser;
             MetadataBulkCopy[] metaDataAllColumns = null;
 
-            writer.SendExcuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF");
+            writer.SendExcuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF",cnn.SqlTransactionId);
             parser.ParseInput(count => { metaDataAllColumns = reader.ColMetaDataBulkCopy(count); });
 
             writer.ColumnsMetadata = GetUsedColumns(metaDataAllColumns).ToArray();
 
             var bulkInsert = CreateBulkInsertStatement(tableName, writer.ColumnsMetadata);
-            writer.SendExcuteBatch(bulkInsert);
+            writer.SendExcuteBatch(bulkInsert,cnn.SqlTransactionId);
             parser.ParseInput();
 
             writer.NewPackage(TdsEnums.MT_BULK);
-            WriteBulkInsertColMetaData(writer);
-
             var columnWriter = new TdsColumnWriter(writer);
             var rowWriter = RowWriter.GetComplexWriter<T>(columnWriter);
+            //task.GetAwaiter().GetResult();
+            WriteBulkInsertColMetaData(writer);
 
             foreach (var o in objects)
             {
@@ -48,6 +47,8 @@ namespace Medella.TdsClient.TDS.Processes
             writer.WriteByteArray(Done);
             writer.SendLastMessage();
             parser.ParseInput();
+            if(parser.Status!=ParseStatus.Done)
+                parser.ParseInput();
         }
 
 
@@ -117,14 +118,14 @@ namespace Medella.TdsClient.TDS.Processes
             if (mt.IsTextOrImage)
             {
                 writer.WriteInt16(md.PartTableName.TableName.Length);
-                writer.WriteString(md.PartTableName.TableName);
+                writer.WriteUnicodeString(md.PartTableName.TableName);
             }
 
-            writer.WriteByte((byte)md.Column.Length);
-            writer.WriteString(md.Column);
+            writer.WriteByte((byte) md.Column.Length);
+            writer.WriteUnicodeString(md.Column);
         }
 
-      private static string CreateParameter(MetadataBulkCopy mt)
+        private static string CreateParameter(MetadataBulkCopy mt)
         {
             var size = mt.IsPlp ? "max" : mt.Length.ToString();
             switch (mt.TdsType)

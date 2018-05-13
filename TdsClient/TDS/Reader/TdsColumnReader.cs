@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server;
@@ -25,19 +23,19 @@ namespace Medella.TdsClient.TDS.Reader
         {
             var length = _reader.ReadLengthNullableData(index);
             return length == null
-                ? (decimal?)null
-                : _reader.ReadSqlDecimal((int)length, MetaData[index].Scale);
+                ? (decimal?) null
+                : _reader.ReadSqlDecimal((int) length, MetaData[index].Scale);
         }
 
         public byte[] ReadBinary(int index)
         {
             var isPlp = _reader.CurrentResultset.ColumnsMetadata[index].IsPlp;
-            ulong? length = _reader.ReadLengthNullableData(index);
+            var length = _reader.ReadLengthNullableData(index);
             return length == null
                 ? null
                 : isPlp
-                    ? _reader.ReadPlpBlobBytes((ulong)length)
-                    : _reader.ReadByteArray(new byte[(int)length], 0, (int)length);
+                    ? _reader.ReadPlpBlobBytes((ulong) length)
+                    : _reader.ReadByteArray(new byte[(int) length], 0, (int) length);
         }
 
         public string ReadString(int index)
@@ -48,8 +46,8 @@ namespace Medella.TdsClient.TDS.Reader
             return length == null
                 ? null
                 : isPlp
-                    ? _reader.ReadPlpString(md.Encoding, (ulong)length)
-                    : _reader.ReadString(md.Encoding, (int)length);
+                    ? _reader.ReadPlpString(md.Encoding, (ulong) length)
+                    : _reader.ReadString(md.Encoding, (int) length);
         }
 
         public string ReadUnicodeString(int index)
@@ -60,15 +58,15 @@ namespace Medella.TdsClient.TDS.Reader
             return length == null
                 ? null
                 : isPlp
-                    ? _reader.ReadPlpUnicodeChars((ulong)length)
-                    : _reader.ReadUnicodeChars((int)length);
+                    ? _reader.ReadPlpUnicodeChars((ulong) length)
+                    : _reader.ReadUnicodeChars((int) length);
         }
 
         public DateTime? ReadSqlDate(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
             return length == null
-                ? (DateTime?)null
+                ? (DateTime?) null
                 : _reader.ReadSqlDate();
         }
 
@@ -76,33 +74,33 @@ namespace Medella.TdsClient.TDS.Reader
         {
             var scale = _reader.CurrentResultset.ColumnsMetadata[index].Scale;
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (TimeSpan?)null : _reader.ReadSqlTime((int)length, scale);
+            return length == null ? (TimeSpan?) null : _reader.ReadSqlTime((int) length, scale);
         }
 
         public DateTime? ReadSqlDateTime2(int index)
         {
             var scale = _reader.CurrentResultset.ColumnsMetadata[index].Scale;
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (DateTime?)null : _reader.ReadSqlDateTime((int)length, scale);
+            return length == null ? (DateTime?) null : _reader.ReadSqlDateTime((int) length, scale);
         }
 
         public DateTime? ReadSqlDateTime(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (DateTime?)null : _reader.ReadSqlDateTime((int)length);
+            return length == null ? (DateTime?) null : _reader.ReadSqlDateTime((int) length);
         }
 
         public DateTimeOffset? ReadSqlDateTimeOffset(int index)
         {
             var scale = _reader.CurrentResultset.ColumnsMetadata[index].Scale;
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (DateTimeOffset?)null : _reader.ReadSqlDateTimeOffset((int)length, scale);
+            return length == null ? (DateTimeOffset?) null : _reader.ReadSqlDateTimeOffset((int) length, scale);
         }
 
         public bool? ReadSqlBit(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (bool?)null : _reader.ReadByte() != 0;
+            return length == null ? (bool?) null : _reader.ReadByte() != 0;
         }
 
         public long? ReadSqlIntN(int index)
@@ -115,30 +113,32 @@ namespace Medella.TdsClient.TDS.Reader
                 case 4: return _reader.ReadInt32();
                 case 8: return _reader.ReadInt64();
             }
+
             return null;
         }
+
         public byte? ReadSqlByte(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (byte?)null : _reader.ReadByte();
+            return length == null ? (byte?) null : _reader.ReadByte();
         }
 
         public short? ReadSqlInt16(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (short?)null : _reader.ReadInt16();
+            return length == null ? (short?) null : _reader.ReadInt16();
         }
 
         public int? ReadSqlInt32(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (int?)null : _reader.ReadInt32();
+            return length == null ? (int?) null : _reader.ReadInt32();
         }
 
         public long? ReadSqlInt64(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (long?)null : _reader.ReadInt64();
+            return length == null ? (long?) null : _reader.ReadInt64();
         }
 
         public double? ReadSqlFloatN(int index)
@@ -149,46 +149,46 @@ namespace Medella.TdsClient.TDS.Reader
                 case 4: return _reader.ReadFloat();
                 case 8: return _reader.ReadDouble();
             }
-            return null; 
+
+            return null;
         }
+
         public float? ReadSqlFloat(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (float?)null : _reader.ReadFloat();
+            return length == null ? (float?) null : _reader.ReadFloat();
         }
 
 
         public double? ReadSqlDouble(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (double?)null : _reader.ReadDouble();
+            return length == null ? (double?) null : _reader.ReadDouble();
         }
 
         public decimal? ReadSqlMoney(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (decimal?)null : _reader.ReadSqlMoney((int)length);
+            return length == null ? (decimal?) null : _reader.ReadSqlMoney((int) length);
         }
 
         public Guid? ReadSqlGuid(int index)
         {
             var length = _reader.ReadLengthNullableData(index);
-            return length == null ? (Guid?)null : _reader.ReadGuid();
+            return length == null ? (Guid?) null : _reader.ReadGuid();
         }
+
         public object ReadSqlVariant(int index)
         {
-            var lenTotal = (int?)_reader.ReadLengthNullableData(index);
+            var lenTotal = (int?) _reader.ReadLengthNullableData(index);
             // get the SQLVariant type
-            if (lenTotal == null)
-            {
-                return null;
-            }
+            if (lenTotal == null) return null;
             var type = _reader.ReadByte();
             // read cbPropBytes
             var cbPropsActual = _reader.ReadByte();
 
             var lenConsumed = TdsEnums.SQLVARIANT_SIZE + cbPropsActual; // type, count of propBytes, and actual propBytes
-            var lenData = (int)lenTotal - lenConsumed; // length of actual data
+            var lenData = (int) lenTotal - lenConsumed; // length of actual data
 
             // read known properties and skip unknown properties
 

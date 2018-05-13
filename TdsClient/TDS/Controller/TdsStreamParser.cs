@@ -9,22 +9,24 @@ namespace Medella.TdsClient.TDS.Controller
 {
     public class TdsStreamParser
     {
-        private readonly TdsPackage _tdsPackage;
         private readonly LoginProcessor _loginProcessor;
+        private readonly TdsPackage _tdsPackage;
         private bool _errorReceived;
-        public ParseStatus Status { get; set; }
 
         public TdsStreamParser(TdsPackage tdsPackage, LoginProcessor loginProcessor)
         {
             _tdsPackage = tdsPackage;
             _loginProcessor = loginProcessor;
         }
+
+        public ParseStatus Status { get; set; }
+
         public void ParseInput()
         {
             ParseInput(null);
         }
 
-        internal void ParseInput(Action<int> colMetaDataParser)
+        internal void ParseInput(Action<int> customParser)
         {
             Status = ParseStatus.Unknown;
             while (_tdsPackage.Reader.ReadPackage() != 255)
@@ -92,7 +94,7 @@ namespace Medella.TdsClient.TDS.Controller
 
                     case TdsEnums.SQLENVCHANGE:
                     {
-                        _tdsPackage.Reader.EnvChange(tokenLength);
+                        _tdsPackage.Reader.EnvChange(tokenLength, customParser);
                         // ENVCHANGE must be processed synchronously (since it can modify the state of many objects)
                         break;
                     }
@@ -113,8 +115,8 @@ namespace Medella.TdsClient.TDS.Controller
                     }
                     case TdsEnums.SQLCOLMETADATA:
                     {
-                        if (colMetaDataParser!=null)
-                            colMetaDataParser(tokenLength);
+                        if (customParser != null)
+                            customParser(tokenLength);
                         else
                             _tdsPackage.Reader.ColMetaData(tokenLength);
                         break;
@@ -155,6 +157,5 @@ namespace Medella.TdsClient.TDS.Controller
 
             Status = ParseStatus.Done;
         }
-
     }
 }

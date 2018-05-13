@@ -21,7 +21,7 @@ namespace Medella.TdsClient.SNI.Native
             }
         }
 
-        public static uint SniGetConnectionId(SNIHandle pConn, ref Guid connId)
+        public static uint SniGetConnectionId(SniNativeHandle pConn, ref Guid connId)
         {
             return SNIGetInfoWrapper(pConn, QTypes.SNI_QUERY_CONN_CONNID, out connId);
         }
@@ -85,7 +85,7 @@ namespace Medella.TdsClient.SNI.Native
             }
         }
 
-        public static uint SNIWritePacket(SNIHandle pConn, SniPacket packet, bool sync)
+        public static uint SNIWritePacket(SniNativeHandle pConn, SniPacket packet, bool sync)
         {
             if (sync)
                 return SNIWriteSyncOverAsync(pConn, packet);
@@ -273,7 +273,7 @@ namespace Medella.TdsClient.SNI.Native
         internal static extern uint SNIClose(IntPtr pConn);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
-        public static extern uint SNIReadSyncOverAsync(SNIHandle pConn, ref IntPtr ppNewPacket, int timeout);
+        public static extern uint SNIReadSyncOverAsync(SniNativeHandle pConn, ref IntPtr ppNewPacket, int timeout);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         internal static extern uint SNITerminate();
@@ -282,7 +282,7 @@ namespace Medella.TdsClient.SNI.Native
         private static extern uint GetSniMaxComposedSpnLength();
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint SNIGetInfoWrapper([In] SNIHandle pConn, QTypes QType, out Guid pbQInfo);
+        private static extern uint SNIGetInfoWrapper([In] SniNativeHandle pConn, QTypes QType, out Guid pbQInfo);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         private static extern uint SNIInitialize([In] IntPtr pmo);
@@ -300,17 +300,17 @@ namespace Medella.TdsClient.SNI.Native
         private static extern unsafe void SNIPacketSetData(SniPacket pPacket, [In] byte* pbBuf, uint cbBuf);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint SNIWriteAsyncWrapper(SNIHandle pConn, [In] SniPacket pPacket);
+        private static extern uint SNIWriteAsyncWrapper(SniNativeHandle pConn, [In] SniPacket pPacket);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
-        private static extern uint SNIWriteSyncOverAsync(SNIHandle pConn, [In] SniPacket pPacket);
+        private static extern uint SNIWriteSyncOverAsync(SniNativeHandle pConn, [In] SniPacket pPacket);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SNIPacketResetWrapper")]
-        internal static extern void SNIPacketReset([In] SNIHandle pConn, IOType IOType, SniPacket pPacket, ConsumerNumber ConsNum);
+        internal static extern void SNIPacketReset([In] SniNativeHandle pConn, IOType IOType, SniPacket pPacket, ConsumerNumber ConsNum);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe uint SNISecGenClientContextWrapper(
-            [In] SNIHandle pConn,
+            [In] SniNativeHandle pConn,
             [In, Out] byte[] pIn,
             uint cbIn,
             [In, Out] byte[] pOut,

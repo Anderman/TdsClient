@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.SNI;
-using Medella.TdsClient.SNI.SniNp;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Package
 {
@@ -39,6 +35,7 @@ namespace Medella.TdsClient.TDS.Package
                 sb.Append($"{ReadBuffer[i],2:X2} ");
             Debug.WriteLine(sb.ToString());
         }
+
         public void CheckBuffer(int size)
         {
             var left = _readEndPos - _pos;
@@ -48,6 +45,7 @@ namespace Medella.TdsClient.TDS.Package
             _readEndPos = _sniHandle.Receive(ReadBuffer, left, BufferSize - left) + left;
             _pos = 8;
         }
+
         public void Receive(int minsize, int startPackage)
         {
             int len;
@@ -96,6 +94,7 @@ namespace Medella.TdsClient.TDS.Package
         {
             return _pos;
         }
+
         public int GetReadEndPos()
         {
             return _readEndPos;
@@ -146,6 +145,7 @@ namespace Medella.TdsClient.TDS.Package
             _pos += 8;
             return v;
         }
+
         public void GetBytes(byte[] dst, int length)
         {
             CheckBuffer(length);
@@ -198,7 +198,6 @@ namespace Medella.TdsClient.TDS.Package
             var str = encoding.GetString(ReadBuffer, _pos, count);
             _pos += count;
             return str;
-
         }
 
         public void ReadString(StringBuilder sb, Encoding encoding, int length)
@@ -241,6 +240,7 @@ namespace Medella.TdsClient.TDS.Package
             _pos += 4;
             return v;
         }
+
         public double ReadDouble()
         {
             CheckBuffer(8);
@@ -254,7 +254,7 @@ namespace Medella.TdsClient.TDS.Package
             CheckBuffer(16);
             var b = ReadBuffer;
             var i = _pos;
-            var guid = new Guid(new[] { b[i + 0], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7], b[i + 8], b[i + 9], b[i + 10], b[i + 11], b[i + 12], b[i + 13], b[i + 14], b[i + 15] });
+            var guid = new Guid(new[] {b[i + 0], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7], b[i + 8], b[i + 9], b[i + 10], b[i + 11], b[i + 12], b[i + 13], b[i + 14], b[i + 15]});
             _pos += Guidsize;
             return guid;
         }

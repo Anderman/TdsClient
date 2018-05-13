@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Security;
@@ -12,8 +11,8 @@ namespace Medella.TdsClient.SNI.SniNp
     {
         private readonly SslOverTdsStream _sslOverTdsStream;
         private SslStream _sslStream;
+        private readonly SspiHelper _sspi;
         public NamedPipeClientStream Stream;
-        private SspiHelper _sspi;
 
 
         public SniNpHandle(string serverName, string pipeName, long timeOut)
@@ -45,6 +44,19 @@ namespace Medella.TdsClient.SNI.SniNp
             Stream.Write(writeBuffer, 0, count);
         }
 
+        public byte[] GetClientToken(byte[] serverToken)
+        {
+            _sspi.CreateClientToken(serverToken);
+            return _sspi.ClientToken;
+        }
+
+        public void Dispose()
+        {
+            _sslOverTdsStream?.Dispose();
+            _sslStream?.Dispose();
+            Stream?.Dispose();
+        }
+
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
@@ -59,19 +71,6 @@ namespace Medella.TdsClient.SNI.SniNp
                 if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)
                     sb.Append($"{(char) buffer[i]}");
             Debug.WriteLine(sb.ToString());
-        }
-
-        public byte[] GetClientToken(byte[] serverToken)
-        {
-            _sspi.CreateClientToken(serverToken);
-            return _sspi.ClientToken;
-        }
-
-        public void Dispose()
-        {
-            _sslOverTdsStream?.Dispose();
-            _sslStream?.Dispose();
-            Stream?.Dispose();
         }
     }
 }

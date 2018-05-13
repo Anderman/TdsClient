@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Package;
@@ -10,10 +11,12 @@ namespace Medella.TdsClient.TDS.Messages.Client
 {
     public static class WriterExecuteRpc
     {
-        public static void SendRpc(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql)
+        public static async Task SendRpcASync(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql, long sqlConnectionId) => await Task.Run(() => SendRpc(writer, defaultCollation, sql, sqlConnectionId));
+
+        public static void SendRpc(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql, long sqlConnectionId)
         {
             writer.NewPackage(TdsEnums.MT_RPC);
-            writer.WriteRpcBatchHeaders();
+            writer.WriteRpcBatchHeaders(sqlConnectionId);
 
             writer.WriteInt16(0xffff);
             writer.WriteInt16(TdsEnums.RPC_PROCID_EXECUTESQL);
@@ -50,7 +53,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 return;
             switch (value)
             {
-                case string v: writer.WriteString(v); break;
+                case string v: writer.WriteUnicodeString(v); break;
                 case decimal v: writer.WriteSqlDecimal(v, 17); break;
                 case bool v: writer.WriteByte(v ? 1 : 0); break;
                 case DateTime v: writer.WriteDateTime(v); break;

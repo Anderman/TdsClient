@@ -12,26 +12,13 @@ namespace Medella.TdsClient.TDS.Processes
     {
         private static readonly ConcurrentDictionary<string, Delegate> Readers = new ConcurrentDictionary<string, Delegate>();
 
-        public static void ExecuteNonQuery(this TdsConnection tdsConnection, string text)
-        {
-            var cnn = tdsConnection.GetConnection();
-            cnn.ExecuteNonQuery(text);
-            tdsConnection.Return(cnn);
 
-        }
         public static void ExecuteNonQuery(this TdsPhysicalConnection cnn, string text)
         {
-            cnn.TdsPackage.Writer.SendExcuteBatch(text);
+            cnn.TdsPackage.Writer.SendExcuteBatch(text,cnn.SqlTransactionId);
             cnn.StreamParser.ParseInput();
         }
 
-        public static List<T> ExecuteQuery<T>(this TdsConnection tdsConnection, string text) where T : class, new()
-        {
-            var cnn = tdsConnection.GetConnection();
-            var result = cnn.ExecuteQuery<T>(text);
-            tdsConnection.Return(cnn);
-            return result;
-        }
 
         public static List<T> ExecuteQuery<T>(this TdsPhysicalConnection cnn, string text) where T : class, new()
         {
@@ -39,7 +26,7 @@ namespace Medella.TdsClient.TDS.Processes
             var reader = cnn.TdsPackage.Reader;
             var parser = cnn.StreamParser;
 
-            writer.SendExcuteBatch(text);
+            writer.SendExcuteBatch(text, cnn.SqlTransactionId);
             parser.ParseInput();
             if (parser.Status == ParseStatus.Done)
                 return null;
@@ -52,23 +39,17 @@ namespace Medella.TdsClient.TDS.Processes
                 parser.ParseInput();
                 result.Add(row);
             }
+
             return result;
         }
 
-        public static List<T> ExecuteParameterQuery<T>(this TdsConnection tdsConnection, FormattableString text) where T : class, new()
-        {
-            var cnn = tdsConnection.GetConnection();
-            var result = cnn.ExecuteParameterQuery<T>(text);
-            tdsConnection.Return(cnn);
-            return result;
-        }
         public static List<T> ExecuteParameterQuery<T>(this TdsPhysicalConnection cnn, FormattableString text) where T : class, new()
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;
             var parser = cnn.StreamParser;
 
-            writer.SendRpc(reader.CurrentSession.DefaultCollation, text);
+            writer.SendRpc(reader.CurrentSession.DefaultCollation, text, cnn.SqlTransactionId);
             parser.ParseInput();
             if (parser.Status == ParseStatus.Done)
                 return null;

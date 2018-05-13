@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Medella.TdsClient.TDS;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Processes;
@@ -7,15 +8,14 @@ namespace TdsPerformanceTester
 {
     public class OrmTester
     {
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tempdb;Trusted_Connection=True;";
 
-        public static void EnsureDBSetup()
+        public static void EnsureDbSetup(string connectionString)
         {
-            var tds = Tds.GetConnection(ConnectionString);
+            var tds = TdsClient.GetConnection(connectionString);
             tds.ExecuteNonQuery(@"
 If (Object_Id('Posts') Is Null)
 Begin
-	SendExcuteBatch Table Posts
+	CREATE Table Posts
 	(
 		Id int identity primary key, 
 		[Text] varchar(max) not null, 

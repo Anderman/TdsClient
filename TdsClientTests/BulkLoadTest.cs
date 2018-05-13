@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading.Tasks;
 using Medella.TdsClient.TDS;
 using Medella.TdsClient.TDS.Processes;
 using Xunit;
@@ -31,15 +32,21 @@ namespace TdsClientTests
         private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
 
         [Fact]
-        public void can_upload_int_Column()
+        public async Task can_upload_int_Column()
         {
-            var obj = new[]
+            var size = 5531;
+            var obj = new TestBulkcopy[size];
+            for (int i = 0; i < size; i++)
             {
-                new TestBulkcopy { Id = 1, Id1 = 2},
-                new TestBulkcopy { Id = 1, Id1 = 2}
-            };
-            var cnn = Tds.GetConnection(ConnectionString);
-            cnn.BulkInsert(obj.ToList(), "bulkcopy");
+                obj[i] = new TestBulkcopy { Id = i, Id1 = i + 1 };
+            }
+            var cnn = TdsClient.GetConnection(ConnectionString);
+            await cnn.ExecuteNonQueryAsync("if OBJECT_ID('bulkcopy') is not null DROP TABLE bulkcopy CREATE TABLE bulkcopy (Id int, Id1 bigint) ");
+            await cnn.ExecuteNonQueryAsync("if OBJECT_ID('bulkcopy2') is not null DROP TABLE bulkcopy2 CREATE TABLE bulkcopy2 (Id int, Id1 bigint) ");
+            await cnn.BulkInsertAsync(obj.ToList(), "bulkcopy");
+            //var task2 = cnn.BulkInsertAsync(obj.ToList(), "bulkcopy2");
+            //var task3 = cnn.BulkInsertAsync(obj.ToList(), "bulkcopy");
+            //Task.WaitAll(task1, task2, task3);
         }
 
         public class TestBulkcopy

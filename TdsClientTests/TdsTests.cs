@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.SNI.SniNp;
@@ -17,47 +18,47 @@ namespace TdsClientTests
         private const string ConnectionString2 = @"Server=.;Database=tmp;Trusted_Connection=True;";
 
         [Fact]
-        public void can_login()
+        public async Task can_login()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            tds.ExecuteNonQuery("print 1");
-            tds = Tds.GetConnection(ConnectionString);
-            tds.ExecuteNonQuery("print 1");
+            var tds = TdsClient.GetConnection(ConnectionString);
+            await tds.ExecuteNonQueryAsync("print 1");
+            tds = TdsClient.GetConnection(ConnectionString);
+            await tds.ExecuteNonQueryAsync("print 1");
         }
 
         [Fact]
-        public void can_login_toSql()
+        public async Task can_login_toSql()
         {
-            var tds = Tds.GetConnection(ConnectionString2);
-            tds.ExecuteNonQuery("print 1");
+            var tds = TdsClient.GetConnection(ConnectionString2);
+            await tds.ExecuteNonQueryAsync("print 1");
         }
 
         [Fact]
-        public void can_read_a_large_column()
+        public async Task can_read_a_large_column()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            var x = tds.ExecuteQuery<NotNullTypes>(TestStatements.NotNullTable);
+            var tds = TdsClient.GetConnection(ConnectionString);
+            var x = await tds.ExecuteQueryAsync<NotNullTypes>(TestStatements.NotNullTable);
         }
 
         [Fact]
-        public void can_read_not_null_fields()
+        public async Task can_read_not_null_fields()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            var x = tds.ExecuteQuery<NotNullTypes>(TestStatements.NotNullTable);
+            var tds = TdsClient.GetConnection(ConnectionString);
+            var x = await tds.ExecuteQueryAsync<NotNullTypes>(TestStatements.NotNullTable);
         }
 
         [Fact]
-        public void can_read_timestamp()
+        public async Task can_read_timestamp()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            var x = tds.ExecuteQuery<TestIntType>(@"DECLARE @zz timestamp; Select zz=@zz");
+            var tds = TdsClient.GetConnection(ConnectionString);
+            var x = await tds.ExecuteQueryAsync<TestIntType>(@"DECLARE @zz timestamp; Select zz=@zz");
         }
 
         [Fact]
-        public void can_Serailize_all_nulls()
+        public async Task can_Serailize_all_nulls()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            var x = tds.ExecuteQuery<TestNullType>(TestStatements.SelectAllNullTypes);
+            var tds = TdsClient.GetConnection(ConnectionString);
+            var x = await tds.ExecuteQueryAsync<TestNullType>(TestStatements.SelectAllNullTypes);
             var v = x[0];
             Assert.Null(v.a);
             Assert.Null(v.b);
@@ -89,18 +90,18 @@ namespace TdsClientTests
         }
 
         [Fact]
-        public void can_Serailize_normal_sqltype_to_object()
+        public async Task can_Serailize_normal_sqltype_to_object()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            var x = tds.ExecuteQuery<TestNullType>(TestStatements.SelectAllNotNullTypes);
+            var tds = TdsClient.GetConnection(ConnectionString);
+            var x = await tds.ExecuteQueryAsync<TestNullType>(TestStatements.SelectAllNotNullTypes);
             var v = x[0].a == null ? x[1] : x[0];
             Assert.Equal(new DateTime(2018, 12, 31), v.a);
             Assert.Equal(new TimeSpan(10, 11, 12), v.b);
             Assert.Equal(new DateTime(2018, 12, 31, 10, 11, 12), v.c);
             Assert.Equal(new DateTimeOffset(2018, 12, 31, 10, 11, 12, new TimeSpan(5, 0, 0)), v.d);
             Assert.True(v.e);
-            Assert.Equal((byte?) 1, v.f);
-            Assert.Equal((short?) 1, v.g);
+            Assert.Equal((byte?)1, v.f);
+            Assert.Equal((short?)1, v.g);
             Assert.Equal(1, v.h);
             Assert.Equal(1, v.i);
             Assert.Equal(1, v.j);
@@ -110,31 +111,31 @@ namespace TdsClientTests
             Assert.Equal(new DateTime(2018, 12, 31), v.n);
             Assert.Equal(new DateTime(2018, 12, 31), v.o);
             Assert.Equal(new Guid("9e383328-69d7-4e73-8126-e25a1be94ae9"), v.p);
-            Assert.Equal(new byte[] {1}, v.q);
-            Assert.Equal(new byte[] {49, 50, 51, 52, 53, 54, 55, 56, 57}, v.r);
-            Assert.Equal(new[] {'1'}, v.s);
+            Assert.Equal(new byte[] { 1 }, v.q);
+            Assert.Equal(new byte[] { 49, 50, 51, 52, 53, 54, 55, 56, 57 }, v.r);
+            Assert.Equal(new[] { '1' }, v.s);
             Assert.Equal("123456789", v.t);
-            Assert.Equal(new[] {'1'}, v.u);
+            Assert.Equal(new[] { '1' }, v.u);
             Assert.StartsWith("123456789", v.v);
             Assert.Equal(1, v.x);
             Assert.Equal(1_000_000_000_000_000_000, v.y);
             Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
-            Assert.Equal(new byte[] {0, 0, 0, 0, 0, 0, 0, 1}, v.zz);
+            Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }, v.zz);
         }
 
         [Fact]
-        public void can_Serailize_normal_varianttype_to_object()
+        public async Task can_Serailize_normal_varianttype_to_object()
         {
-            var tds = Tds.GetConnection(ConnectionString);
-            var x = tds.ExecuteQuery<TestNullType>(TestStatements.SelectAllVariantTypes);
+            var tds = TdsClient.GetConnection(ConnectionString);
+            var x = await tds.ExecuteQueryAsync<TestNullType>(TestStatements.SelectAllVariantTypes);
             var v = x[0].a == null ? x[1] : x[0];
             Assert.Equal(new DateTime(2018, 12, 31), v.a);
             Assert.Equal(new TimeSpan(10, 11, 12), v.b);
             Assert.Equal(new DateTime(2018, 12, 31, 10, 11, 12), v.c);
             Assert.Equal(new DateTimeOffset(2018, 12, 31, 10, 11, 12, new TimeSpan(5, 0, 0)), v.d);
             Assert.True(v.e);
-            Assert.Equal((byte?) 1, v.f);
-            Assert.Equal((short?) 1, v.g);
+            Assert.Equal((byte?)1, v.f);
+            Assert.Equal((short?)1, v.g);
             Assert.Equal(1, v.h);
             Assert.Equal(1, v.i);
             Assert.Equal(1, v.j);
@@ -144,9 +145,9 @@ namespace TdsClientTests
             Assert.Equal(new DateTime(2018, 12, 31), v.n);
             Assert.Equal(new DateTime(2018, 12, 31), v.o);
             Assert.Equal(new Guid("9e383328-69d7-4e73-8126-e25a1be94ae9"), v.p);
-            Assert.Equal(new byte[] {1}, v.q);
-            Assert.Equal(new[] {'1'}, v.s);
-            Assert.Equal(new[] {'1'}, v.u);
+            Assert.Equal(new byte[] { 1 }, v.q);
+            Assert.Equal(new[] { '1' }, v.s);
+            Assert.Equal(new[] { '1' }, v.u);
             Assert.Equal(1, v.x);
             Assert.Equal(1_000_000_000_000_000_000, v.y);
             Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
@@ -155,7 +156,7 @@ namespace TdsClientTests
         [Fact]
         public void Connection_returned_cleaned_to_the_pool()
         {
-            var cnn = Tds.GetConnection(ConnectionString);
+            var cnn = TdsClient.GetConnection(ConnectionString);
             var cnninternal = cnn.GetConnection();
 
             cnninternal.ExecuteNonQuery("print 1");
@@ -218,42 +219,42 @@ namespace TdsClientTests
         }
 
         [Fact]
-        public void ReadLargeColumn()
+        public async Task ReadLargeColumn()
         {
-            var cnn = Tds.GetConnection(ConnectionString);
-            var result = cnn.ExecuteQuery<TestLongStringType>(@"
+            var cnn = TdsClient.GetConnection(ConnectionString);
+            var result = await cnn.ExecuteQueryAsync<TestLongStringType>(@"
                 DECLARE @v nvarchar(max)=CAST( replicate('1',32768) AS nvarchar(max) )
                 SELECT s=@v");
             Assert.Equal(8000, result[0].s.Length);
         }
 
         [Fact]
-        public void ReadLargeColumn2()
+        public async Task ReadLargeColumn2()
         {
-            var tds = Tds.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
+            var tds = TdsClient.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
-                var result = tds.ExecuteQuery<TestLongStringType>(@"SELECT s=test FROM TestVarCharmax");
+                var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"SELECT s=test FROM TestVarCharmax");
                 Assert.Equal(16000, result[0].s.Length);
             }
         }
 
         [Fact]
-        public void ReadWmptyXml()
+        public async Task ReadWmptyXml()
         {
-            var tds = Tds.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
+            var tds = TdsClient.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
-                var result = tds.ExecuteQuery<TestLongStringType>(@"SELECT s=cast('' as xml)");
+                var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"SELECT s=cast('' as xml)");
                 ;
                 Assert.Equal(0, result[0].s.Length);
             }
         }
 
         [Fact]
-        public void ReadXml()
+        public async Task ReadXml()
         {
-            var tds = Tds.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
+            var tds = TdsClient.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
-                var result = tds.ExecuteQuery<TestLongStringType>(@"
+                var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"
 DECLARE @v xml=CAST( '<Data><DepartmentID>x</DepartmentID></Data>' AS xml )
 SELECT s=@v");
                 ;
@@ -267,13 +268,13 @@ SELECT s=@v");
         private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
 
         [Fact]
-        public void can_read_Udt()
+        public async Task can_read_Udt()
         {
 
-            var cnn = Tds.GetConnection(ConnectionString);
-            cnn.ExecuteNonQuery(TestStatement);
-            var x = cnn.ExecuteQuery<UdtTypes>("DECLARE @u Utf8String = CONVERT(Utf8String, 'hello world') SELECT Utf8String=@u");
-            Assert.Equal(0, x[0].Utf8String.Length);
+            var cnn = TdsClient.GetConnection(ConnectionString);
+            await cnn.ExecuteNonQueryAsync(TestStatement);
+            var x = await cnn.ExecuteQueryAsync<UdtTypes>("DECLARE @u Utf8String = CONVERT(Utf8String, 'hello world') SELECT Utf8String=@u");
+            Assert.Empty(x[0].Utf8String);
         }
         public static string TestStatement = @"
         IF EXISTS (SELECT * FROM sys.types WHERE name = N'Utf8String') DROP TYPE [Utf8String]; 

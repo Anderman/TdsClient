@@ -850,7 +850,7 @@ namespace Medella.TdsClient.Contants
         internal static readonly int[] WHIDBEY_DATETIMEOFFSET_LENGTH = {26, 28, 29, 30, 31, 32, 33, 34};
 
 
-        internal enum TransactionManagerRequestType
+        public enum TransactionManagerRequestType
         {
             GetDTCAddress = 0,
             Propagate = 1,
@@ -861,7 +861,7 @@ namespace Medella.TdsClient.Contants
             Save = 9
         }
 
-        internal enum TransactionManagerIsolationLevel
+        public enum TransactionManagerIsolationLevel
         {
             Unspecified = 0x00,
             ReadUncommitted = 0x01,

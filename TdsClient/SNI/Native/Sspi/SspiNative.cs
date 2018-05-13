@@ -8,7 +8,7 @@ namespace Medella.TdsClient.SNI.Native.Sspi
         private static readonly object STdsParserLock = new object();
         private static volatile uint _sMaxSspiLength;
         private static volatile bool _fSspiLoaded; // bool to indicate whether library has been loaded
-        private readonly SNIHandle _sniHandle;
+        private readonly SniNativeHandle _sniNativeHandle;
         private readonly byte[] _sniSpnBuffer;
 
         static SspiNative()
@@ -33,9 +33,9 @@ namespace Medella.TdsClient.SNI.Native.Sspi
             if (_sMaxSspiLength > int.MaxValue) throw SQL.InvalidSSPIPacketSize(); // SqlBu 332503
         }
 
-        public SspiNative(SNIHandle sniHandle, byte[] sniSpnBuffer)
+        public SspiNative(SniNativeHandle sniNativeHandle, byte[] sniSpnBuffer)
         {
-            _sniHandle = sniHandle;
+            _sniNativeHandle = sniNativeHandle;
             _sniSpnBuffer = sniSpnBuffer;
         }
 
@@ -62,13 +62,13 @@ namespace Medella.TdsClient.SNI.Native.Sspi
         {
             fixed (byte* pinServerUserName = &_sniSpnBuffer[0])
             {
-                return SniNativeMethodWrapper.SNISecGenClientContextWrapper(_sniHandle, inBuff, receivedLength, outBuff, ref sendLength, out _, pinServerUserName, (uint) _sniSpnBuffer.Length, null, null);
+                return SniNativeMethodWrapper.SNISecGenClientContextWrapper(_sniNativeHandle, inBuff, receivedLength, outBuff, ref sendLength, out _, pinServerUserName, (uint) _sniSpnBuffer.Length, null, null);
             }
         }
 
         public void Dispose()
         {
-            _sniHandle?.Dispose();
+            _sniNativeHandle?.Dispose();
         }
     }
 }
