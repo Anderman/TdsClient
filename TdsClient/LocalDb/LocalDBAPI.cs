@@ -7,7 +7,7 @@ using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.Resources;
-using Medella.TdsClient.SNI.Native;
+using Medella.TdsClient.TdsStream.Native;
 
 namespace Medella.TdsClient.LocalDb
 {

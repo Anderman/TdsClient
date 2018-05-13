@@ -5,6 +5,7 @@ using System.Text;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.SNI;
+using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Processes;
 
 namespace Medella.TdsClient.TDS.Controller
@@ -15,16 +16,16 @@ namespace Medella.TdsClient.TDS.Controller
         public long SqlTransactionId { get; set; }
         public readonly TdsStreamParser StreamParser;
         public readonly TdsPackage TdsPackage;
-        private readonly ISniHandle _tdsStream;
+        private readonly ITdsStream _tdsStream;
 
         static TdsPhysicalConnection()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        public TdsPhysicalConnection(ServerConnectionOptions serverConnectionOptions, SqlConnectionString dbConnectionOptions)
+        public TdsPhysicalConnection(TdsStreamProxy tdsStreamProxy, SqlConnectionString dbConnectionOptions)
         {
-            _tdsStream = serverConnectionOptions.CreateTdsStream(dbConnectionOptions.ConnectTimeout);
+            _tdsStream = tdsStreamProxy.CreateTdsStream(dbConnectionOptions.ConnectTimeout);
 
             TdsPackage = new TdsPackage(_tdsStream);
             var loginProcessor = new LoginProcessor(TdsPackage, dbConnectionOptions);

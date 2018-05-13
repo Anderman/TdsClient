@@ -1,29 +1,24 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Medella.TdsClient.Contants;
 
-namespace Medella.TdsClient.SNI.Native
+namespace Medella.TdsClient.TdsStream.Native
 {
-    public class SNIHandle : SafeHandle
+    public class SniNativeHandle : SafeHandle
     {
-        private readonly bool _fSync;
-
         // creates a physical connection
-        public SNIHandle(string serverName, int timeout, out byte[] instanceName) : base(IntPtr.Zero, true)
+        public SniNativeHandle(string serverName, int timeoutSec, out byte[] instanceName) : base(IntPtr.Zero, true)
         {
             var myInfo = new SniNativeMethodWrapper.ConsumerInfo {defaultBufferSize = 8000};
             SpnBuffer = new byte[SniNativeMethodWrapper.SniMaxComposedSpnLength];
-            timeout = timeout * 1000;
-            _fSync = false;
+            var timeoutmSec = timeoutSec * 1000;
             instanceName = new byte[256]; // Size as specified by netlibs.
 
-            Status = SniNativeMethodWrapper.SNIOpenSyncEx(myInfo, serverName, ref handle, SpnBuffer, instanceName, false, false, timeout, false);
+            Status = SniNativeMethodWrapper.SNIOpenSyncEx(myInfo, serverName, ref handle, SpnBuffer, instanceName, false, false, timeoutmSec, false);
         }
 
         public override bool IsInvalid => IntPtr.Zero == handle;
-        public uint Status { get; } = TdsEnums.SNI_UNINITIALIZED;
+        public uint Status { get; }
         public byte[] SpnBuffer { get; set; }
-
 
         protected override bool ReleaseHandle()
         {

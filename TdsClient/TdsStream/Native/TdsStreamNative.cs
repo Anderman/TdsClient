@@ -1,26 +1,26 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-using Medella.TdsClient.SNI.Native.Sspi;
+using Medella.TdsClient.TdsStream.Sspi;
 
-namespace Medella.TdsClient.SNI.Native
+namespace Medella.TdsClient.TdsStream.Native
 {
-    public class SniNative : ISniHandle
+    public class TdsStreamNative : ITdsStream
     {
         private readonly Guid _clientConnectionId;
-        private readonly SNIHandle _sniHandle;
+        private readonly SniNativeHandle _sniNativeHandle;
         private readonly SspiNative _sspi;
         private SniPacket _writePacket;
         public byte[] InstanceNameBytes;
 
-        public SniNative(string serverName, int timeout)
+        public TdsStreamNative(string serverName, int timeout)
         {
             var status = SniLoadHandle.SingletonInstance.SniStatus;
-            _sniHandle = new SNIHandle(".", timeout, out InstanceNameBytes);
-            ServerSpn = Encoding.ASCII.GetString(_sniHandle.SpnBuffer);
+            _sniNativeHandle = new SniNativeHandle(serverName, timeout, out InstanceNameBytes);
+            ServerSpn = Encoding.ASCII.GetString(_sniNativeHandle.SpnBuffer);
             InstanceName = "";
-            _sspi = new SspiNative(_sniHandle, _sniHandle.SpnBuffer);
-            SniNativeMethodWrapper.SniGetConnectionId(_sniHandle, ref _clientConnectionId);
+            _sspi = new SspiNative(_sniNativeHandle, _sniNativeHandle.SpnBuffer);
+            SniNativeMethodWrapper.SniGetConnectionId(_sniNativeHandle, ref _clientConnectionId);
         }
 
         public string ServerSpn { get; }
@@ -30,17 +30,17 @@ namespace Medella.TdsClient.SNI.Native
         {
             GetBytesString("Write-", writeBuffer, count);
             if (_writePacket != null)
-                SniNativeMethodWrapper.SNIPacketReset(_sniHandle, SniNativeMethodWrapper.IOType.WRITE, _writePacket, SniNativeMethodWrapper.ConsumerNumber.SNI_Consumer_SNI);
+                SniNativeMethodWrapper.SNIPacketReset(_sniNativeHandle, SniNativeMethodWrapper.IOType.WRITE, _writePacket, SniNativeMethodWrapper.ConsumerNumber.SNI_Consumer_SNI);
             else
-                _writePacket = new SniPacket(_sniHandle);
+                _writePacket = new SniPacket(_sniNativeHandle);
             SniNativeMethodWrapper.SNIPacketSetData(_writePacket, writeBuffer, count);
-            SniNativeMethodWrapper.SNIWritePacket(_sniHandle, _writePacket, true);
+            SniNativeMethodWrapper.SNIWritePacket(_sniNativeHandle, _writePacket, true);
         }
 
         public int Receive(byte[] readBuffer, int offset, int count)
         {
             var readPacketPtr = IntPtr.Zero;
-            var error = SniNativeMethodWrapper.SNIReadSyncOverAsync(_sniHandle, ref readPacketPtr, 15000);
+            var error = SniNativeMethodWrapper.SNIReadSyncOverAsync(_sniNativeHandle, ref readPacketPtr, 15000);
             var dataSize = (uint) count;
             SniNativeMethodWrapper.SNIPacketGetData(readPacketPtr, readBuffer, ref dataSize);
             GetBytesString("Read- ", readBuffer, (int) dataSize);
@@ -55,7 +55,7 @@ namespace Medella.TdsClient.SNI.Native
 
         public void Dispose()
         {
-            _sniHandle?.Dispose();
+            _sniNativeHandle?.Dispose();
             _writePacket?.Dispose();
             _sspi?.Dispose();
         }

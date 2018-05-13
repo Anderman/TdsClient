@@ -7,7 +7,7 @@ using System.IO;
 using System.IO.Pipes;
 using Medella.TdsClient.Contants;
 
-namespace Medella.TdsClient.SNI
+namespace Medella.TdsClient.TdsStream
 {
     /// <summary>
     ///     SSL encapsulated over TDS transport. During SSL handshake, SSL packets are

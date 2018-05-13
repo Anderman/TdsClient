@@ -2,12 +2,10 @@
 using System.Runtime.InteropServices;
 using Medella.TdsClient.Exceptions;
 
-namespace Medella.TdsClient.SNI.Native
+namespace Medella.TdsClient.TdsStream.Native
 {
     public sealed class SniPacket : SafeHandle
     {
-        public override bool IsInvalid => (IntPtr.Zero == handle);
-
         public SniPacket(SafeHandle sniHandle) : base(IntPtr.Zero, true)
         {
             SniNativeMethodWrapper.SNIPacketAllocate(sniHandle, SniNativeMethodWrapper.IOType.WRITE, ref handle);
@@ -15,10 +13,12 @@ namespace Medella.TdsClient.SNI.Native
                 throw SQL.SNIPacketAllocationFailure();
         }
 
+        public override bool IsInvalid => IntPtr.Zero == handle;
+
         protected override bool ReleaseHandle()
         {
             // NOTE: The SafeHandle class guarantees this will be called exactly once.
-            var ptr = base.handle;
+            var ptr = handle;
             handle = IntPtr.Zero;
             if (IntPtr.Zero != ptr)
                 SniNativeMethodWrapper.SNIPacketRelease(ptr);

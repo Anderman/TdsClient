@@ -8,14 +8,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI.Sspi;
+using Medella.TdsClient.TdsStream.Sspi;
 
-namespace Medella.TdsClient.SNI.TcpIp
+namespace Medella.TdsClient.TdsStream.TcpIp
 {
     /// <summary>
     ///     TCP connection handle
     /// </summary>
-    internal class SniTcpHandle : ISniHandle
+    internal class TdsStreamTcp : ITdsStream
     {
         private const int DefaultSqlServerPort = 1433;
         private readonly SspiHelper _sspi;
@@ -27,7 +27,7 @@ namespace Medella.TdsClient.SNI.TcpIp
         private NetworkStream _tcpStream;
         private bool _validateCert = true;
 
-        public SniTcpHandle(string serverName, int port, int timeoutSec)
+        public TdsStreamTcp(string serverName, int port, int timeoutSec)
         {
             _targetServer = serverName;
 

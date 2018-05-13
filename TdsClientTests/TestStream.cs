@@ -5,12 +5,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Medella.TdsClient.SNI;
-using Medella.TdsClient.SNI.SniNp;
+using Medella.TdsClient.TdsStream;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace TdsClientTests
 {
-    public class TestStream : ISniHandle
+    public class TestStream : ITdsStream
     {
         public string ServerSpn { get; }
         public string InstanceName { get; }

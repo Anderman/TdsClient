@@ -1,4 +1,4 @@
-﻿namespace Medella.TdsClient.SNI.Native
+﻿namespace Medella.TdsClient.TdsStream.Native
 {
     internal class SniCommon
     {

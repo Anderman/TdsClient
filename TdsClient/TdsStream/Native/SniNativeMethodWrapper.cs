@@ -4,7 +4,7 @@ using Medella.TdsClient.Exceptions;
 
 //using Medella.TdsClient.SNI.Internal;
 
-namespace Medella.TdsClient.SNI.Native
+namespace Medella.TdsClient.TdsStream.Native
 {
     public static class SniNativeMethodWrapper
     {
@@ -311,9 +311,9 @@ namespace Medella.TdsClient.SNI.Native
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe uint SNISecGenClientContextWrapper(
             [In] SniNativeHandle pConn,
-            [In, Out] byte[] pIn,
+            [In] [Out] byte[] pIn,
             uint cbIn,
-            [In, Out] byte[] pOut,
+            [In] [Out] byte[] pOut,
             [In] ref uint pcbOut,
             [MarshalAs(UnmanagedType.Bool)] out bool pfDone,
             byte* szServerInfo,
@@ -323,6 +323,7 @@ namespace Medella.TdsClient.SNI.Native
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         internal static extern uint SNISecInitPackage(ref uint pcbMaxToken);
+
         #endregion
     }
 }

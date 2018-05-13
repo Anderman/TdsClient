@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Medella.TdsClient.SNI
+namespace Medella.TdsClient.TdsStream
 {
-    public interface ISniHandle : IDisposable
+    public interface ITdsStream : IDisposable
     {
         string InstanceName { get; }
         void FlushBuffer(byte[] writeBuffer, int count);

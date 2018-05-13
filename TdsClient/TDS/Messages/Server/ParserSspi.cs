@@ -1,4 +1,4 @@
-﻿using Medella.TdsClient.SNI.Sspi;
+﻿using Medella.TdsClient.TdsStream.Sspi;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Messages.Server

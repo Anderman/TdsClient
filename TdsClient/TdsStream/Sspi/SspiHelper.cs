@@ -3,16 +3,16 @@ using System.Data.SqlClient;
 using System.Reflection;
 using System.Text;
 
-namespace Medella.TdsClient.SNI.Sspi
+namespace Medella.TdsClient.TdsStream.Sspi
 {
     public class SspiHelper
     {
-        private readonly ConstructorInfo _sspiClientContextStatusConstructor;
         private readonly MethodInfo _genSspiClientContextMethod;
+        private readonly byte[] _serverSpn;
         private readonly object _sniInstance;
+        private readonly ConstructorInfo _sspiClientContextStatusConstructor;
 
         private object _sspiClientContextStatus;
-        private readonly byte[] _serverSpn;
 
         public SspiHelper(string serverSpn)
         {
@@ -33,7 +33,7 @@ namespace Medella.TdsClient.SNI.Sspi
         {
             if (serverToken == null)
                 _sspiClientContextStatus = GetNewSspiClientContextStatus();
-            var args = new[] {_sspiClientContextStatus, serverToken, (byte[]) null, _serverSpn};
+            var args = new[] {_sspiClientContextStatus, serverToken, null, _serverSpn};
             _genSspiClientContextMethod.Invoke(_sniInstance, args);
             ClientToken = (byte[]) args[2];
             return ClientToken;

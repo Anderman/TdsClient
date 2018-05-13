@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.SNI;
+using Medella.TdsClient.TdsStream;
 
 namespace Medella.TdsClient.TDS.Package
 {
@@ -10,16 +11,16 @@ namespace Medella.TdsClient.TDS.Package
     {
         private const int BufferSize = 16000;
         private const int Guidsize = 16;
-        private readonly ISniHandle _sniHandle;
+        private readonly ITdsStream _tdsStream;
         private int _packageEnd;
         private byte _packageStatus;
         private int _pos;
         private int _readEndPos;
         public byte[] ReadBuffer = new byte[BufferSize];
 
-        public TdsPackageReader(ISniHandle sniHandle)
+        public TdsPackageReader(ITdsStream tdsStream)
         {
-            _sniHandle = sniHandle;
+            _tdsStream = tdsStream;
         }
 
         public TdsSession CurrentSession { get; } = new TdsSession();
@@ -42,7 +43,7 @@ namespace Medella.TdsClient.TDS.Package
             if (size <= left)
                 return;
             Buffer.BlockCopy(ReadBuffer, _pos, ReadBuffer, 0, left);
-            _readEndPos = _sniHandle.Receive(ReadBuffer, left, BufferSize - left) + left;
+            _readEndPos = _tdsStream.Receive(ReadBuffer, left, BufferSize - left) + left;
             _pos = 8;
         }
 
@@ -51,7 +52,7 @@ namespace Medella.TdsClient.TDS.Package
             int len;
             do
             {
-                len = _sniHandle.Receive(ReadBuffer, _readEndPos, BufferSize - _readEndPos);
+                len = _tdsStream.Receive(ReadBuffer, _readEndPos, BufferSize - _readEndPos);
                 _readEndPos += len;
             } while (len > 0 && _readEndPos - startPackage < minsize);
         }

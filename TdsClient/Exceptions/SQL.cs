@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Transactions;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Resources;
-using Medella.TdsClient.SNI.Native;
+using Medella.TdsClient.TdsStream.Native;
 using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Medella.TdsClient.Exceptions

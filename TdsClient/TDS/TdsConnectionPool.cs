@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Contants;
+using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Controller;
 
 namespace Medella.TdsClient.TDS
@@ -23,7 +24,7 @@ namespace Medella.TdsClient.TDS
             if (_freepool.TryDequeue(out var tdsController))
                 return tdsController;
             var options = _options;
-            var serverConnectionOptions = new ServerConnectionOptions(options.DataSource);
+            var serverConnectionOptions = new TdsStreamProxy(options.DataSource);
             var cnn = new TdsPhysicalConnection(serverConnectionOptions, options);
             return cnn;
         }

@@ -1,4 +1,4 @@
-using Medella.TdsClient.SNI.Sspi;
+using Medella.TdsClient.TdsStream.Sspi;
 using Xunit;
 
 namespace TdsClientTests.Sni.Sspi

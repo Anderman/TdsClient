@@ -2,6 +2,7 @@
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.SNI;
+using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
 
@@ -10,31 +11,31 @@ namespace Medella.TdsClient.TDS.Package
     public class TdsPackageWriter
     {
         private const int BufferSize = 8000;
-        private readonly ISniHandle _sniHandle;
+        private readonly ITdsStream _tdsStream;
         private byte _packageNumber;
         private int _packageStart;
         public SqlCollations SqlCollation = new SqlCollations();
         public byte[] WriteBuffer = new byte[BufferSize];
         public int WritePosition;
 
-        public TdsPackageWriter(ISniHandle sniHandle)
+        public TdsPackageWriter(ITdsStream tdsStream)
         {
-            _sniHandle = sniHandle;
+            _tdsStream = tdsStream;
         }
 
-        public string InstanceName => _sniHandle.InstanceName;
+        public string InstanceName => _tdsStream.InstanceName;
         public MetadataBulkCopy[] ColumnsMetadata { get; set; }
 
         public byte[] GetClientToken(byte[] servertoken)
         {
-            return _sniHandle.GetClientToken(servertoken);
+            return _tdsStream.GetClientToken(servertoken);
         }
 
         public void SendBatchPackage()
         {
             WritePosition = BufferSize;
             SetHeader(TdsEnums.ST_BATCH);
-            _sniHandle.FlushBuffer(WriteBuffer, WritePosition);
+            _tdsStream.FlushBuffer(WriteBuffer, WritePosition);
             _packageStart = 0;
             WritePosition = 8;
             _packageNumber++;
@@ -64,7 +65,7 @@ namespace Medella.TdsClient.TDS.Package
         public void SendLastMessage()
         {
             SetHeader(TdsEnums.ST_EOM);
-            _sniHandle.FlushBuffer(WriteBuffer, WritePosition);
+            _tdsStream.FlushBuffer(WriteBuffer, WritePosition);
             _packageNumber = 0;
             WritePosition = 0;
         }

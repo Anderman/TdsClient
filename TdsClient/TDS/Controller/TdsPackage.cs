@@ -1,5 +1,5 @@
 using Medella.TdsClient.SNI;
-using Medella.TdsClient.SNI.SniNp;
+using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Controller
@@ -9,7 +9,7 @@ namespace Medella.TdsClient.TDS.Controller
         public TdsPackageReader Reader;
         public TdsPackageWriter Writer;
 
-        public TdsPackage(ISniHandle tdsStream)
+        public TdsPackage(ITdsStream tdsStream)
         {
             Reader = new TdsPackageReader(tdsStream);
             Writer = new TdsPackageWriter(tdsStream);

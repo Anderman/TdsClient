@@ -1,7 +1,7 @@
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI.Native;
+using Medella.TdsClient.TdsStream.Native;
 using Xunit;
 
 namespace TdsClientTests
@@ -20,7 +20,7 @@ namespace TdsClientTests
         [Fact]
         public void can_LoadHandle()
         {
-            var m= new SniNative("tcp:.,1433",15);
+            var m= new TdsStreamNative("tcp:.,1433",15);
             var buffer = connect;
             m.FlushBuffer(buffer, connect.Length);
             var readBuffer = new byte[8000];
@@ -35,7 +35,7 @@ namespace TdsClientTests
 
 
             //Assert.Equal(TdsEnums.SNI_SUCCESS, SniLoadHandle.SingletonInstance.SniStatus);
-            //var handle = new SNIHandle("tcp:.,1433", 15, out byte[] instanceName);
+            //var handle = new SniNativeHandle("tcp:.,1433", 15, out byte[] instanceName);
             //Assert.Equal(256, instanceName.Length);
             //Assert.Equal(TdsEnums.SNI_SUCCESS, handle.Status);
 

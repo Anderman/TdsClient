@@ -3,19 +3,19 @@ using System.IO.Pipes;
 using System.Net;
 using System.Net.Security;
 using System.Text;
-using Medella.TdsClient.SNI.Sspi;
+using Medella.TdsClient.TdsStream.Sspi;
 
-namespace Medella.TdsClient.SNI.SniNp
+namespace Medella.TdsClient.TdsStream.SniNp
 {
-    public class SniNpHandle : ISniHandle
+    public class TdsStreamNamedpipes : ITdsStream
     {
         private readonly SslOverTdsStream _sslOverTdsStream;
-        private SslStream _sslStream;
         private readonly SspiHelper _sspi;
+        private SslStream _sslStream;
         public NamedPipeClientStream Stream;
 
 
-        public SniNpHandle(string serverName, string pipeName, long timeOut)
+        public TdsStreamNamedpipes(string serverName, string pipeName, long timeOut)
         {
             Stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
 

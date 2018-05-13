@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Medella.TdsClient.Contants;
 
-namespace Medella.TdsClient.SNI.Native
+namespace Medella.TdsClient.TdsStream.Native
 {
     public class SniLoadHandle : SafeHandle
     {
