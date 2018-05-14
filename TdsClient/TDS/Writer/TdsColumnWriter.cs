@@ -11,27 +11,6 @@ namespace Medella.TdsClient.TDS.Writer
     {
         private static readonly byte[] TextOrImageHeader = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-        internal static readonly long[] DecimalToScale =
-        {
-            1, //0
-            10, //1
-            100, //2
-            1000, //3
-            10000, //4
-            100000, //5
-            1000000, //6
-            10000000, //7
-            100000000, //8
-            1000000000, //9
-            10000000000, //10
-            100000000000, //11
-            1000000000000, //12
-            10000000000000, //13
-            100000000000000, //14
-            1000000000000000 //15
-        };
-
-        public static readonly DateTime BaseDate1900 = new DateTime(1900, 1, 1);
         private readonly TdsPackageWriter _writer;
         public readonly MetadataBulkCopy[] MetaData;
 
@@ -43,248 +22,95 @@ namespace Medella.TdsClient.TDS.Writer
 
         public void WriteNullableSqlBit(bool? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 1);
-            if (value != null)
-                WriteSqlBit((bool) value, index);
-        }
-
-        public void WriteSqlBit(bool value, int index)
-        {
-            _writer.WriteByte(value ? 1 : 0);
-        }
-
-        public void WriteSqlByte(byte value, int index)
-        {
-            _writer.WriteByte(value);
-        }
-
-
-        public void WriteSqlInt16(short value, int index)
-        {
-            _writer.WriteInt16(value);
+            _writer.WriteNullableSqlBit(value);
         }
 
         public void WriteNullableSqlByte(byte? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 1);
-            if (value == null) return;
-            WriteSqlByte((byte) value, index);
+            _writer.WriteNullableSqlByte(value);
         }
 
         public void WriteNullableSqlInt16(short? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 2);
-            if (value == null) return;
-
-            WriteSqlInt16((short) value, index);
+            _writer.WriteNullableSqlInt16(value);
         }
 
         public void WriteNullableSqlInt32(int? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 4);
-            if (value == null) return;
-
-            WriteSqlInt32((int) value, index);
+            _writer.WriteNullableSqlInt32(value);
         }
 
         public void WriteNullableSqlInt64(long? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 8);
-            if (value == null) return;
-
-            WriteSqlInt64((long) value, index);
-        }
-
-
-        public void WriteSqlInt32(int value, int index)
-        {
-            _writer.WriteInt32(value);
-        }
-
-        public void WriteSqlInt64(long value, int index)
-        {
-            _writer.WriteInt64(value);
-        }
-
-        public void WriteSqlMoney4(decimal value, int index)
-        {
-            _writer.WriteInt32((int) (value * 10000));
+            _writer.WriteNullableSqlInt64(value);
         }
 
         public void WriteNullableSqlMoneyN(decimal? value, int index)
         {
             var len = MetaData[index].Length;
-            if (len == 4) WriteNullableSqlMoney4(value, index);
-            if (len == 8) WriteNullableSqlMoney(value, index);
+            if (len == 4) _writer.WriteNullableSqlMoney4(value);
+            if (len == 8) _writer.WriteNullableSqlMoney(value);
         }
 
         public void WriteNullableSqlMoney4(decimal? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 4);
-            if (value == null) return;
-            WriteSqlMoney4((decimal) value, index);
+            _writer.WriteNullableSqlMoney4(value);
         }
 
         public void WriteNullableSqlMoney(decimal? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 8);
-            if (value == null) return;
-            WriteSqlMoney((decimal) value, index);
-        }
-
-        public void WriteSqlMoney(decimal value, int index)
-        {
-            var v = (long) (value * 10000);
-            _writer.WriteUInt32((uint) (v >> 0x20));
-            _writer.WriteUInt32((uint) (v & 0xFFFF_FFFF));
+            _writer.WriteNullableSqlMoney(value);
         }
 
         public void WriteNullableSqlFloat(float? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 4);
-            if (value != null)
-                _writer.WriteFloat((float) value);
-        }
-
-        public void WriteSqlFloat(float value, int index)
-        {
-            _writer.WriteFloat(value);
+            _writer.WriteNullableSqlFloat(value);
         }
 
         public void WriteNullableSqlDouble(double? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 8);
-            if (value == null) return;
-            _writer.WriteDouble((double) value);
-        }
-
-        public void WriteSqlDouble(double value, int index)
-        {
-            _writer.WriteDouble(value);
+            _writer.WriteNullableSqlDouble(value);
         }
 
         public void WriteNullableSqlDecimal(decimal? value, int index)
         {
-            var p = MetaData[index].Precision;
-            var len = p <= 9 ? 5
-                : p <= 19 ? 9
-                : p <= 28 ? 13
-                : 17;
-            _writer.WriteByte(value == null ? 0 : len);
-            if (value == null) return;
+            var precision = MetaData[index].Precision;
             var scale = MetaData[index].Scale;
-            WriteSqlDecimal((decimal) value, len, scale);
-        }
-
-        private void WriteSqlDecimal(decimal value, int len, byte toScale)
-        {
-            var fromScale = (byte) (decimal.GetBits(value)[3] >> 16);
-            value = CorrectScale(value, fromScale, toScale);
-            _writer.WriteSqlDecimal(value, len);
-        }
-
-        private static decimal CorrectScale(decimal value, byte fromScale, byte toScale)
-        {
-            var corr = toScale - fromScale;
-            if (corr < 0)
-                return decimal.Round(value, toScale);
-            if (corr <= 15)
-                return value * DecimalToScale[corr];
-            value = value * DecimalToScale[15];
-            return value * DecimalToScale[corr - 15];
+            _writer.WriteNullableSqlDecimal(value, precision, scale);
         }
 
         public void WriteNullableSqlDate(DateTime? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 3);
-            if (value == null) return;
-            _writer.WriteDate((DateTime) value);
+            _writer.WriteNullableSqlDate(value);
         }
 
         public void WriteNullableSqlTime(TimeSpan? value, int index)
         {
             var scale = MetaData[index].Scale;
-            var len = scale <= 2 ? 3 : scale <= 4 ? 4 : 5;
-            _writer.WriteByte(value == null ? 0 : len);
-            if (value == null) return;
-            WriteSqlTime((TimeSpan) value, scale);
-        }
-
-        private void WriteSqlTime(TimeSpan value, byte scale)
-        {
-            var len = scale <= 2 ? 3 : scale <= 4 ? 4 : 5;
-            var v = (ulong) (value.Ticks / TdsEnums.TICKS_FROM_SCALE[scale]);
-            _writer.WriteByte((byte) v);
-            _writer.WriteByte((byte) (v >> 8));
-            _writer.WriteByte((byte) (v >> 16));
-            if (len > 3) _writer.WriteByte((byte) (v >> 24));
-            if (len > 4) _writer.WriteByte((byte) (v >> 32));
+            _writer.WriteNullableSqlTime(value, scale);
         }
 
         public void WriteNullableSqlDateTime2(DateTime? value, int index)
         {
             var scale = MetaData[index].Scale;
-            var len = scale <= 2 ? 6
-                : scale <= 4 ? 7
-                : 8;
-            _writer.WriteByte(value == null ? 0 : len);
-            if (value == null) return;
-            WriteSqlTime(value.Value.TimeOfDay, scale);
-            _writer.WriteDate((DateTime) value);
+            _writer.WriteNullableSqlDateTime2(value, scale);
+        }
+
+        public void WriteNullableSqlDateTime(DateTime? value, int index)
+        {
+            var len = MetaData[index].Length;
+            _writer.WriteNullableSqlDateTime(value, len);
         }
 
         public void WriteNullableSqlDateTimeOffset(DateTimeOffset? value, int index)
         {
             var scale = MetaData[index].Scale;
-            var len = scale <= 2 ? 8
-                : scale <= 4 ? 9
-                : 10;
-            _writer.WriteByte(value == null ? 0 : len);
-            if (value == null) return;
-            WriteSqlDateTimeOffset((DateTimeOffset) value, scale);
-        }
-
-        private void WriteSqlDateTimeOffset(DateTimeOffset value, byte scale)
-        {
-            value = value.Subtract(value.Offset);
-            WriteSqlTime(value.TimeOfDay, scale);
-            _writer.WriteDate(value.DateTime);
-            _writer.WriteInt16(value.Offset.Minutes);
-        }
-
-        public void WriteSqlDateTime4(DateTime value, int index)
-        {
-            var datepart = (ushort) value.Subtract(BaseDate1900).Days;
-            var timepart = (ushort) value.TimeOfDay.TotalMinutes;
-            _writer.WriteInt16(datepart);
-            _writer.WriteInt16(timepart);
-        }
-
-        public void WriteSqlDateTime(DateTime value, int index)
-        {
-            var datepart = value.Subtract(BaseDate1900).Days;
-            var timepart = (int) value.TimeOfDay.TotalSeconds * 300;
-            _writer.WriteInt32(datepart);
-            _writer.WriteInt32(timepart);
-        }
-
-        public void WriteNullableSqlDateTime(DateTime? value, int index)
-        {
-            var len = MetaData[index].TdsType == TdsEnums.SQLDATETIM4 ? 4 : 8;
-
-            _writer.WriteByte(value == null ? 0 : len);
-            if (value == null) return;
-            if (len == 4)
-                WriteSqlDateTime4((DateTime) value, index);
-            else
-                WriteSqlDateTime((DateTime) value, index);
+            _writer.WriteNullableSqlDateTimeOffset(value, scale);
         }
 
         public void WriteNullableSqlUniqueId(Guid? value, int index)
         {
-            _writer.WriteByte(value == null ? 0 : 16);
-            if (value == null) return;
-            _writer.WriteByteArray(((Guid) value).ToByteArray());
+            _writer.WriteNullableSqlUniqueId(value);
         }
 
         //0xD1,row
@@ -408,7 +234,7 @@ namespace Medella.TdsClient.TDS.Writer
                     _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 16);
                     _writer.WriteByte(TdsEnums.SQLUNIQUEID);
                     _writer.WriteByte(0);
-                    _writer.WriteSqlGuid(v);
+                    _writer.WriteSqlUniqueId(v);
                     return;
                 case decimal v:
                 {
@@ -451,7 +277,7 @@ namespace Medella.TdsClient.TDS.Writer
                     _writer.WriteByte(TdsEnums.SQLTIME);
                     _writer.WriteByte(1);
                     _writer.WriteByte(scale);
-                    WriteSqlTime(v, scale);
+                    _writer.WriteSqlTime(v, scale);
                     return;
                 }
                 case DateTimeOffset v:
@@ -462,12 +288,68 @@ namespace Medella.TdsClient.TDS.Writer
                     _writer.WriteByte(TdsEnums.SQLDATETIMEOFFSET);
                     _writer.WriteByte(1);
                     _writer.WriteByte(scale);
-                    WriteSqlDateTimeOffset(v, scale);
+                    _writer.WriteSqlDateTimeOffset(v, scale);
                     return;
                 }
             }
 
             throw new Exception("Unsupported variant object");
+        }
+
+
+        public void WriteSqlBit(bool value, int index)
+        {
+            _writer.WriteByte(value ? 1 : 0);
+        }
+
+        public void WriteSqlByte(byte value, int index)
+        {
+            _writer.WriteByte(value);
+        }
+
+        public void WriteSqlInt16(short value, int index)
+        {
+            _writer.WriteInt16(value);
+        }
+
+        public void WriteSqlInt32(int value, int index)
+        {
+            _writer.WriteInt32(value);
+        }
+
+        public void WriteSqlInt64(long value, int index)
+        {
+            _writer.WriteInt64(value);
+        }
+
+        public void WriteSqlMoney4(decimal value, int index)
+        {
+            _writer.WriteSqlMoney4(value);
+        }
+
+        public void WriteSqlMoney(decimal value, int index)
+        {
+            _writer.WriteSqlMoney(value);
+        }
+
+        public void WriteSqlFloat(float value, int index)
+        {
+            _writer.WriteFloat(value);
+        }
+
+        public void WriteSqlDouble(double value, int index)
+        {
+            _writer.WriteDouble(value);
+        }
+
+        public void WriteSqlDateTime4(DateTime value, int index)
+        {
+            _writer.WriteSqlDateTime4(value);
+        }
+
+        public void WriteSqlDateTime(DateTime value, int index)
+        {
+            _writer.WriteSqlDateTime(value);
         }
     }
 }

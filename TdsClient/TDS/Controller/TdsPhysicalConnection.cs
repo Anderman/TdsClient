@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Cleanup;
 using Medella.TdsClient.Exceptions;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Processes;
 

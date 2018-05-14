@@ -8,20 +8,20 @@ namespace Medella.TdsClient.TDS.Messages.Client
 {
     public static class WriterLogin
     {
-        public static void SendTdsLogin(this TdsPackageWriter writer, SqlLogin rec, SessionData recoverySessionData)
+        public static void SendTdsLogin(this TdsPackageWriter writer, LoginOptions rec, SessionData recoverySessionData)
         {
             const string clientInterfaceName = TdsEnums.SQL_PROVIDER_NAME;
 
             var requestedFeatures = rec.RequestedFeatures;
             if (recoverySessionData != null && (requestedFeatures & TdsEnums.FeatureExtension.SessionRecovery) == 0) throw new Exception("Recovery session data without session recovery feature request");
-            if (rec.hostName.Length > TdsEnums.MAXLEN_HOSTNAME) throw new Exception("_workstationId.Length exceeds the max length for this value");
-            if (!rec.useSSPI && rec.userName.Length > TdsEnums.MAXLEN_USERNAME) throw new Exception("_userID.Length exceeds the max length for this value");
-            if (!rec.useSSPI && rec.password.Length > TdsEnums.MAXLEN_PASSWORD) throw new Exception("_password.Length exceeds the max length for this value");
-            if (rec.applicationName.Length > TdsEnums.MAXLEN_APPNAME) throw new Exception("_applicationName.Length exceeds the max length for this value");
-            if (rec.serverName.Length > TdsEnums.MAXLEN_SERVERNAME) throw new Exception("_dataSource.Length exceeds the max length for this value");
-            if (rec.language.Length > TdsEnums.MAXLEN_LANGUAGE) throw new Exception("_currentLanguage .Length exceeds the max length for this value");
-            if (rec.database.Length > TdsEnums.MAXLEN_DATABASE) throw new Exception("_initialCatalog.Length exceeds the max length for this value");
-            if (rec.attachDBFilename.Length > TdsEnums.MAXLEN_ATTACHDBFILE) throw new Exception("_attachDBFileName.Length exceeds the max length for this value");
+            if (rec.HostName.Length > TdsEnums.MAXLEN_HOSTNAME) throw new Exception("_workstationId.Length exceeds the max length for this value");
+            if (!rec.UseSspi && rec.UserName.Length > TdsEnums.MAXLEN_USERNAME) throw new Exception("_userID.Length exceeds the max length for this value");
+            if (!rec.UseSspi && rec.Password.Length > TdsEnums.MAXLEN_PASSWORD) throw new Exception("_password.Length exceeds the max length for this value");
+            if (rec.ApplicationName.Length > TdsEnums.MAXLEN_APPNAME) throw new Exception("_applicationName.Length exceeds the max length for this value");
+            if (rec.ServerName.Length > TdsEnums.MAXLEN_SERVERNAME) throw new Exception("_dataSource.Length exceeds the max length for this value");
+            if (rec.Language.Length > TdsEnums.MAXLEN_LANGUAGE) throw new Exception("_currentLanguage .Length exceeds the max length for this value");
+            if (rec.Database.Length > TdsEnums.MAXLEN_DATABASE) throw new Exception("_initialCatalog.Length exceeds the max length for this value");
+            if (rec.AttachDbFilename.Length > TdsEnums.MAXLEN_ATTACHDBFILE) throw new Exception("_attachDBFileName.Length exceeds the max length for this value");
 
             if (clientInterfaceName.Length > TdsEnums.MAXLEN_CLIENTINTERFACE) throw new Exception("cchCltIntName can specify at most 128 unicode characters. See Tds spec");
 
@@ -38,10 +38,10 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
             // add up variable-len portions (multiply by 2 for byte len of char strings)
             //
-            length += (rec.hostName.Length + rec.applicationName.Length +
-                       rec.serverName.Length + clientInterfaceName.Length +
-                       rec.language.Length + rec.database.Length +
-                       rec.attachDBFilename.Length) * 2;
+            length += (rec.HostName.Length + rec.ApplicationName.Length +
+                       rec.ServerName.Length + clientInterfaceName.Length +
+                       rec.Language.Length + rec.Database.Length +
+                       rec.AttachDbFilename.Length) * 2;
             if (useFeatureExt) length += 4;
 
             // allocate memory for SSPI variables
@@ -50,14 +50,14 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
             var userName = "";
             var encryptedPassword = new byte[0];
-            if (rec.useSSPI)
+            if (rec.UseSspi)
             {
                 length += rec.ClientToken.Length;
             }
             else
             {
-                userName = rec.userName;
-                encryptedPassword = ObfuscatePassword(rec.password);
+                userName = rec.UserName;
+                encryptedPassword = ObfuscatePassword(rec.Password);
                 length += userName.Length * 2 + encryptedPassword.Length;
             }
 
@@ -76,7 +76,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 writer.WriteInt32((TdsEnums.DENALI_MAJOR << 24) | (TdsEnums.DENALI_INCREMENT << 16) | TdsEnums.DENALI_MINOR);
             else
                 writer.WriteUInt32(recoverySessionData.TdsVersion);
-            writer.WriteInt32(rec.packetSize);
+            writer.WriteInt32(rec.PacketSize);
             writer.WriteInt32(TdsEnums.CLIENT_PROG_VER);
             writer.WriteInt32(GetCurrentProcessIdForTdsLoginOnly());
             writer.WriteInt32(0); // connectionID is unused
@@ -118,14 +118,14 @@ namespace Medella.TdsClient.TDS.Messages.Client
             // second byte
             log7Flags |= TdsEnums.INIT_LANG_FATAL << 8;
             log7Flags |= TdsEnums.ODBC_ON << 9;
-            if (rec.useReplication) log7Flags |= TdsEnums.REPL_ON << 12;
-            if (rec.useSSPI) log7Flags |= TdsEnums.SSPI_ON << 15;
+            if (rec.UseReplication) log7Flags |= TdsEnums.REPL_ON << 12;
+            if (rec.UseSspi) log7Flags |= TdsEnums.SSPI_ON << 15;
 
             // third byte
             if (rec.ReadOnlyIntent) log7Flags |= TdsEnums.READONLY_INTENT_ON << 21; // read-only intent flag is a first bit of fSpare1
 
             // 4th one
-            if (rec.userInstance) log7Flags |= 1 << 26;
+            if (rec.UserInstance) log7Flags |= 1 << 26;
             if (useFeatureExt) log7Flags |= 1 << 28;
 
             writer.WriteInt32(log7Flags);
@@ -140,12 +140,12 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
             // note that you must always set ibHostName since it indicates the beginning of the variable length section of the login record
             writer.WriteInt16(offset); // host name offset
-            writer.WriteInt16(rec.hostName.Length);
-            offset += rec.hostName.Length * 2;
+            writer.WriteInt16(rec.HostName.Length);
+            offset += rec.HostName.Length * 2;
 
             // Only send user/password over if not fSSPI...  If both user/password and SSPI are in login
             // rec, only SSPI is used.  Confirmed same behavior as in luxor.
-            if (rec.useSSPI)
+            if (rec.UseSspi)
             {
                 // case where user/password data is not used, send over zeros
                 writer.WriteInt16(0); // userName offset
@@ -166,12 +166,12 @@ namespace Medella.TdsClient.TDS.Messages.Client
             }
 
             writer.WriteInt16(offset); // app name offset
-            writer.WriteInt16(rec.applicationName.Length);
-            offset += rec.applicationName.Length * 2;
+            writer.WriteInt16(rec.ApplicationName.Length);
+            offset += rec.ApplicationName.Length * 2;
 
             writer.WriteInt16(offset); // server name offset
-            writer.WriteInt16(rec.serverName.Length);
-            offset += rec.serverName.Length * 2;
+            writer.WriteInt16(rec.ServerName.Length);
+            offset += rec.ServerName.Length * 2;
 
             writer.WriteInt16(offset);
             if (useFeatureExt)
@@ -189,19 +189,19 @@ namespace Medella.TdsClient.TDS.Messages.Client
             offset += clientInterfaceName.Length * 2;
 
             writer.WriteInt16(offset); // language name offset
-            writer.WriteInt16(rec.language.Length);
-            offset += rec.language.Length * 2;
+            writer.WriteInt16(rec.Language.Length);
+            offset += rec.Language.Length * 2;
 
             writer.WriteInt16(offset); // database name offset
-            writer.WriteInt16(rec.database.Length);
-            offset += rec.database.Length * 2;
+            writer.WriteInt16(rec.Database.Length);
+            offset += rec.Database.Length * 2;
 
             var nicAddress = GetNetworkPhysicalAddressForTdsLoginOnly();
 
             writer.WriteByteArray(nicAddress);
 
             writer.WriteInt16(offset); // ibSSPI offset
-            if (rec.useSSPI)
+            if (rec.UseSspi)
             {
                 writer.WriteInt16(rec.ClientToken.Length);
                 offset += rec.ClientToken.Length;
@@ -212,8 +212,8 @@ namespace Medella.TdsClient.TDS.Messages.Client
             }
 
             writer.WriteInt16(offset); // DB filename offset
-            writer.WriteInt16(rec.attachDBFilename.Length);
-            offset += rec.attachDBFilename.Length * 2;
+            writer.WriteInt16(rec.AttachDbFilename.Length);
+            offset += rec.AttachDbFilename.Length * 2;
 
             writer.WriteInt16(offset); // reset password offset
             writer.WriteInt16(0);
@@ -221,31 +221,31 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.WriteInt32(0); // reserved for chSSPI
 
             // write variable length portion
-            writer.WriteUnicodeString(rec.hostName);
+            writer.WriteUnicodeString(rec.HostName);
 
             // if we are using SSPI, do not send over username/password, since we will use SSPI instead
             // same behavior as Luxor
-            if (!rec.useSSPI)
+            if (!rec.UseSspi)
             {
                 writer.WriteUnicodeString(userName);
                 writer.WriteByteArray(encryptedPassword);
             }
 
-            writer.WriteUnicodeString(rec.applicationName);
-            writer.WriteUnicodeString(rec.serverName);
+            writer.WriteUnicodeString(rec.ApplicationName);
+            writer.WriteUnicodeString(rec.ServerName);
 
             // write ibFeatureExtLong
             if (useFeatureExt) writer.WriteInt32(feOffset);
 
             writer.WriteUnicodeString(clientInterfaceName);
-            writer.WriteUnicodeString(rec.language);
-            writer.WriteUnicodeString(rec.database);
+            writer.WriteUnicodeString(rec.Language);
+            writer.WriteUnicodeString(rec.Database);
 
             // send over SSPI data if we are using SSPI
-            if (rec.useSSPI)
+            if (rec.UseSspi)
                 writer.WriteByteArray(rec.ClientToken);
 
-            writer.WriteUnicodeString(rec.attachDBFilename);
+            writer.WriteUnicodeString(rec.AttachDbFilename);
             if (useFeatureExt)
             {
                 if ((requestedFeatures & TdsEnums.FeatureExtension.SessionRecovery) != 0) WriteSessionRecoveryFeatureRequest(writer, recoverySessionData);

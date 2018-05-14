@@ -1,21 +1,19 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Package
 {
-    public class TdsPackageWriter
+    public partial class TdsPackageWriter
     {
         private const int BufferSize = 8000;
         private readonly ITdsStream _tdsStream;
         private byte _packageNumber;
         private int _packageStart;
-        public SqlCollations SqlCollation = new SqlCollations();
-        public byte[] WriteBuffer = new byte[BufferSize];
+        public byte[] WriteBuffer = new byte[BufferSize + 16]; // expand the buffer so that we can make correction after write
         public int WritePosition;
 
         public TdsPackageWriter(ITdsStream tdsStream)
@@ -30,14 +28,24 @@ namespace Medella.TdsClient.TDS.Package
         {
             return _tdsStream.GetClientToken(servertoken);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void CheckBuffer()
+        {
+            if (WritePosition >= BufferSize)
+                SendBatchPackage();
+        }
 
         public void SendBatchPackage()
         {
+            var length = WritePosition - BufferSize;
             WritePosition = BufferSize;
             SetHeader(TdsEnums.ST_BATCH);
-            _tdsStream.FlushBuffer(WriteBuffer, WritePosition);
+
+            _tdsStream.FlushBuffer(WriteBuffer, BufferSize);
+            for (var i = 0; i < length; i++)
+                WriteBuffer[i + 8] = WriteBuffer[BufferSize + i];
+            WritePosition = 8 + (length > 0 ? length : 0);
             _packageStart = 0;
-            WritePosition = 8;
             _packageNumber++;
         }
 
@@ -68,163 +76,6 @@ namespace Medella.TdsClient.TDS.Package
             _tdsStream.FlushBuffer(WriteBuffer, WritePosition);
             _packageNumber = 0;
             WritePosition = 0;
-        }
-
-        public void WriteByte(int v)
-        {
-            CheckBuffer(1);
-            WriteBuffer[WritePosition] = (byte)(v & 0xff);
-            WritePosition += 1;
-        }
-
-        public void WriteInt16(int v)
-        {
-            if (WritePosition + sizeof(short) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(short); i++) WriteByte((byte)((v >> (i * 8)) & 0xff));
-                return;
-            }
-            WriteBuffer[WritePosition] = (byte)(v & 0xff);
-            WriteBuffer[WritePosition + 1] = (byte)((v >> 8) & 0xff);
-            WritePosition += sizeof(short);
-        }
-
-        public void WriteUInt32(uint v)
-        {
-            if (WritePosition + sizeof(uint) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(uint); i++) WriteByte((byte)((v >> (i * 8)) & 0xff));
-                return;
-            }
-            WriteBuffer[WritePosition] = (byte)(v & 0xff);
-            WriteBuffer[WritePosition + 1] = (byte)((v >> 8) & 0xff);
-            WriteBuffer[WritePosition + 2] = (byte)((v >> 16) & 0xff);
-            WriteBuffer[WritePosition + 3] = (byte)((v >> 24) & 0xff);
-            WritePosition += sizeof(uint);
-        }
-
-        public void WriteInt32(int v)
-        {
-            if (WritePosition + sizeof(int) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(int); i++) WriteByte((byte)((v >> (i * 8)) & 0xff));
-                return;
-            }
-            WriteBuffer[WritePosition] = (byte)(v & 0xff);
-            WriteBuffer[WritePosition + 1] = (byte)((v >> 8) & 0xff);
-            WriteBuffer[WritePosition + 2] = (byte)((v >> 16) & 0xff);
-            WriteBuffer[WritePosition + 3] = (byte)((v >> 24) & 0xff);
-            WritePosition += sizeof(int);
-        }
-
-        public void WriteInt64(long v)
-        {
-            if (WritePosition + sizeof(long) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(long); i++) WriteByte((byte)((v >> (i * 8)) & 0xff));
-                return;
-            }
-            WriteBuffer[WritePosition] = (byte)(v & 0xff);
-            WriteBuffer[WritePosition + 1] = (byte)((v >> 8) & 0xff);
-            WriteBuffer[WritePosition + 2] = (byte)((v >> 16) & 0xff);
-            WriteBuffer[WritePosition + 3] = (byte)((v >> 24) & 0xff);
-            WriteBuffer[WritePosition + 4] = (byte)((v >> 32) & 0xff);
-            WriteBuffer[WritePosition + 5] = (byte)((v >> 40) & 0xff);
-            WriteBuffer[WritePosition + 6] = (byte)((v >> 48) & 0xff);
-            WriteBuffer[WritePosition + 7] = (byte)((v >> 56) & 0xff);
-            WritePosition += 8;
-        }
-
-        public void WriteUInt64(ulong v)
-        {
-            if (WritePosition + sizeof(ulong) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(ulong); i++) WriteByte((byte)((v >> (i * 8)) & 0xff));
-                return;
-            }
-            WriteBuffer[WritePosition] = (byte)(v & 0xff);
-            WriteBuffer[WritePosition + 1] = (byte)((v >> 8) & 0xff);
-            WriteBuffer[WritePosition + 2] = (byte)((v >> 16) & 0xff);
-            WriteBuffer[WritePosition + 3] = (byte)((v >> 24) & 0xff);
-            WriteBuffer[WritePosition + 4] = (byte)((v >> 32) & 0xff);
-            WriteBuffer[WritePosition + 5] = (byte)((v >> 40) & 0xff);
-            WriteBuffer[WritePosition + 6] = (byte)((v >> 48) & 0xff);
-            WriteBuffer[WritePosition + 7] = (byte)((v >> 56) & 0xff);
-            WritePosition += sizeof(ulong);
-        }
-
-        public void WriteFloat(float v)
-        {
-            var b = BitConverter.GetBytes(v);
-            if (WritePosition + sizeof(float) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(float); i++) WriteByte(b[i]);
-                return;
-            }
-            WriteBuffer[WritePosition] = b[0];
-            WriteBuffer[WritePosition + 1] = b[1];
-            WriteBuffer[WritePosition + 2] = b[2];
-            WriteBuffer[WritePosition + 3] = b[3];
-            WritePosition += sizeof(float);
-        }
-
-        public void WriteDouble(double v)
-        {
-            var b = BitConverter.GetBytes(v);
-            if (WritePosition + sizeof(double) > WriteBuffer.Length)
-            {
-                for (var i = 0; i < sizeof(double); i++) WriteByte(b[i]);
-                return;
-            }
-            WriteBuffer[WritePosition] = b[0];
-            WriteBuffer[WritePosition + 1] = b[1];
-            WriteBuffer[WritePosition + 2] = b[2];
-            WriteBuffer[WritePosition + 3] = b[3];
-            WriteBuffer[WritePosition + 4] = b[4];
-            WriteBuffer[WritePosition + 5] = b[5];
-            WriteBuffer[WritePosition + 6] = b[6];
-            WriteBuffer[WritePosition + 7] = b[7];
-            WritePosition += sizeof(double);
-        }
-
-        public void WriteUnicodeString(string v)
-        {
-            if (v.Length == 0) return;
-            if (v.Length * 2 <= WriteBuffer.Length - WritePosition)
-            {
-                WritePosition += Encoding.Unicode.GetBytes(v, 0, v.Length, WriteBuffer, WritePosition);
-            }
-            else
-            {
-                var buffer = new byte[v.Length * 2];
-                var bytes = Encoding.Unicode.GetBytes(v, 0, v.Length, buffer, 0);
-                WriteByteArray(buffer);
-            }
-        }
-
-        public void WriteByteArray(byte[] src)
-        {
-            var length = src.Length;
-            var bufferLength = WriteBuffer.Length;
-            var srcOffset = 0;
-            var bytesLeft = length - srcOffset;
-            while (bytesLeft > bufferLength - WritePosition)
-            {
-                var count = bufferLength - WritePosition;
-                Buffer.BlockCopy(src, srcOffset, WriteBuffer, WritePosition, count);
-                srcOffset += count;
-                bytesLeft -= count;
-                SendBatchPackage();
-            }
-
-            Buffer.BlockCopy(src, srcOffset, WriteBuffer, WritePosition, bytesLeft);
-            WritePosition += bytesLeft;
-        }
-
-        public void CheckBuffer(int length)
-        {
-            if (WritePosition + length > WriteBuffer.Length)
-                SendBatchPackage();
         }
     }
 }

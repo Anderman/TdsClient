@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Messages.Server.Environment

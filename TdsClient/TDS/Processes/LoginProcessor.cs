@@ -32,21 +32,21 @@ namespace Medella.TdsClient.TDS.Processes
         private void Login()
         {
             var opt = _dbConnectionOptions;
-            var login = new SqlLogin
+            var login = new LoginOptions
             {
-                userInstance = opt.UserInstance,
-                hostName = opt.ObtainWorkstationId(),
-                userName = opt.UserID,
-                password = opt.Password,
-                applicationName = opt.ApplicationName,
-                language = opt.CurrentLanguage,
+                UserInstance = opt.UserInstance,
+                HostName = opt.ObtainWorkstationId(),
+                UserName = opt.UserID,
+                Password = opt.Password,
+                ApplicationName = opt.ApplicationName,
+                Language = opt.CurrentLanguage,
                 // Do not send attachdbfilename or database to SSE primary instance
-                database = opt.UserInstance ? null : opt.InitialCatalog,
-                attachDBFilename = opt.UserInstance ? null : opt.AttachDBFilename,
-                serverName = opt.DataSource,
-                useReplication = opt.Replication,
-                useSSPI = opt.IntegratedSecurity,
-                packetSize = opt.PacketSize,
+                Database = opt.UserInstance ? null : opt.InitialCatalog,
+                AttachDbFilename = opt.UserInstance ? null : opt.AttachDBFilename,
+                ServerName = opt.DataSource,
+                UseReplication = opt.Replication,
+                UseSspi = opt.IntegratedSecurity,
+                PacketSize = opt.PacketSize,
                 ReadOnlyIntent = opt.ApplicationIntent == ApplicationIntent.ReadOnly,
                 ClientToken = opt.IntegratedSecurity ? _package.Writer.GetClientToken(null) : null,
                 RequestedFeatures = GetRequestedFeatures(opt)

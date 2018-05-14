@@ -5,13 +5,15 @@ namespace Medella.TdsClient.TDS.Controller
 {
     public class TdsParameter
     {
-        public TdsParameter(string name, decimal value, byte? scale = null) { Name = name; Value = value; Size = 17;
-            Scale = (byte)(scale?? (decimal.GetBits(value)[3] >> 16) &0xff);
+        public TdsParameter(string name, decimal value, byte? scale = null)
+        {
+            Name = name; Value = value; Size = 17;
+            Scale = (byte)(scale ?? (decimal.GetBits(value)[3] >> 16) & 0xff);
             MetaData = TdsMetaType.SqlNumericN;
             SqlName = $"decimal(28,{Scale})";
         }
         public TdsParameter(string name, DateTime value) { Name = name; Value = value; Size = 8; MetaData = TdsMetaType.SqlDateTimN; SqlName = $"datetime"; }
-        public TdsParameter(string name, string value) { Name = name; Value = value; Size = value.Length*2; MetaData = TdsMetaType.SqlNVarChar; SqlName = $"nvarchar({value.Length})"; }
+        public TdsParameter(string name, string value) { Name = name; Value = value; Size = value.Length * 2; MetaData = TdsMetaType.SqlNVarChar; SqlName = $"nvarchar({value.Length})"; }
         public TdsParameter(string name, bool value) { Name = name; Value = value; Size = 1; MetaData = TdsMetaType.SqlBitN; SqlName = "bit"; }
         public TdsParameter(string name, byte value) { Name = name; Value = value; Size = 1; MetaData = TdsMetaType.SqlInt1; SqlName = "tinyint"; }
         public TdsParameter(string name, short value) { Name = name; Value = value; Size = 2; MetaData = TdsMetaType.SqlInt2; SqlName = "smallint"; }

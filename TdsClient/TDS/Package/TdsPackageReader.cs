@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TdsStream;
 
 namespace Medella.TdsClient.TDS.Package

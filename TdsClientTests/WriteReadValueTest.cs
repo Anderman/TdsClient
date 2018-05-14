@@ -62,9 +62,9 @@ namespace TdsClientTests
         public void SimpleObjectsTypes()
         {
             TestIntN((Money4)4.0001M, TdsEnums.SQLMONEYN, true);
-            TestIntN((Money4)4.0001M, TdsEnums.SQLMONEY4, false);
+            TestIntN((Money4)(-4.0001M), TdsEnums.SQLMONEY4, false);
             TestIntN((Money)922_337_203_685_477.5807M, TdsEnums.SQLMONEYN, true);
-            TestIntN((Money)922_337_203_685_477.5807M, TdsEnums.SQLMONEY, false);
+            TestIntN((Money)(-922_337_203_685_477.5807M), TdsEnums.SQLMONEY, false);
             TestIntN((SqlDate)new DateTime(2018, 1, 2, 0, 0, 0), TdsEnums.SQLDATE, true);
             TestIntN(new TimeSpan(1, 2, 3), TdsEnums.SQLTIME, true);
             TestIntN(new TimeSpan(1, 2, 3), TdsEnums.SQLTIME, true, 0, 7);
@@ -72,9 +72,9 @@ namespace TdsClientTests
             TestIntN((SqlDateTime2)new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME2, true, 0, 0);
             TestIntN(new DateTimeOffset(2018, 1, 2, 3, 4, 5, new TimeSpan(5, 0, 0)), TdsEnums.SQLDATETIMEOFFSET, true, 0, 0);
             TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIM4, false, 0, 0);
-            TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIMN, true, 0, 0);
+            TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIMN, true, 0, 4);
             TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME, false, 0, 0);
-            TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIMN, true, 0, 0);
+            TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIMN, true, 0, 8);
             TestIntN(1M, TdsEnums.SQLDECIMALN, true, 28, 28);
             TestIntN(Guid.NewGuid(), TdsEnums.SQLUNIQUEID, true, 28, 28);
         }
@@ -269,6 +269,7 @@ namespace TdsClientTests
             r[0].IsPlp = isPlp;
             w[0].IsPlp = isPlp;
             r[0].IsPlp = isPlp;
+            w[0].Length = scale;// nullable date testfix
 
             r[0].Encoding = encoding;
             w[0].Encoding = encoding;

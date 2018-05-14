@@ -37,21 +37,9 @@ namespace Medella.TdsClient.TDS.Messages.Client
         private static void WriteTransactionHeader(TdsPackageWriter writer, TdsEnums.TransactionManagerRequestType request, long sqlTransactionId)
         {
             writer.NewPackage(TdsEnums.MT_TRANS);
-
-            const int marsHeaderSize = 18; // 4 + (2 + 8 + 4)= size + data
-            const int totalHeaderLength = 22; // 4 + (4 + 2 + 8 + 4) size+mars
-            writer.WriteInt32(totalHeaderLength);
-            writer.WriteInt32(marsHeaderSize);
-            WriteMarsHeaderData(writer, sqlTransactionId);
+            writer.WriteMarsHeader(sqlTransactionId);
 
             writer.WriteInt16((short) request); // write TransactionManager Request type
-        }
-
-        private static void WriteMarsHeaderData(this TdsPackageWriter writer, long sqlTransactionId)
-        {
-            writer.WriteInt16(TdsEnums.HEADERTYPE_MARS);
-            writer.WriteInt64(sqlTransactionId);
-            writer.WriteInt32(1);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TDS.Package;
 
 namespace Medella.TdsClient.TDS.Messages.Server
@@ -29,16 +28,21 @@ namespace Medella.TdsClient.TDS.Messages.Server
 
         public static decimal ReadSqlMoney(this TdsPackageReader reader, int length)
         {
-            var mid = 0;
             if (length == 8)
-                mid = reader.ReadInt32();
+            {
+                var mid = reader.ReadInt32();
+                var l =((long)mid << 0x20) + reader.ReadUInt32();
+                if (l > 0)
+                    return new decimal((int) (l & 0xffffffff), (int) (l >> 32), 0, false, 4);
+                l = -l;
+                return new decimal((int)(l & 0xffffffff), (int)(l >> 32), 0, true, 4);
+            }
 
-            var lo = reader.ReadUInt32();
+            var lo =  reader.ReadInt32();
 
-            var l = ((long)mid << 0x20) + lo;
-            return l >= 0
-                ? new decimal((int)(l & 0xffffffff), (int)(l >> 32), 0, false, 4)
-                : new decimal((int)(-l & 0xffffffff), (int)(l >> 32), 0, true, 4);
+            return lo >= 0
+                ? new decimal((int)(lo & 0xffffffff), 0, 0, false, 4)
+                : new decimal((int)(-lo & 0xffffffff), 0, 0, true, 4);
         }
     }
 }

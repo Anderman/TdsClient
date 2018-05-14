@@ -16,7 +16,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
         public static void SendRpc(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql, long sqlConnectionId)
         {
             writer.NewPackage(TdsEnums.MT_RPC);
-            writer.WriteRpcBatchHeaders(sqlConnectionId);
+            writer.WriteMarsHeader(sqlConnectionId);
 
             writer.WriteInt16(0xffff);
             writer.WriteInt16(TdsEnums.RPC_PROCID_EXECUTESQL);
@@ -72,11 +72,6 @@ namespace Medella.TdsClient.TDS.Messages.Client
             WriteTdsTypeInfo(writer, metaData, size, isNull, null, 0);
         }
 
-        public static void WriteTdsTypeInfo(this TdsPackageWriter writer, TdsMetaType.MetaDataWrite metaData, int size, bool isNull, SqlCollations defaultCollation)
-        {
-            WriteTdsTypeInfo(writer, metaData, size, isNull, defaultCollation, 0);
-        }
-
         public static void WriteTdsTypeInfo(this TdsPackageWriter writer, TdsMetaType.MetaDataWrite metaData, int size, bool isNull, SqlCollations defaultCollation, byte scale)
         {
             var mt = metaData;
@@ -90,7 +85,6 @@ namespace Medella.TdsClient.TDS.Messages.Client
             if (mt.HasScale)
                 writer.WriteByte(scale);//
             writer.WriteParameterLen(metaData, size, isNull);//len parameter
-
         }
 
         public static TdsParameter[] CreateParameters(FormattableString fstring)
@@ -130,18 +124,5 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
             return pars;
         }
-
-        public static string GetSqlType(object value, int scale)
-        {
-            switch (value)
-            {
-                case string s: return $"nvarchar({s.Length})";
-                case decimal d: return $"decimal(28,{28 - d.ToString("#").Length})";
-                case bool b: return $"bit";
-            }
-            throw new Exception($"Unknown type {value.GetType()} value:{value}");
-        }
-
-
     }
 }

@@ -12,7 +12,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
         {
             tdsPackageWriter.NewPackage(TdsEnums.MT_SQL);
 
-            tdsPackageWriter.WriteRpcBatchHeaders(sqlConnectionId);
+            tdsPackageWriter.WriteMarsHeader(sqlConnectionId);
 
             tdsPackageWriter.WriteUnicodeString(text);
             tdsPackageWriter.SendLastMessage();

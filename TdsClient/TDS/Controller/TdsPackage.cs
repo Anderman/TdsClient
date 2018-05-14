@@ -1,4 +1,3 @@
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Package;
 

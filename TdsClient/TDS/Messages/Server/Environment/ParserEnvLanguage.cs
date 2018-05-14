@@ -1,5 +1,4 @@
-﻿using Medella.TdsClient.SNI;
-using Medella.TdsClient.TDS.Package;
+﻿using Medella.TdsClient.TDS.Package;
 
 namespace SqlClient.TDS.Messages.Server.Environment
 {

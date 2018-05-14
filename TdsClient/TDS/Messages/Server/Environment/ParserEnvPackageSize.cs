@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TDS.Package;
 
-namespace SqlClient.TDS.Messages.Server.Environment
+namespace Medella.TdsClient.TDS.Messages.Server.Environment
 {
     public static class ParserEnvPackageSize
     {

@@ -1,20 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Medella.TdsClient.SNI;
 using Medella.TdsClient.TdsStream;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace TdsClientTests
 {
     public class TestStream : ITdsStream
     {
+        public Queue<byte[]> Queue = new Queue<byte[]>();
         public string ServerSpn { get; }
         public string InstanceName { get; }
-        public Queue<byte[]> Queue = new Queue<byte[]>();
+
         public void FlushBuffer(byte[] writeBuffer, int count)
         {
             var package = new byte[count];
