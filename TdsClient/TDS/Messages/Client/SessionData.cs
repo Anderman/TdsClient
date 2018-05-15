@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {

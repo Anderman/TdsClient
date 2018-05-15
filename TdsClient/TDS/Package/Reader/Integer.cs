@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Medella.TdsClient.TDS.Package.Reader
 {
@@ -10,22 +8,6 @@ namespace Medella.TdsClient.TDS.Package.Reader
         {
             CheckBuffer(1);
             return ReadBuffer[_pos++];
-        }
-
-        public int ReadInt32()
-        {
-            CheckBuffer(4);
-            var v = BitConverter.ToInt32(ReadBuffer, _pos);
-            _pos += 4;
-            return v;
-        }
-
-        public uint ReadUInt32()
-        {
-            CheckBuffer(4);
-            var v = BitConverter.ToUInt32(ReadBuffer, _pos);
-            _pos += 4;
-            return v;
         }
 
         public short ReadInt16()
@@ -41,6 +23,22 @@ namespace Medella.TdsClient.TDS.Package.Reader
             CheckBuffer(2);
             var v = BitConverter.ToUInt16(ReadBuffer, _pos);
             _pos += 2;
+            return v;
+        }
+
+        public int ReadInt32()
+        {
+            CheckBuffer(4);
+            var v = BitConverter.ToInt32(ReadBuffer, _pos);
+            _pos += 4;
+            return v;
+        }
+
+        public uint ReadUInt32()
+        {
+            CheckBuffer(4);
+            var v = BitConverter.ToUInt32(ReadBuffer, _pos);
+            _pos += 4;
             return v;
         }
 

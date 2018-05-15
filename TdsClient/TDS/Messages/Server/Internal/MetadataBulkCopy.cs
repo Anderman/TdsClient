@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Messages.Server.Internal
 {

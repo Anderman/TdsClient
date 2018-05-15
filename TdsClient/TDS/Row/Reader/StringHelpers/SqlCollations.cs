@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Medella.TdsClient.Contants;
 
-namespace Medella.TdsClient.TDS.Reader.StringHelpers
+namespace Medella.TdsClient.TDS.Row.Reader.StringHelpers
 {
     public sealed class SqlCollations
     {

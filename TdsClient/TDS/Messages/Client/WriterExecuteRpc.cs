@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Package;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client

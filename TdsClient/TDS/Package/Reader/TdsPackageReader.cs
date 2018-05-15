@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TdsStream;
@@ -9,20 +9,20 @@ namespace Medella.TdsClient.TDS.Package.Reader
 {
     public partial class TdsPackageReader
     {
-        public byte[] ReadBuffer = new byte[BufferSize];
         private const int BufferSize = 8000;
         private const int MaxSizeSqlValue = 1 + 1 + 4 * 4; //nullable decimal 
         private const int Guidsize = 16;
+        private readonly byte[] _splitValueBuffer = new byte[MaxSizeSqlValue];
         private readonly ITdsStream _tdsStream;
+        private bool _isSplitValueBuffer;
         private int _packageEnd;
         private byte _packageStatus;
         private int _pos;
         private int _readEndPos;
-        private readonly byte[] _splitValueBuffer = new byte[MaxSizeSqlValue];
+        private int _savedPos;
         private byte[] _savedReadBuffer;
         private int _savedReadEndPos;
-        private int _savedPos;
-        private bool _isSplitValueBuffer;
+        public byte[] ReadBuffer = new byte[BufferSize];
 
         public TdsPackageReader(ITdsStream tdsStream)
         {
@@ -43,11 +43,15 @@ namespace Medella.TdsClient.TDS.Package.Reader
             Debug.WriteLine(sb.ToString());
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CheckBuffer(int size)
         {
-            var left = _readEndPos - _pos;
-            if (size <= left)
-                return;
+            if (size > _readEndPos - _pos)
+                GetPackage(size, _readEndPos - _pos);
+        }
+
+        private void GetPackage(int size, int left)
+        {
             if (left > 0)
             {
                 ReadBuffer = SetupSplitValueBuffer(size, left);
@@ -61,6 +65,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 _isSplitValueBuffer = false;
                 return;
             }
+
             Receive();
             _pos = +8;
         }
@@ -102,13 +107,6 @@ namespace Medella.TdsClient.TDS.Package.Reader
             _pos = _packageEnd;
         }
 
-        public void CompletePackage(int size)
-        {
-            _readEndPos = 0;
-            _pos = 0;
-            Receive();
-        }
-
         public int GetReadPos()
         {
             return _pos;
@@ -120,7 +118,6 @@ namespace Medella.TdsClient.TDS.Package.Reader
         }
 
 
-
         public byte[] GetBytes(int length)
         {
             if (length == 0) return new byte[0];
@@ -129,6 +126,12 @@ namespace Medella.TdsClient.TDS.Package.Reader
             Buffer.BlockCopy(ReadBuffer, _pos, v, 0, length);
             _pos += length;
             return v;
+        }
+
+        public void SkipBytes(int length)
+        {
+            CheckBuffer(length);
+            _pos += length;
         }
         //public Span<byte> GetBytes(int length)
         //{
@@ -222,7 +225,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
             CheckBuffer(16);
             var b = ReadBuffer;
             var i = _pos;
-            var guid = new Guid(new[] { b[i + 0], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7], b[i + 8], b[i + 9], b[i + 10], b[i + 11], b[i + 12], b[i + 13], b[i + 14], b[i + 15] });
+            var guid = new Guid(new[] {b[i + 0], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7], b[i + 8], b[i + 9], b[i + 10], b[i + 11], b[i + 12], b[i + 13], b[i + 14], b[i + 15]});
             _pos += Guidsize;
             return guid;
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Messages.Client;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Package
 {

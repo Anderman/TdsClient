@@ -11,7 +11,7 @@ namespace TdsPerformanceTester
 
         public static void EnsureDbSetup(string connectionString)
         {
-            var tds = TdsClient.GetConnection(connectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(connectionString);
             tds.ExecuteNonQuery(@"
 If (Object_Id('Posts') Is Null)
 Begin

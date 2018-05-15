@@ -8,7 +8,7 @@ using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package;
-using Medella.TdsClient.TDS.Writer;
+using Medella.TdsClient.TDS.Row.Writer;
 using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Processes

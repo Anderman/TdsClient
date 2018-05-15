@@ -4,11 +4,11 @@ using Medella.TdsClient.TDS.Controller;
 
 namespace Medella.TdsClient.TDS
 {
-    public class TdsClient
+    public class TdsConnectionPools
     {
         private static readonly ConcurrentDictionary<string, TdsConnectionPool> FreePool = new ConcurrentDictionary<string, TdsConnectionPool>();
 
-        public static TdsConnectionPool GetConnection(string connectionString)
+        public static TdsConnectionPool GetConnectionPool(string connectionString)
         {
             return FreePool.GetOrAdd(connectionString, x => new TdsConnectionPool(new SqlConnectionString(connectionString)));
         }

@@ -13,7 +13,7 @@ namespace TdsClientTests
         public async Task can_read_Udt()
         {
 
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             await cnn.ExecuteNonQueryAsync(TestStatement);
             var x = await cnn.ExecuteQueryAsync<UdtTypes>("DECLARE @u Utf8String = CONVERT(Utf8String, 'hello world') SELECT Utf8String=@u");
             Assert.Empty(x[0].Utf8String);

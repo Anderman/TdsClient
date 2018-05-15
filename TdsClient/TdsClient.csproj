@@ -8,6 +8,7 @@
     <AssemblyName>Medella.TdsClient</AssemblyName>
     <RootNamespace>Medella.TdsClient</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.10</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

@@ -6,10 +6,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 
-namespace Medella.TdsClient.TDS.Reader
+namespace Medella.TdsClient.TDS.Row.Reader
 {
     public class RowReader
     {
@@ -61,7 +60,7 @@ namespace Medella.TdsClient.TDS.Reader
             {TdsEnums.SQLDATETIME, typeof(TdsColumnReader).GetMethod(nameof(TdsColumnReader.ReadSqlDateTime))},
 
             {TdsEnums.SQLUNIQUEID, typeof(TdsColumnReader).GetMethod(nameof(TdsColumnReader.ReadSqlGuid))},
-            {TdsEnums.SQLVARIANT, typeof(TdsColumnReader).GetMethod(nameof(TdsColumnReader.ReadSqlVariant))},
+            {TdsEnums.SQLVARIANT, typeof(TdsColumnReader).GetMethod(nameof(TdsColumnReader.ReadSqlVariant))}
         };
 
         public static Func<TdsColumnReader, T> GetComplexReader<T>(TdsPackageReader reader)
@@ -71,7 +70,7 @@ namespace Medella.TdsClient.TDS.Reader
             if (readerColumns.Select(x => x.SqlName).Except(typeInfo.Keys).Any())
                 throw new ArgumentException($"Not all columns are mapped to class properties. The follow columns could not mapped: {string.Join(",", readerColumns.Select(x => x.SqlName).Except(typeInfo.Keys))}");
 
-            var newMapping = readerColumns.Select(x => new Mapping { SqlIndex = x.SqlIndex, ClrType = typeInfo[x.SqlName], TdsType = x.TdsType, PropertyName = x.SqlName }).ToArray();
+            var newMapping = readerColumns.Select(x => new Mapping {SqlIndex = x.SqlIndex, ClrType = typeInfo[x.SqlName], TdsType = x.TdsType, PropertyName = x.SqlName}).ToArray();
 
             return _GetReader<T>(newMapping);
         }
@@ -111,10 +110,11 @@ namespace Medella.TdsClient.TDS.Reader
                     throw new Exception($"Could not create a mapping between property {map.PropertyName}:{property.PropertyType.Name} and column index:{map.SqlIndex}:{readValue.Type}", ex);
                 }
             }
+
             var returnStatement = obj;
             statements.Add(returnStatement);
 
-            var body = Expression.Block(new[] { obj }, statements.ToArray()); //declare a block variable. A variable as first statement doesn't work
+            var body = Expression.Block(new[] {obj}, statements.ToArray()); //declare a block variable. A variable as first statement doesn't work
             var function = Expression.Lambda<Func<TdsColumnReader, T>>(body, readerParam);
 
             return function.Compile();
@@ -127,7 +127,7 @@ namespace Medella.TdsClient.TDS.Reader
 
         private static ReaderColumn[] GetDefaultMapping(ColumnsMetadata metadata)
         {
-            return Enumerable.Range(0, metadata.Length).Select(x => new ReaderColumn { SqlName = metadata[x].Column, SqlIndex = x, TdsType = metadata[x].TdsType}).ToArray();
+            return Enumerable.Range(0, metadata.Length).Select(x => new ReaderColumn {SqlName = metadata[x].Column, SqlIndex = x, TdsType = metadata[x].TdsType}).ToArray();
         }
 
         [DebuggerDisplay("SqlIndex:{SqlIndex} ClrType:{ClrType} PropertyName:{PropertyName} TdsType:{TdsType}")]

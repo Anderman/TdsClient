@@ -6,10 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
-using Medella.TdsClient.TDS.Reader;
 
-namespace Medella.TdsClient.TDS.Writer
+namespace Medella.TdsClient.TDS.Row.Writer
 {
     public class RowWriter
     {
@@ -62,17 +60,17 @@ namespace Medella.TdsClient.TDS.Writer
             {TdsEnums.SQLDATETIME, typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteSqlDateTime))},
 
             {TdsEnums.SQLUNIQUEID, typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlUniqueId))},
-            {TdsEnums.SQLVARIANT, typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlVariant))},
+            {TdsEnums.SQLVARIANT, typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlVariant))}
         };
 
-        public static Dictionary<Type, MethodInfo> ClrTypes = new Dictionary<Type, MethodInfo>()
+        public static Dictionary<Type, MethodInfo> ClrTypes = new Dictionary<Type, MethodInfo>
         {
             {typeof(byte?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlByte))},
             {typeof(short?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt16))},
             {typeof(int?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt32))},
             {typeof(long?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt64))},
             {typeof(float?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlFloat))},
-            {typeof(double?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble))},
+            {typeof(double?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble))}
         };
 
         public static Action<TdsColumnWriter, T> GetComplexWriter<T>(TdsColumnWriter writer)
@@ -82,7 +80,7 @@ namespace Medella.TdsClient.TDS.Writer
             if (readerColumns.Select(x => x.SqlName).Except(typeInfo.Keys).Any())
                 throw new ArgumentException($"Not all columns are mapped to class properties. The follow columns could not mapped: {string.Join(",", readerColumns.Select(x => x.SqlName).Except(typeInfo.Keys))}");
 
-            var newMapping = readerColumns.Select(x => new Mapping { SqlIndex = x.SqlIndex, ClrType = typeInfo[x.SqlName], TdsType = x.TdsType, PropertyName = x.SqlName }).ToArray();
+            var newMapping = readerColumns.Select(x => new Mapping {SqlIndex = x.SqlIndex, ClrType = typeInfo[x.SqlName], TdsType = x.TdsType, PropertyName = x.SqlName}).ToArray();
 
             return _GetWriter<T>(newMapping);
         }
@@ -129,12 +127,12 @@ namespace Medella.TdsClient.TDS.Writer
             var a = property.Type;
             var method = SqlTypes.ContainsKey(tdsType) ? SqlTypes[tdsType] : throw new Exception($"TdsType not supported:{tdsType} index:{columnIndex}");
             if (method == null) method = ClrTypes.ContainsKey(property.Type) ? ClrTypes[property.Type] : throw new Exception($"TdsType not supported:{tdsType} index:{columnIndex}");
-            return Expression.Call(writer, method, new[] { property, Expression.Constant(columnIndex) });
+            return Expression.Call(writer, method, new[] {property, Expression.Constant(columnIndex)});
         }
 
         private static WriterColumn[] GetDefaultMapping(MetadataBulkCopy[] metadata)
         {
-            return Enumerable.Range(0, metadata.Length).Select(x => new WriterColumn { SqlName = metadata[x].Column, SqlIndex = x, TdsType = metadata[x].TdsType }).ToArray();
+            return Enumerable.Range(0, metadata.Length).Select(x => new WriterColumn {SqlName = metadata[x].Column, SqlIndex = x, TdsType = metadata[x].TdsType}).ToArray();
         }
 
         [DebuggerDisplay("SqlIndex:{SqlIndex} ClrType:{ClrType} PropertyName:{PropertyName} TdsType:{TdsType}")]

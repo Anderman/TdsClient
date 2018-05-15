@@ -11,7 +11,7 @@ namespace TdsClientTests
         [Fact]
         public void Can_begin_transaction()
         {
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             using (var transaction = cnn.BeginTransaction())
             {
                 transaction.ExecuteNonQuery("print 1");
@@ -23,7 +23,7 @@ namespace TdsClientTests
         public void Can_commit_transaction()
         {
             var guid = Guid.NewGuid();
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             using (var transaction = cnn.BeginTransaction())
             {
                 transaction.ExecuteNonQuery($"CREATE TABLE [{guid}] (id int)");
@@ -37,7 +37,7 @@ namespace TdsClientTests
         public void Can_rollback_transaction()
         {
             var guid = Guid.NewGuid();
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             using (var transaction = cnn.BeginTransaction())
             {
                 transaction.ExecuteNonQuery($"CREATE TABLE [{guid}] (id int)");
@@ -51,7 +51,7 @@ namespace TdsClientTests
         public void Can_AutoRollback_transaction()
         {
             var guid = Guid.NewGuid();
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             using (var transaction = cnn.BeginTransaction())
             {
                 transaction.ExecuteNonQuery($"CREATE TABLE [{guid}] (id int)");
@@ -64,7 +64,7 @@ namespace TdsClientTests
         public void Can_Rollback_OnsqlError_transaction()
         {
             var guid = Guid.NewGuid();
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             try
             {
                 using (var transaction = cnn.BeginTransaction())

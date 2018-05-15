@@ -6,8 +6,9 @@ using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Processes;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 using Xunit;
 using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
@@ -166,7 +167,7 @@ namespace TdsClientTests
         [Fact]
         public void Can_execute_query_with_byte_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = (byte) 0xff;
             tds.ExecuteParameterQueryASync<TestId>($"select cByte={id}");
         }
@@ -174,7 +175,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_datetime_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = new DateTime(2018, 1, 2, 3, 4, 5);
             var r =(await tds.ExecuteParameterQueryASync<TestId>($"select cDateTime={id}")).ToArray();
             Assert.Equal(new DateTime(2018, 1, 2, 3, 4, 5), r[0].cDateTime);
@@ -183,7 +184,7 @@ namespace TdsClientTests
         [Fact]
         public void Can_execute_query_with_decimal_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = 123.4M;
             tds.ExecuteParameterQueryASync<TestId>($"select Decimal={id}");
         }
@@ -191,7 +192,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_double_parameterAsync()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = double.MaxValue;
             var r = (await tds.ExecuteParameterQueryASync<TestId>($"select cDouble={id}")).ToArray();
             Assert.Equal(double.MaxValue, r[0].cDouble);
@@ -200,7 +201,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_float_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = float.MaxValue;
             var r = (await tds.ExecuteParameterQueryASync<TestId>($"select cDouble={id}")).ToArray();
             Assert.Equal(float.MaxValue, r[0].cDouble);
@@ -209,7 +210,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_int_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = int.MaxValue;
             var r = await tds.ExecuteParameterQueryASync<TestId>($"select cInt={id}");
             Assert.Equal(int.MaxValue, r[0].cInt);
@@ -218,7 +219,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_long_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = long.MaxValue;
             var r = (await tds.ExecuteParameterQueryASync<TestId>($"select clong={id}")).ToArray();
             Assert.Equal(long.MaxValue, r[0].clong);
@@ -227,7 +228,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_short_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = short.MaxValue;
             var r = await tds.ExecuteParameterQueryASync<TestId>($"select cShort={id}");
             Assert.Equal(short.MaxValue, r[0].cShort);
@@ -236,7 +237,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_string_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = "test123";
             await tds.ExecuteParameterQueryASync<TestId>($"select StringValue={id}");
         }
@@ -244,7 +245,7 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_two_parameter()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = new DateTime(2018, 1, 2, 3, 4, 5);
             var clong = long.MaxValue;
             var r = (await tds.ExecuteParameterQueryASync<TestId>($"select cDateTime={id}, clong={clong}")).ToArray();
@@ -299,8 +300,8 @@ namespace TdsClientTests
             writer.WriteDateTime((DateTime) p.Value);
             var sqldt = TdsPackageWriter.ConverDateTime((DateTime) p.Value);
 
-            var dt = ParserColumnDateExtentions.ConvertSqlDate(sqldt.dayPart, sqldt.timepart);
-            dt = ParserColumnDateExtentions.ConvertSqlDate(0xa85c, 0x328f5c);
+            var dt = TdsPackageReader.ConvertSqlDate(sqldt.dayPart, sqldt.timepart);
+            dt = TdsPackageReader.ConvertSqlDate(0xa85c, 0x328f5c);
             Assert.Equal(new DateTime(2018, 1, 2, 3, 4, 5), dt);
             Assert.Equal(0x328f5c, sqldt.timepart);
             Assert.Equal(GetBytesString(ExpectedDatetime, ExpectedDatetime.Length, 0), GetBytesString(writer.WriteBuffer, ExpectedDatetime.Length, 0));

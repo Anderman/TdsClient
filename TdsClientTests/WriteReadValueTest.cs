@@ -1,88 +1,18 @@
 using System;
-using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
-using Medella.TdsClient.TDS.Reader;
-using Medella.TdsClient.TDS.Reader.StringHelpers;
-using Medella.TdsClient.TDS.Writer;
+using Medella.TdsClient.TDS.Package.Writer;
+using Medella.TdsClient.TDS.Row.Reader;
+using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
+using Medella.TdsClient.TDS.Row.Writer;
 using Xunit;
-using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace TdsClientTests
 {
     public class WriteReadValueTest
     {
-       
-        [Fact]
-        public void Variant()
-        {
-            var text = new string('*', 10);
-            var arr = new byte[10];
-            TestIntN(new SqlVariant((bool)true), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant((byte)1), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant((short)1), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant((int)1), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant((long)1), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant((float)1), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant((double)1), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(new DateTime(2018, 1, 2, 0, 0, 0)), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(1M), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(Guid.NewGuid()), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(arr), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(text), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(new DateTimeOffset(2018, 1, 2, 3, 4, 5, new TimeSpan(5, 0, 0))), TdsEnums.SQLVARIANT, true);
-            TestIntN(new SqlVariant(new TimeSpan(1, 2, 3)), TdsEnums.SQLVARIANT, true);
-        }
-        [Fact]
-        public void BinObjects()
-        {
-            var arr = new byte[10];
-            TestIntN(arr, TdsEnums.SQLBIGBINARY, true);
-            TestIntN(arr, TdsEnums.SQLBIGVARBINARY, true);
-            TestIntN(arr, TdsEnums.SQLBIGVARBINARY, true, 0, 0, true);
-            TestIntN((SqlImage)arr, TdsEnums.SQLIMAGE, true);
-        }
-        [Fact]
-        public void StringObjects()
-        {
-            var text = new string('*', 10);
-            TestIntN((SqlUnicode)text, TdsEnums.SQLNCHAR, true);
-            TestIntN(text, TdsEnums.SQLBIGCHAR, true);
-            TestIntN(text, TdsEnums.SQLBIGVARCHAR, true);
-            TestIntN(text, TdsEnums.SQLBIGVARCHAR, true, 0, 0, true);
-            TestIntN((SqlUnicode)text, TdsEnums.SQLNVARCHAR, true);
-            TestIntN((SqlUnicode)text, TdsEnums.SQLNVARCHAR, true, 0, 0, true);
-            TestIntN((SqlUnicode)text, TdsEnums.SQLNTEXT, true);
-            TestIntN((SqlUnicode)text, TdsEnums.SQLNTEXT, true, 0, 0, true);
-            TestIntN(text, TdsEnums.SQLTEXT, true);
-            TestIntN(text, TdsEnums.SQLTEXT, true, 0, 0, true);
-            TestIntN((SqlXml)"<Data><DepartmentID>x</DepartmentID></Data>", TdsEnums.SQLXMLTYPE, true, 0, 0, true);
-        }
-
-        [Fact]
-        public void SimpleObjectsTypes()
-        {
-            TestIntN((Money4)4.0001M, TdsEnums.SQLMONEYN, true);
-            TestIntN((Money4)(-4.0001M), TdsEnums.SQLMONEY4, false);
-            TestIntN((Money)922_337_203_685_477.5807M, TdsEnums.SQLMONEYN, true);
-            TestIntN((Money)(-922_337_203_685_477.5807M), TdsEnums.SQLMONEY, false);
-            TestIntN((SqlDate)new DateTime(2018, 1, 2, 0, 0, 0), TdsEnums.SQLDATE, true);
-            TestIntN(new TimeSpan(1, 2, 3), TdsEnums.SQLTIME, true);
-            TestIntN(new TimeSpan(1, 2, 3), TdsEnums.SQLTIME, true, 0, 7);
-            TestIntN((SqlDateTime2)new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME2, true, 0, 7);
-            TestIntN((SqlDateTime2)new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME2, true, 0, 0);
-            TestIntN(new DateTimeOffset(2018, 1, 2, 3, 4, 5, new TimeSpan(5, 0, 0)), TdsEnums.SQLDATETIMEOFFSET, true, 0, 0);
-            TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIM4, false, 0, 0);
-            TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIMN, true, 0, 4);
-            TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME, false, 0, 0);
-            TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIMN, true, 0, 8);
-            TestIntN(1M, TdsEnums.SQLDECIMALN, true, 28, 28);
-            TestIntN(Guid.NewGuid(), TdsEnums.SQLUNIQUEID, true, 28, 28);
-        }
-
         [Theory]
         [InlineData(true, TdsEnums.SQLBITN, true)]
         [InlineData(true, TdsEnums.SQLBIT, false)]
@@ -186,10 +116,10 @@ namespace TdsClientTests
                 case TdsEnums.SQLINTN when v is short b: writer.WriteNullableSqlInt16(writeNull ? (short?)null : b, 0); return;
                 case TdsEnums.SQLINTN when v is int b: writer.WriteNullableSqlInt32(writeNull ? (int?)null : b, 0); return;
                 case TdsEnums.SQLINTN when v is long b: writer.WriteNullableSqlInt64(writeNull ? (long?)null : b, 0); return;
-                case TdsEnums.SQLMONEYN when v is Money4 b: writer.WriteNullableSqlMoney4(writeNull ? (decimal?)null : (decimal?)b, 0); return;
-                case TdsEnums.SQLMONEYN when v is Money b: writer.WriteNullableSqlMoney(writeNull ? (decimal?)null : (decimal?)b, 0); return;
-                case TdsEnums.SQLFLTN when v is float b: writer.WriteNullableSqlFloat(writeNull ? (float?)null : (float?)b, 0); return;
-                case TdsEnums.SQLFLTN when v is double b: writer.WriteNullableSqlDouble(writeNull ? (double?)null : (double?)b, 0); return;
+                case TdsEnums.SQLMONEYN when v is Money4 b: writer.WriteNullableSqlMoney4(writeNull ? null : (decimal?)b, 0); return;
+                case TdsEnums.SQLMONEYN when v is Money b: writer.WriteNullableSqlMoney(writeNull ? null : (decimal?)b, 0); return;
+                case TdsEnums.SQLFLTN when v is float b: writer.WriteNullableSqlFloat(writeNull ? null : (float?)b, 0); return;
+                case TdsEnums.SQLFLTN when v is double b: writer.WriteNullableSqlDouble(writeNull ? null : (double?)b, 0); return;
                 case TdsEnums.SQLDATE when v is SqlDate b: writer.WriteNullableSqlDate(writeNull ? (DateTime?)null : (DateTime)b, 0); return;
                 case TdsEnums.SQLTIME when v is TimeSpan b: writer.WriteNullableSqlTime(writeNull ? (TimeSpan?)null : b, 0); return;
                 case TdsEnums.SQLDATETIME2 when v is SqlDateTime2 b: writer.WriteNullableSqlDateTime2(writeNull ? (DateTime?)null : (DateTime)b, 0); return;
@@ -198,11 +128,11 @@ namespace TdsClientTests
                 case TdsEnums.SQLDATETIMN when v is DateTime b: writer.WriteNullableSqlDateTime(writeNull ? (DateTime?)null : b, 0); return;
                 case TdsEnums.SQLDECIMALN when v is decimal b: writer.WriteNullableSqlDecimal(writeNull ? (decimal?)null : b, 0); return;
                 case TdsEnums.SQLUNIQUEID when v is Guid b: writer.WriteNullableSqlUniqueId(writeNull ? (Guid?)null : b, 0); return;
-                case TdsEnums.SQLBIGBINARY when v is byte[] b: writer.WriteNullableSqlBinary(writeNull ? (byte[])null : b, 0); return;
-                case TdsEnums.SQLBIGVARBINARY when v is byte[] b: writer.WriteNullableSqlBinary(writeNull ? (byte[])null : b, 0); return;
-                case TdsEnums.SQLBIGVARCHAR when v is string b: writer.WriteNullableSqlString(writeNull ? (string)null : b, 0); return;
-                case TdsEnums.SQLBIGCHAR when v is string b: writer.WriteNullableSqlString(writeNull ? (string)null : b, 0); return;
-                case TdsEnums.SQLTEXT when v is string b: writer.WriteNullableSqlString(writeNull ? (string)null : b, 0); return;
+                case TdsEnums.SQLBIGBINARY when v is byte[] b: writer.WriteNullableSqlBinary(writeNull ? null : b, 0); return;
+                case TdsEnums.SQLBIGVARBINARY when v is byte[] b: writer.WriteNullableSqlBinary(writeNull ? null : b, 0); return;
+                case TdsEnums.SQLBIGVARCHAR when v is string b: writer.WriteNullableSqlString(writeNull ? null : b, 0); return;
+                case TdsEnums.SQLBIGCHAR when v is string b: writer.WriteNullableSqlString(writeNull ? null : b, 0); return;
+                case TdsEnums.SQLTEXT when v is string b: writer.WriteNullableSqlString(writeNull ? null : b, 0); return;
                 case TdsEnums.SQLNVARCHAR when v is SqlUnicode b: if (writeNull) writer.WriteNullableSqlString(null, 0); else writer.WriteNullableSqlString((string)b, 0); return;
                 case TdsEnums.SQLNTEXT when v is SqlUnicode b: if (writeNull) writer.WriteNullableSqlString(null, 0); else writer.WriteNullableSqlString((string)b, 0); return;
                 case TdsEnums.SQLNCHAR when v is SqlUnicode b: if (writeNull) writer.WriteNullableSqlString(null, 0); else writer.WriteNullableSqlString((string)b, 0); return;
@@ -263,7 +193,7 @@ namespace TdsClientTests
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var r = reader.CurrentResultset.ColumnsMetadata = new ColumnsMetadata(1);
             var w = writer.ColumnsMetadata = new MetadataBulkCopy[1];
-            var collation = new SqlCollations() { Info = 0x00d00409, SortId = 0x34 };
+            var collation = new SqlCollations { Info = 0x00d00409, SortId = 0x34 };
             var encoding = Encoding.GetEncoding(collation.GetCodePage());
             w[0] = new MetadataBulkCopy();
             r[0].TdsType = (byte)tdsType;
@@ -286,6 +216,75 @@ namespace TdsClientTests
 
             r[0].IsTextOrImage = r[0].MetaType.IsTextOrImage;
             w[0].IsTextOrImage = r[0].MetaType.IsTextOrImage;
+        }
+
+        [Fact]
+        public void BinObjects()
+        {
+            var arr = new byte[10];
+            TestIntN(arr, TdsEnums.SQLBIGBINARY, true);
+            TestIntN(arr, TdsEnums.SQLBIGVARBINARY, true);
+            TestIntN(arr, TdsEnums.SQLBIGVARBINARY, true, 0, 0, true);
+            TestIntN((SqlImage)arr, TdsEnums.SQLIMAGE, true);
+        }
+
+        [Fact]
+        public void SimpleObjectsTypes()
+        {
+            TestIntN((Money4)4.0001M, TdsEnums.SQLMONEYN, true);
+            TestIntN((Money4)(-4.0001M), TdsEnums.SQLMONEY4, false);
+            TestIntN((Money)922_337_203_685_477.5807M, TdsEnums.SQLMONEYN, true);
+            TestIntN((Money)(-922_337_203_685_477.5807M), TdsEnums.SQLMONEY, false);
+            TestIntN((SqlDate)new DateTime(2018, 1, 2, 0, 0, 0), TdsEnums.SQLDATE, true);
+            TestIntN(new TimeSpan(1, 2, 3), TdsEnums.SQLTIME, true);
+            TestIntN(new TimeSpan(1, 2, 3), TdsEnums.SQLTIME, true, 0, 7);
+            TestIntN((SqlDateTime2)new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME2, true, 0, 7);
+            TestIntN((SqlDateTime2)new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME2, true, 0, 0);
+            TestIntN(new DateTimeOffset(2018, 1, 2, 3, 4, 5, new TimeSpan(5, 0, 0)), TdsEnums.SQLDATETIMEOFFSET, true, 0, 0);
+            TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIM4, false, 0, 0);
+            TestIntN((SqlDateTime4)new DateTime(2018, 1, 2, 3, 4, 0), TdsEnums.SQLDATETIMN, true, 0, 4);
+            TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIME, false, 0, 0);
+            TestIntN(new DateTime(2018, 1, 2, 3, 4, 5), TdsEnums.SQLDATETIMN, true, 0, 8);
+            TestIntN(1M, TdsEnums.SQLDECIMALN, true, 28, 28);
+            TestIntN(Guid.NewGuid(), TdsEnums.SQLUNIQUEID, true, 28, 28);
+        }
+
+        [Fact]
+        public void StringObjects()
+        {
+            var text = new string('*', 10);
+            TestIntN((SqlUnicode)text, TdsEnums.SQLNCHAR, true);
+            TestIntN(text, TdsEnums.SQLBIGCHAR, true);
+            TestIntN(text, TdsEnums.SQLBIGVARCHAR, true);
+            TestIntN(text, TdsEnums.SQLBIGVARCHAR, true, 0, 0, true);
+            TestIntN((SqlUnicode)text, TdsEnums.SQLNVARCHAR, true);
+            TestIntN((SqlUnicode)text, TdsEnums.SQLNVARCHAR, true, 0, 0, true);
+            TestIntN((SqlUnicode)text, TdsEnums.SQLNTEXT, true);
+            TestIntN((SqlUnicode)text, TdsEnums.SQLNTEXT, true, 0, 0, true);
+            TestIntN(text, TdsEnums.SQLTEXT, true);
+            TestIntN(text, TdsEnums.SQLTEXT, true, 0, 0, true);
+            TestIntN((SqlXml)"<Data><DepartmentID>x</DepartmentID></Data>", TdsEnums.SQLXMLTYPE, true, 0, 0, true);
+        }
+
+        [Fact]
+        public void Variant()
+        {
+            var text = new string('*', 10);
+            var arr = new byte[10];
+            TestIntN(new SqlVariant(true), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant((byte)1), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant((short)1), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(1), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant((long)1), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant((float)1), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant((double)1), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(new DateTime(2018, 1, 2, 0, 0, 0)), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(1M), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(Guid.NewGuid()), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(arr), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(text), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(new DateTimeOffset(2018, 1, 2, 3, 4, 5, new TimeSpan(5, 0, 0))), TdsEnums.SQLVARIANT, true);
+            TestIntN(new SqlVariant(new TimeSpan(1, 2, 3)), TdsEnums.SQLVARIANT, true);
         }
     }
 
@@ -379,30 +378,28 @@ namespace TdsClientTests
     }
     public struct SqlImage
     {
-        private Byte[] Value { get; }
-        public SqlImage(Byte[] v) { Value = v; }
-        public static explicit operator SqlImage(Byte[] value) { return new SqlImage(value); }
-        public static explicit operator Byte[] (SqlImage me) { return (Byte[])me.Value; }
+        private byte[] Value { get; }
+        public SqlImage(byte[] v) { Value = v; }
+        public static explicit operator SqlImage(byte[] value) { return new SqlImage(value); }
+        public static explicit operator byte[] (SqlImage me) { return me.Value; }
     }
     public struct SqlUnicode
     {
         private string Value { get; }
         public SqlUnicode(string v) { Value = v; }
         public static explicit operator SqlUnicode(string value) { return new SqlUnicode(value); }
-        public static explicit operator string(SqlUnicode me) { return (string)me.Value; }
+        public static explicit operator string(SqlUnicode me) { return me.Value; }
     }
     public struct SqlXml
     {
         private string Value { get; }
         public SqlXml(string v) { Value = v; }
         public static explicit operator SqlXml(string value) { return new SqlXml(value); }
-        public static explicit operator string(SqlXml me) { return (string)me.Value; }
+        public static explicit operator string(SqlXml me) { return me.Value; }
     }
     public struct SqlVariant
     {
         public object Value { get; }
         public SqlVariant(object v) { Value = v; }
-        //public static explicit operator SqlVariant(object value) { return new SqlVariant(value); }
-        //public static explicit operator object(SqlVariant me) { return (object)me.Value; }
     }
 }

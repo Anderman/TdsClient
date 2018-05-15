@@ -13,7 +13,7 @@ namespace TdsPerformanceTester
 
         public MedellaOrm()
         {
-            _tds = TdsClient.GetConnection(ConnectionString);
+            _tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             OrmTester.EnsureDbSetup(ConnectionString);
         }
 
@@ -22,7 +22,7 @@ namespace TdsPerformanceTester
             if (i++ > 5000)
                 i = 1;
 
-            //using (var tds = TdsClient.GetConnection(ConnectionString))
+            //using (var tds = TdsConnectionPools.GetConnectionPool(ConnectionString))
             {
                 var x = _tds.ExecuteParameterQuery<Post>($@"select * from Posts where Id = {i}");
             }

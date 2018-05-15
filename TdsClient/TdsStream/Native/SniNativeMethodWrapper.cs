@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Medella.TdsClient.Exceptions;
 
-//using Medella.TdsClient.SNI.Internal;
+//using Medella.TdsConnectionPools.SNI.Internal;
 
 namespace Medella.TdsClient.TdsStream.Native
 {

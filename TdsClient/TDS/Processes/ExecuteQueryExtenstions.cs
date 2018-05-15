@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
-using Medella.TdsClient.TDS.Reader;
+using Medella.TdsClient.TDS.Row.Reader;
 
 namespace Medella.TdsClient.TDS.Processes
 {
@@ -16,7 +15,7 @@ namespace Medella.TdsClient.TDS.Processes
 
         public static void ExecuteNonQuery(this TdsPhysicalConnection cnn, string text)
         {
-            cnn.TdsPackage.Writer.SendExcuteBatch(text,cnn.SqlTransactionId);
+            cnn.TdsPackage.Writer.SendExcuteBatch(text, cnn.SqlTransactionId);
             cnn.StreamParser.ParseInput();
         }
 
@@ -69,7 +68,7 @@ namespace Medella.TdsClient.TDS.Processes
 
         private static Func<TdsColumnReader, T> GetRowReader<T>(TdsPackageReader reader, string key) where T : class, new()
         {
-            return (Func<TdsColumnReader, T>)Readers.GetOrAdd(key, x => RowReader.GetComplexReader<T>(reader));
+            return (Func<TdsColumnReader, T>) Readers.GetOrAdd(key, x => RowReader.GetComplexReader<T>(reader));
         }
     }
 }

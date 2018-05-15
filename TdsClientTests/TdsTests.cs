@@ -21,44 +21,44 @@ namespace TdsClientTests
         [Fact]
         public async Task can_login()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             await tds.ExecuteNonQueryAsync("print 1");
-            tds = TdsClient.GetConnection(ConnectionString);
+            tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             await tds.ExecuteNonQueryAsync("print 1");
         }
 
         [Fact]
         public async Task can_login_toSql()
         {
-            var tds = TdsClient.GetConnection(ConnectionString2);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString2);
             await tds.ExecuteNonQueryAsync("print 1");
         }
 
         [Fact]
         public async Task can_read_a_large_column()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var x = await tds.ExecuteQueryAsync<NotNullTypes>(TestStatements.NotNullTable);
         }
 
         [Fact]
         public async Task can_read_not_null_fields()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var x = await tds.ExecuteQueryAsync<NotNullTypes>(TestStatements.NotNullTable);
         }
 
         [Fact]
         public async Task can_read_timestamp()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var x = await tds.ExecuteQueryAsync<TestIntType>(@"DECLARE @zz timestamp; Select zz=@zz");
         }
 
         [Fact]
         public async Task can_Serailize_all_nulls()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var x = await tds.ExecuteQueryAsync<TestNullType>(TestStatements.SelectAllNullTypes);
             var v = x[0];
             Assert.Null(v.a);
@@ -93,7 +93,7 @@ namespace TdsClientTests
         [Fact]
         public async Task can_Serailize_normal_sqltype_to_object()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var x = await tds.ExecuteQueryAsync<TestNullType>(TestStatements.SelectAllNotNullTypes);
             var v = x[0].a == null ? x[1] : x[0];
             Assert.Equal(new DateTime(2018, 12, 31), v.a);
@@ -127,7 +127,7 @@ namespace TdsClientTests
         [Fact]
         public async Task can_Serailize_normal_varianttype_to_object()
         {
-            var tds = TdsClient.GetConnection(ConnectionString);
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var x = await tds.ExecuteQueryAsync<TestNullType>(TestStatements.SelectAllVariantTypes);
             var v = x[0].a == null ? x[1] : x[0];
             Assert.Equal(new DateTime(2018, 12, 31), v.a);
@@ -157,7 +157,7 @@ namespace TdsClientTests
         [Fact]
         public void Connection_returned_cleaned_to_the_pool()
         {
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var cnninternal = cnn.GetConnection();
 
             cnninternal.ExecuteNonQuery("print 1");
@@ -221,7 +221,7 @@ namespace TdsClientTests
         [Fact]
         public async Task ReadLargeColumn()
         {
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var result = await cnn.ExecuteQueryAsync<TestLongStringType>(@"
                 DECLARE @v nvarchar(max)=CAST( replicate('1',32768) AS nvarchar(max) )
                 SELECT s=@v");
@@ -231,7 +231,7 @@ namespace TdsClientTests
         [Fact]
         public async Task ReadLargeColumn2()
         {
-            var tds = TdsClient.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
+            var tds = TdsConnectionPools.GetConnectionPool(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
                 var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"SELECT s=test FROM TestVarCharmax");
                 Assert.Equal(16000, result[0].s.Length);
@@ -241,7 +241,7 @@ namespace TdsClientTests
         [Fact]
         public async Task ReadWmptyXml()
         {
-            var tds = TdsClient.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
+            var tds = TdsConnectionPools.GetConnectionPool(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
                 var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"SELECT s=cast('' as xml)");
                 ;
@@ -252,7 +252,7 @@ namespace TdsClientTests
         [Fact]
         public async Task ReadXml()
         {
-            var tds = TdsClient.GetConnection(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
+            var tds = TdsConnectionPools.GetConnectionPool(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
                 var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"
 DECLARE @v xml=CAST( '<Data><DepartmentID>x</DepartmentID></Data>' AS xml )

@@ -40,7 +40,7 @@ namespace TdsClientTests
             {
                 obj[i] = new TestBulkcopy { Id = i, Id1 = i + 1 };
             }
-            var cnn = TdsClient.GetConnection(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             await cnn.ExecuteNonQueryAsync("if OBJECT_ID('bulkcopy') is not null DROP TABLE bulkcopy CREATE TABLE bulkcopy (Id int, Id1 bigint) ");
             await cnn.ExecuteNonQueryAsync("if OBJECT_ID('bulkcopy2') is not null DROP TABLE bulkcopy2 CREATE TABLE bulkcopy2 (Id int, Id1 bigint) ");
             await cnn.BulkInsertAsync(obj.ToList(), "bulkcopy");
