@@ -1,17 +1,20 @@
 using System;
-using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
     public static class WriterExecuteRpc
     {
-        public static async Task SendRpcASync(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql, long sqlConnectionId) => await Task.Run(() => SendRpc(writer, defaultCollation, sql, sqlConnectionId));
+        public static async Task SendRpcASync(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql, long sqlConnectionId)
+        {
+            await Task.Run(() => SendRpc(writer, defaultCollation, sql, sqlConnectionId));
+        }
 
         public static void SendRpc(this TdsPackageWriter writer, SqlCollations defaultCollation, FormattableString sql, long sqlConnectionId)
         {
@@ -42,8 +45,8 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 WriteTdsTypeInfo(writer, mt, p.Size, p.IsNull, defaultCollation, p.Scale);
                 WriteValue(writer, value, mt, isNull);
             }
-            writer.SendLastMessage();
 
+            writer.SendLastMessage();
         }
 
         public static void WriteValue(TdsPackageWriter writer, object value, TdsMetaType.MetaDataWrite metaData, bool isNull)
@@ -53,18 +56,37 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 return;
             switch (value)
             {
-                case string v: writer.WriteUnicodeString(v); break;
-                case decimal v: writer.WriteSqlDecimal(v, 17); break;
-                case bool v: writer.WriteByte(v ? 1 : 0); break;
-                case DateTime v: writer.WriteDateTime(v); break;
-                case byte v: writer.WriteByte(v); break;
-                case short v: writer.WriteInt16(v); break;
-                case int v: writer.WriteInt32(v); break;
-                case long v: writer.WriteInt64(v); break;
-                case float v: writer.WriteFloat(v); break;
-                case double v: writer.WriteDouble(v); break;
+                case string v:
+                    writer.WriteUnicodeString(v);
+                    break;
+                case decimal v:
+                    writer.WriteSqlDecimal(v, 17);
+                    break;
+                case bool v:
+                    writer.WriteByte(v ? 1 : 0);
+                    break;
+                case DateTime v:
+                    writer.WriteDateTime(v);
+                    break;
+                case byte v:
+                    writer.WriteByte(v);
+                    break;
+                case short v:
+                    writer.WriteInt16(v);
+                    break;
+                case int v:
+                    writer.WriteInt32(v);
+                    break;
+                case long v:
+                    writer.WriteInt64(v);
+                    break;
+                case float v:
+                    writer.WriteFloat(v);
+                    break;
+                case double v:
+                    writer.WriteDouble(v);
+                    break;
             }
-
         }
 
         public static void WriteTdsTypeInfo(this TdsPackageWriter writer, TdsMetaType.MetaDataWrite metaData, int size, bool isNull)
@@ -77,24 +99,21 @@ namespace Medella.TdsClient.TDS.Messages.Client
             var mt = metaData;
             writer.WriteByte(mt.NullableType);
 
-            writer.WriteTypeInfoLen(mt, size, isNull);//typeinfo varlen
+            writer.WriteTypeInfoLen(mt, size, isNull); //typeinfo varlen
             if (mt.HasCollation)
                 writer.WriteCollation2(defaultCollation);
             if (mt.HasPrecision)
-                writer.WriteByte(28);//Max clr precision
+                writer.WriteByte(28); //Max clr precision
             if (mt.HasScale)
-                writer.WriteByte(scale);//
-            writer.WriteParameterLen(metaData, size, isNull);//len parameter
+                writer.WriteByte(scale); //
+            writer.WriteParameterLen(metaData, size, isNull); //len parameter
         }
 
         public static TdsParameter[] CreateParameters(FormattableString fstring)
         {
             var count = fstring.ArgumentCount;
             var ps = new string[count];
-            for (var p = 0; p < count; p++)
-            {
-                ps[p] = "@p" + p;
-            }
+            for (var p = 0; p < count; p++) ps[p] = "@p" + p;
             var pars = new TdsParameter[fstring.ArgumentCount + 2];
             pars[0] = new TdsParameter("", string.Format(fstring.Format, ps));
             var i = 0;
@@ -104,22 +123,44 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 TdsParameter p = null;
                 switch (arg)
                 {
-                    case string s: p = new TdsParameter($"@p{i}", s); break;
-                    case decimal d: p = new TdsParameter($"@p{i}", d); break;
-                    case bool b: p = new TdsParameter($"@p{i}", b); break;
-                    case byte v: p = new TdsParameter($"@p{i}", v); break;
-                    case short v: p = new TdsParameter($"@p{i}", v); break;
-                    case int v: p = new TdsParameter($"@p{i}", v); break;
-                    case long v: p = new TdsParameter($"@p{i}", v); break;
-                    case float v: p = new TdsParameter($"@p{i}", v); break;
-                    case double v: p = new TdsParameter($"@p{i}", v); break;
-                    case DateTime d: p = new TdsParameter($"@p{i}", d); break;
+                    case string s:
+                        p = new TdsParameter($"@p{i}", s);
+                        break;
+                    case decimal d:
+                        p = new TdsParameter($"@p{i}", d);
+                        break;
+                    case bool b:
+                        p = new TdsParameter($"@p{i}", b);
+                        break;
+                    case byte v:
+                        p = new TdsParameter($"@p{i}", v);
+                        break;
+                    case short v:
+                        p = new TdsParameter($"@p{i}", v);
+                        break;
+                    case int v:
+                        p = new TdsParameter($"@p{i}", v);
+                        break;
+                    case long v:
+                        p = new TdsParameter($"@p{i}", v);
+                        break;
+                    case float v:
+                        p = new TdsParameter($"@p{i}", v);
+                        break;
+                    case double v:
+                        p = new TdsParameter($"@p{i}", v);
+                        break;
+                    case DateTime d:
+                        p = new TdsParameter($"@p{i}", d);
+                        break;
                     default: throw new Exception("Unknow type");
                 }
+
                 sb.Append($"{(i > 0 ? "," : "")}@p{i} {p.SqlName}");
                 pars[i + 2] = p;
                 i++;
             }
+
             pars[1] = new TdsParameter("", sb.ToString());
 
             return pars;

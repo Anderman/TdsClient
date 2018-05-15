@@ -65,7 +65,7 @@ namespace Medella.TdsClient.Cleanup
             AttachDBFilename = ConvertValueToString(KEY.AttachDBFilename, DEFAULT.AttachDbFilename);
             CurrentLanguage = ConvertValueToString(KEY.Current_Language, DEFAULT.CurrentLanguage);
             DataSource = ConvertValueToString(KEY.Data_Source, DEFAULT.DataSource);
-            LocalDBInstance = LocalDBAPI.GetLocalDbInstanceNameFromServerName(DataSource);
+            //LocalDBInstance = LocalDbApi.GetLocalDbInstanceNameFromServerName(DataSource);
             FailoverPartner = ConvertValueToString(KEY.FailoverPartner, DEFAULT.FailoverPartner);
             InitialCatalog = ConvertValueToString(KEY.Initial_Catalog, DEFAULT.InitialCatalog);
             Password = ConvertValueToString(KEY.Password, DEFAULT.Password);
@@ -187,7 +187,7 @@ namespace Medella.TdsClient.Cleanup
             AttachDBFilename = connectionOptions.AttachDBFilename;
             CurrentLanguage = connectionOptions.CurrentLanguage;
             DataSource = dataSource;
-            LocalDBInstance = LocalDBAPI.GetLocalDbInstanceNameFromServerName(DataSource);
+            //LocalDBInstance = LocalDbApi.GetLocalDbInstanceNameFromServerName(DataSource);
             FailoverPartner = connectionOptions.FailoverPartner;
             InitialCatalog = connectionOptions.InitialCatalog;
             Password = connectionOptions.Password;

@@ -18,7 +18,7 @@ namespace Medella.TdsClient.TdsStream.SniNp
         public TdsStreamNamedpipes(string serverName, string pipeName, long timeOut)
         {
             Stream = new NamedPipeClientStream(serverName, pipeName, PipeDirection.InOut, PipeOptions.Asynchronous | PipeOptions.WriteThrough);
-
+            timeOut = timeOut * 1000;
             if (timeOut >= int.MaxValue)
                 Stream.Connect();
             else

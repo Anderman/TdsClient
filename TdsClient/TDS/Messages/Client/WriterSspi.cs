@@ -1,5 +1,6 @@
 ﻿using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Package;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {

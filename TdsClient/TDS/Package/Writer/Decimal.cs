@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Medella.TdsClient.TDS.Package
+namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
     {

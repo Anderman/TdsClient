@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
 using SqlClient.TDS.Messages.Server.Environment;
 
 namespace Medella.TdsClient.TDS.Messages.Server.Environment

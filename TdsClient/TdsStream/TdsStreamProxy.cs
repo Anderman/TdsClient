@@ -54,6 +54,7 @@ namespace Medella.TdsClient.TdsStream
             return parts.Length == 2 && LocalDbHost.Equals(parts[0].TrimStart());
         }
 
+        //servername=[tcp:]hostname[/intance][,port]
         private void SetTcpProperties(string lower)
         {
             var temp = lower.Split(':');
@@ -62,8 +63,8 @@ namespace Medella.TdsClient.TdsStream
                 : lower.Split(',');
             if (temp.Length == 2) int.TryParse(temp[1], out _ipPort);
 
-            IpServerName = temp[0].Split('\\')[0];
             temp = temp[0].Split('\\');
+            IpServerName = temp[0];
             if (temp.Length == 2 && _ipPort == -1)
                 IsSsrpRequired = true;
             if (IsLocalHost(IpServerName)) IpServerName = DefaultHostName;
@@ -84,6 +85,7 @@ namespace Medella.TdsClient.TdsStream
             return LocalDb.LocalDb.GetLocalDbConnectionString(localDbInstance);
         }
 
+        //tcp:hostname,port
         public static bool IsTcpIp(string servername)
         {
             var temp = servername.Split(';');

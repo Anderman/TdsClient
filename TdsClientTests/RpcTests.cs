@@ -9,6 +9,7 @@ using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Processes;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
 using Xunit;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace TdsClientTests
 {

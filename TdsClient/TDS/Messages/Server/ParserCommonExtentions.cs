@@ -1,4 +1,5 @@
 ﻿using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Messages.Server

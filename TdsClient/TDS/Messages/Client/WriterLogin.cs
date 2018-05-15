@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {

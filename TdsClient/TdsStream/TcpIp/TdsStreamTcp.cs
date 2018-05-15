@@ -44,12 +44,9 @@ namespace Medella.TdsClient.TdsStream.TcpIp
             _sslOverTdsStream = new SslOverTdsStream(_tcpStream);
             _sslStream = new SslStream(_sslOverTdsStream, true, ValidateServerCertificate, null);
             _stream = _tcpStream;
-            ServerSpn = GetSqlServerSpn(serverName, port);
-            _sspi = new SspiHelper(ServerSpn);
+            var serverSpn = GetSqlServerSpn(serverName, port);
+            _sspi = new SspiHelper(serverSpn);
         }
-
-        public string ServerSpn { get; }
-
 
         public void Dispose()
         {
@@ -70,7 +67,7 @@ namespace Medella.TdsClient.TdsStream.TcpIp
 
         public void FlushBuffer(byte[] writeBuffer, int count)
         {
-            //GetBytesString("Write-", writeBuffer, count);
+            GetBytesString("Write-", writeBuffer, count);
             //Stream.WriteAsync(writeBuffer, 0, count);
             _stream.Write(writeBuffer, 0, count);
         }
@@ -78,8 +75,23 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         public int Receive(byte[] readBuffer, int offset, int count)
         {
             var len = _stream.Read(readBuffer, offset, count);
-            //GetBytesString("Read- ", readBuffer, len);
+            GetBytesString("Read- ", readBuffer, len);
             return len;
+        }
+        [Conditional("DEBUG")]
+        private static void GetBytesString(string prefix, byte[] buffer, int length)
+        {
+            var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            sb.Append("data: ");
+            for (var i = 0; i < length; i++)
+                sb.Append($"{buffer[i],2:X2} ");
+            Debug.WriteLine(sb.ToString());
+            sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            sb.Append("data: ");
+            for (var i = 0; i < length; i++)
+                if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)
+                    sb.Append($"{(char)buffer[i]}");
+            Debug.WriteLine(sb.ToString());
         }
 
         public byte[] GetClientToken(byte[] serverToken)
@@ -99,27 +111,15 @@ namespace Medella.TdsClient.TdsStream.TcpIp
                     : DefaultSqlServerPort.ToString();
 
             return GetSqlServerSpn(hostName, portOrInstanceName);
-            //Sspi = new SspiHelper(SqlServerSpn);
         }
 
         private static string GetSqlServerSpn(string hostNameOrAddress, string portOrInstanceName)
         {
             var hostEntry = Dns.GetHostEntry(hostNameOrAddress);
             var fullyQualifiedDomainName = hostEntry.HostName;
-            var serverSpn = $"MSSQLSvc/localhost"; // + fullyQualifiedDomainName;
+            var serverSpn = $"MSSQLSvc/"+fullyQualifiedDomainName;
             if (!string.IsNullOrWhiteSpace(portOrInstanceName)) serverSpn += ":" + portOrInstanceName;
-            //throw new Exception(serverSpn);
-            return "MSSQLSvc/Laptop-tk";
-        }
-
-        [Conditional("DEBUG")]
-        private static void GetBytesString(string prefix, byte[] buffer, int length)
-        {
-            var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
-            sb.Append("data: ");
-            for (var i = 0; i < length; i++)
-                sb.Append($"{buffer[i],2:X2} ");
-            Debug.WriteLine(sb.ToString());
+            return serverSpn;
         }
 
         private static Socket Connect(string serverName, int port, TimeSpan timeout)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Reader;
 
 namespace Medella.TdsClient.TDS.Processes

@@ -20,7 +20,7 @@ namespace TdsClientTests
         public int Receive(byte[] readBuffer, int offset, int count)
         {
             var package = Queue.Dequeue();
-            Buffer.BlockCopy(package, 0, readBuffer, 0, package.Length);
+            Buffer.BlockCopy(package, 0, readBuffer, offset, package.Length);
             return package.Length;
         }
 

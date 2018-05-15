@@ -1,17 +1,21 @@
 using System;
+using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Reader;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
 using Medella.TdsClient.TDS.Writer;
 using Xunit;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace TdsClientTests
 {
     public class WriteReadValueTest
     {
+       
         [Fact]
         public void Variant()
         {

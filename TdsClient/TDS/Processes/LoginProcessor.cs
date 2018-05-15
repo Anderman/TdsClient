@@ -67,9 +67,7 @@ namespace Medella.TdsClient.TDS.Processes
         public EncryptionOptions Connect(string instanceName, bool mars)
         {
             _package.Writer.SendPreLoginHandshake(instanceName, mars);
-            var status = _package.Reader.ReadPackage();
-            if (status != TdsEnums.ST_EOM)
-                throw new Exception("Unexpected result returned from server after sending SendPreLoginHandshake");
+            _package.Reader.CheckBuffer(8);
             return _package.Reader.ParseConnect(EncryptionOptions.OFF);
         }
 

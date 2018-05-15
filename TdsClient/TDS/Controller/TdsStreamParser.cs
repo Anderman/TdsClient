@@ -29,9 +29,8 @@ namespace Medella.TdsClient.TDS.Controller
         internal void ParseInput(Action<int> customParser)
         {
             Status = ParseStatus.Unknown;
-            while (_tdsPackage.Reader.ReadPackage() != 255)
+            while (true)
             {
-                //_tdsPackage.Reader.GetBytesString("ParseInput: "); // GetBytesString("Invalid token:", _tdsPackage.Reader.ReadBuffer, _tdsPackage.Reader.GetReadPos(), _tdsPackage.Reader.PackageBytesLeft());
                 var token = _tdsPackage.Reader.ReadByte();
 
                 var tokenLength = _tdsPackage.Reader.GetTokenLength(token);
@@ -49,18 +48,6 @@ namespace Medella.TdsClient.TDS.Controller
                     case TdsEnums.SQLCOLINFO:
                     {
                         throw new NotImplementedException();
-                        //if (null != _dataStream)
-                        //{
-                        //    var metaDataSet = TryProcessColInfo(_dataStream.MetaData, _dataStream);
-                        //    _dataStream.TrySetMetaData(metaDataSet, false);
-                        //    _dataStream.BrowseModeInfoConsumed = true;
-                        //}
-                        //else
-                        //{
-                        //    SkipBytes(tokenLength);
-                        //}
-
-                        //break;
                     }
 
                     case TdsEnums.SQLDONE:

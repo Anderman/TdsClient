@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server.Environment
 {

@@ -14,6 +14,7 @@ namespace Medella.TdsClient.TdsStream.Sspi
 
         private object _sspiClientContextStatus;
 
+        // setup call to internal api GenSspiClientContext(SspiClientContextStatus ctx, byte[] servertoken, out byte[] clientToken, byte[] serverSpn)
         public SspiHelper(string serverSpn)
         {
             _serverSpn = Encoding.UTF8.GetBytes(serverSpn);
@@ -32,17 +33,12 @@ namespace Medella.TdsClient.TdsStream.Sspi
         public byte[] CreateClientToken(byte[] serverToken)
         {
             if (serverToken == null)
-                _sspiClientContextStatus = GetNewSspiClientContextStatus();
+                _sspiClientContextStatus = _sspiClientContextStatusConstructor.Invoke(null);
+
             var args = new[] {_sspiClientContextStatus, serverToken, null, _serverSpn};
             _genSspiClientContextMethod.Invoke(_sniInstance, args);
             ClientToken = (byte[]) args[2];
             return ClientToken;
-        }
-
-        public object GetNewSspiClientContextStatus()
-        {
-            var sspiClass = _sspiClientContextStatusConstructor.Invoke(null);
-            return sspiClass;
         }
     }
 }

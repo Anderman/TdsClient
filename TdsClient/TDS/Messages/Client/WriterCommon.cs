@@ -1,8 +1,7 @@
-﻿using System;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Messages.Server.Internal;
+﻿using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Reader.StringHelpers;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
@@ -16,7 +15,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             }
             else
             {
-                writer.WriteByte(checked((byte)s.Length));
+                writer.WriteByte(checked((byte) s.Length));
                 writer.WriteUnicodeString(s);
             }
         }
@@ -34,11 +33,13 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 writer.WriteByte(collation.SortId);
             }
         }
+
         public static void WriteCollation2(this TdsPackageWriter writer, SqlCollations collation)
         {
             writer.WriteUInt32(collation.Info);
             writer.WriteByte(collation.SortId);
         }
+
         public static void WriteMarsHeader(this TdsPackageWriter writer, long sqlTransactionId)
         {
             const int marsHeaderSize = 18; // 4 + (2 + 8 + 4)= size + data
@@ -60,7 +61,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             if (metaType.IsPlp)
             {
                 if (isNull)
-                    writer.WriteInt64(unchecked((long)TdsEnums.SQL_PLP_NULL));
+                    writer.WriteInt64(unchecked((long) TdsEnums.SQL_PLP_NULL));
                 else
                     writer.WriteInt64(size);
             }
@@ -68,7 +69,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             {
                 // text/image/SQLVariant have a 4 byte length, plp datatypes have 8 byte lengths
                 if (isNull)
-                    writer.WriteInt32(unchecked((int)TdsEnums.VARLONGNULL));
+                    writer.WriteInt32(unchecked((int) TdsEnums.VARLONGNULL));
                 else
                     writer.WriteInt32(size);
             }
@@ -77,9 +78,9 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 if (isNull)
                     writer.WriteByte(TdsEnums.FIXEDNULL);
                 else
-                    writer.WriteByte((byte)size);
+                    writer.WriteByte((byte) size);
             }
-            else if (metaType.NullableType == TdsEnums.SQLBIGVARBINARY || metaType.NullableType == TdsEnums.SQLBIGCHAR || metaType.NullableType == TdsEnums.SQLNCHAR || metaType.NullableType == TdsEnums.SQLNVARCHAR)//skip varchar
+            else if (metaType.NullableType == TdsEnums.SQLBIGVARBINARY || metaType.NullableType == TdsEnums.SQLBIGCHAR || metaType.NullableType == TdsEnums.SQLNCHAR || metaType.NullableType == TdsEnums.SQLNVARCHAR) //skip varchar
             {
                 // non-long but variable length column, must be a BIG* type: 2 byte length
                 writer.WriteInt16(isNull ? TdsEnums.VARNULL : size);
@@ -89,7 +90,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 if (isNull)
                     writer.WriteByte(TdsEnums.FIXEDNULL);
                 else
-                    writer.WriteByte((byte)size); // 1 byte for everything else
+                    writer.WriteByte((byte) size); // 1 byte for everything else
             }
         }
 
@@ -104,11 +105,11 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 // text/image/SQLVariant have a 4 byte length, plp datatypes have 8 byte lengths
                 writer.WriteInt32(size);
             else if (metaType.NullableType == TdsEnums.SQLDATETIME2 || metaType.NullableType == TdsEnums.SQLTIME || metaType.NullableType == TdsEnums.SQLDATETIMEOFFSET)
-                writer.WriteByte((byte)size);
-            else if (metaType.NullableType == TdsEnums.SQLBIGVARBINARY || metaType.NullableType == TdsEnums.SQLBIGCHAR || metaType.NullableType == TdsEnums.SQLNCHAR || metaType.NullableType == TdsEnums.SQLNVARCHAR)//skip varchar
+                writer.WriteByte((byte) size);
+            else if (metaType.NullableType == TdsEnums.SQLBIGVARBINARY || metaType.NullableType == TdsEnums.SQLBIGCHAR || metaType.NullableType == TdsEnums.SQLNCHAR || metaType.NullableType == TdsEnums.SQLNVARCHAR) //skip varchar
                 writer.WriteInt16(size);
             else
-                writer.WriteByte((byte)size); // 1 byte for everything else
+                writer.WriteByte((byte) size); // 1 byte for everything else
         }
     }
 }

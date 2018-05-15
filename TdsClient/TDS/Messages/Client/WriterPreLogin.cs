@@ -2,6 +2,7 @@
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Package;
+using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
@@ -49,10 +50,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                         break;
 
                     case (int) PreLoginOptions.INSTANCE:
-                        foreach (var c in instanceName)
-                        {
-                            writer.WriteByte(c);
-                        }
+                        foreach (var c in instanceName) writer.WriteByte(c);
                         writer.WriteByte(0); // null terminate
                         break;
 
@@ -106,7 +104,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 case (int) PreLoginOptions.ENCRYPT:
                     return 1;
                 case (int) PreLoginOptions.INSTANCE:
-                    return (byte) (instanceName.Length+1);//null terminated ansistring??
+                    return (byte) (instanceName.Length + 1); //null terminated ansistring??
                 case (int) PreLoginOptions.THREADID:
                     return 4;
                 case (int) PreLoginOptions.MARS:

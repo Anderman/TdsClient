@@ -6,7 +6,8 @@ using Medella.TdsClient.TdsStream.SniNp;
 using Medella.TdsClient.TDS;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
-using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Reader;
+using Medella.TdsClient.TDS.Package.Writer;
 using Medella.TdsClient.TDS.Processes;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace TdsClientTests
 {
     public class TdsTests
     {
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=tcp:.,1433;Database=tmp;Trusted_Connection=True;";
         private const string ConnectionString2 = @"Server=.;Database=tmp;Trusted_Connection=True;";
 
         [Fact]
@@ -100,8 +101,8 @@ namespace TdsClientTests
             Assert.Equal(new DateTime(2018, 12, 31, 10, 11, 12), v.c);
             Assert.Equal(new DateTimeOffset(2018, 12, 31, 10, 11, 12, new TimeSpan(5, 0, 0)), v.d);
             Assert.True(v.e);
-            Assert.Equal((byte?)1, v.f);
-            Assert.Equal((short?)1, v.g);
+            Assert.Equal((byte?) 1, v.f);
+            Assert.Equal((short?) 1, v.g);
             Assert.Equal(1, v.h);
             Assert.Equal(1, v.i);
             Assert.Equal(1, v.j);
@@ -111,16 +112,16 @@ namespace TdsClientTests
             Assert.Equal(new DateTime(2018, 12, 31), v.n);
             Assert.Equal(new DateTime(2018, 12, 31), v.o);
             Assert.Equal(new Guid("9e383328-69d7-4e73-8126-e25a1be94ae9"), v.p);
-            Assert.Equal(new byte[] { 1 }, v.q);
-            Assert.Equal(new byte[] { 49, 50, 51, 52, 53, 54, 55, 56, 57 }, v.r);
-            Assert.Equal(new[] { '1' }, v.s);
+            Assert.Equal(new byte[] {1}, v.q);
+            Assert.Equal(new byte[] {49, 50, 51, 52, 53, 54, 55, 56, 57}, v.r);
+            Assert.Equal(new[] {'1'}, v.s);
             Assert.Equal("123456789", v.t);
-            Assert.Equal(new[] { '1' }, v.u);
+            Assert.Equal(new[] {'1'}, v.u);
             Assert.StartsWith("123456789", v.v);
             Assert.Equal(1, v.x);
             Assert.Equal(1_000_000_000_000_000_000, v.y);
             Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
-            Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }, v.zz);
+            Assert.Equal(new byte[] {0, 0, 0, 0, 0, 0, 0, 1}, v.zz);
         }
 
         [Fact]
@@ -134,8 +135,8 @@ namespace TdsClientTests
             Assert.Equal(new DateTime(2018, 12, 31, 10, 11, 12), v.c);
             Assert.Equal(new DateTimeOffset(2018, 12, 31, 10, 11, 12, new TimeSpan(5, 0, 0)), v.d);
             Assert.True(v.e);
-            Assert.Equal((byte?)1, v.f);
-            Assert.Equal((short?)1, v.g);
+            Assert.Equal((byte?) 1, v.f);
+            Assert.Equal((short?) 1, v.g);
             Assert.Equal(1, v.h);
             Assert.Equal(1, v.i);
             Assert.Equal(1, v.j);
@@ -145,9 +146,9 @@ namespace TdsClientTests
             Assert.Equal(new DateTime(2018, 12, 31), v.n);
             Assert.Equal(new DateTime(2018, 12, 31), v.o);
             Assert.Equal(new Guid("9e383328-69d7-4e73-8126-e25a1be94ae9"), v.p);
-            Assert.Equal(new byte[] { 1 }, v.q);
-            Assert.Equal(new[] { '1' }, v.s);
-            Assert.Equal(new[] { '1' }, v.u);
+            Assert.Equal(new byte[] {1}, v.q);
+            Assert.Equal(new[] {'1'}, v.s);
+            Assert.Equal(new[] {'1'}, v.u);
             Assert.Equal(1, v.x);
             Assert.Equal(1_000_000_000_000_000_000, v.y);
             Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
@@ -212,8 +213,7 @@ namespace TdsClientTests
             var reader = new TdsPackageReader(handle);
 
             writer.SendPreLoginHandshake("", marsOn);
-            var status = reader.ReadPackage();
-            Assert.Equal(TdsEnums.ST_EOM, status);
+            reader.CheckBuffer(8);
             var result = ParserPreLogin.ParsePreLoginHandshake(reader.ReadBuffer, TdsEnums.HEADER_LEN, EncryptionOptions.OFF);
             Assert.Equal(EncryptionOptions.OFF, result);
         }

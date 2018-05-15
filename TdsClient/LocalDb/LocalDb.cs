@@ -12,6 +12,7 @@ namespace Medella.TdsClient.LocalDb
         private const string ProcLocalDbStartInstance = "LocalDBStartInstance";
 
         private const int MaxLocalDbConnectionStringSize = 260;
+        internal const string Kernel32 = "kernel32.dll";
 
         /// <summary>
         ///     Retrieves the part of the sqlUserInstance.dll from the registry
@@ -59,7 +60,7 @@ namespace Medella.TdsClient.LocalDb
                 var dllPath = GetUserInstanceDllPath(out var registryQueryErrorState);
 
                 // Load the dll
-                var  libraryHandle = LoadLibraryExW(dllPath.Trim(), IntPtr.Zero, 0);
+                var libraryHandle = LoadLibraryExW(dllPath.Trim(), IntPtr.Zero, 0);
 
                 // Load the procs from the DLLs
                 _startInstanceHandle = GetProcAddress(libraryHandle, ProcLocalDbStartInstance);
@@ -71,7 +72,6 @@ namespace Medella.TdsClient.LocalDb
                 return true;
             }
         }
-        internal const string Kernel32 = "kernel32.dll";
 
         [DllImport(Kernel32, CharSet = CharSet.Ansi, BestFitMapping = false)]
         public static extern IntPtr GetProcAddress(SafeLibraryHandle hModule, string lpProcName);
@@ -80,8 +80,7 @@ namespace Medella.TdsClient.LocalDb
         public static extern SafeLibraryHandle LoadLibraryExW([In] string lpwLibFileName, [In] IntPtr hFile, [In] uint dwFlags);
 
         [DllImport(Kernel32, ExactSpelling = true, SetLastError = true)]
-        public static extern unsafe bool FreeLibrary([In] IntPtr hModule);
-
+        public static extern bool FreeLibrary([In] IntPtr hModule);
 
 
         private static string GetUserInstanceDllPath(out LocalDbErrorState errorState)
@@ -109,6 +108,7 @@ namespace Medella.TdsClient.LocalDb
             NONE
         }
     }
+
     public sealed class SafeLibraryHandle : SafeHandleZeroOrMinusOneIsInvalid
     {
         internal SafeLibraryHandle() : base(true)
@@ -124,5 +124,4 @@ namespace Medella.TdsClient.LocalDb
             return LocalDb.FreeLibrary(handle);
         }
     }
-
 }
