@@ -1,9 +1,9 @@
 ﻿using System;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server

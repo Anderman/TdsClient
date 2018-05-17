@@ -8,11 +8,10 @@ namespace Medella.TdsClient.TDS.Package.Writer
     public partial class TdsPackageWriter
     {
         private const int BufferSize = 8000;
-        private const int MaxSizeSqlValue=1+1+4*4; //nullable decimal 
         private readonly ITdsStream _tdsStream;
         private byte _packageNumber;
         private int _packageStart;
-        public byte[] WriteBuffer = new byte[BufferSize + MaxSizeSqlValue]; // expand the buffer so that we can make correction after write
+        public byte[] WriteBuffer = new byte[BufferSize + TdsEnums.MaxSizeSqlValue]; // expand the buffer so that we can make correction after write
         public int WritePosition;
 
         public TdsPackageWriter(ITdsStream tdsStream)

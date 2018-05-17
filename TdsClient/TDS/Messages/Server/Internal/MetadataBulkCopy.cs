@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
@@ -23,5 +24,6 @@ namespace Medella.TdsClient.TDS.Messages.Server.Internal
         public SqlCollations Collation { get; set; }
         public Encoding Encoding { get; set; }
         public bool NonUniCode => TdsType == TdsEnums.SQLBIGCHAR || TdsType == TdsEnums.SQLBIGVARCHAR || TdsType == TdsEnums.SQLTEXT;
+        public PropertyInfo PropertyInfo;
     }
 }

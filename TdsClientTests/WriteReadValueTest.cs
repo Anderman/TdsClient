@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
@@ -94,10 +95,11 @@ namespace TdsClientTests
                         case string b: Assert.Equal(b, result); break;
                         case TimeSpan b: Assert.Equal(b, result); break;
                         case DateTimeOffset b: Assert.Equal(b, result); break;
-                        default: Assert.False(true);
+                        default:
+                            Assert.False(true);
                             break;
                     }
-                    
+
                     break;
                 default:
                     Assert.Equal(value, result);
@@ -105,6 +107,20 @@ namespace TdsClientTests
             }
 
             Assert.Equal(reader.GetReadEndPos(), reader.GetReadPos());
+            if (!new[]
+            {
+                TdsEnums.SQLBIGBINARY,
+                TdsEnums.SQLBIGVARBINARY,
+                TdsEnums.SQLBIGVARCHAR,
+                TdsEnums.SQLBIGCHAR,
+                TdsEnums.SQLTEXT,
+                TdsEnums.SQLNVARCHAR,
+                TdsEnums.SQLNTEXT,
+                TdsEnums.SQLNCHAR,
+                TdsEnums.SQLXMLTYPE,
+                TdsEnums.SQLIMAGE,
+            }.Contains(tdsType) && !(value is SqlVariant v1 && (v1.Value is string s|| v1.Value is byte[])) )
+                    Assert.InRange(reader.GetReadPos() - 8, 0, TdsEnums.MaxSizeSqlValue);
         }
 
         private static void ObjectWriter(TdsColumnWriter writer, int tdsType, object v, bool writeNull = true)
@@ -182,7 +198,7 @@ namespace TdsClientTests
                 case SqlUnicode _: return reader.ReadUnicodeString(0); ;
                 case SqlXml _: return reader.ReadUnicodeString(0); ;
                 case SqlVariant _: return reader.ReadSqlVariant(0); ;
-                //case SqlUnicode _: return reader.Readsql(0); ;
+                    //case SqlUnicode _: return reader.Readsql(0); ;
             }
 
             throw new NotImplementedException();

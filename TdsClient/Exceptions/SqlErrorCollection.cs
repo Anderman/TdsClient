@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Medella.TdsClient.TDS;
+using Medella.TdsClient.TDS.Controller;
 
 namespace Medella.TdsClient.Exceptions
 {

@@ -4,6 +4,7 @@ using Medella.TdsClient.Contants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TdsStream.SniNp;
 using Medella.TdsClient.TDS;
+using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Package.Reader;

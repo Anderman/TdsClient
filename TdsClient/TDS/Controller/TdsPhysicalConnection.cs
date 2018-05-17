@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Cleanup;
-using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Processes;
 
@@ -12,10 +11,9 @@ namespace Medella.TdsClient.TDS.Controller
     public class TdsPhysicalConnection : IDisposable
     {
         private readonly int _messageCountAfterlogin;
-        public long SqlTransactionId { get; set; }
+        private readonly ITdsStream _tdsStream;
         public readonly TdsStreamParser StreamParser;
         public readonly TdsPackage TdsPackage;
-        private readonly ITdsStream _tdsStream;
 
         static TdsPhysicalConnection()
         {
@@ -33,19 +31,21 @@ namespace Medella.TdsClient.TDS.Controller
             _messageCountAfterlogin = SqlMessages.Count;
         }
 
+        public long SqlTransactionId { get; set; }
+
         public List<SqlInfoAndError> SqlMessages => TdsPackage.Reader.CurrentSession.Errors;
+
+        public void Dispose()
+        {
+            Debug.WriteLine($"Dispose connection");
+            _tdsStream.Dispose();
+        }
 
         public void ResetToInitialState()
         {
             if (SqlMessages.Count > _messageCountAfterlogin)
                 SqlMessages.RemoveAt(_messageCountAfterlogin - 1);
             SqlTransactionId = 0;
-        }
-
-        public void Dispose()
-        {
-            Debug.WriteLine($"Dispose connection");
-            _tdsStream.Dispose();
         }
     }
 }

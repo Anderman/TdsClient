@@ -1,8 +1,7 @@
 ﻿using System;
 using Medella.TdsClient.Contants;
-using Medella.TdsClient.Exceptions;
-using Medella.TdsClient.TDS.Package;
-using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
+using Medella.TdsClient.TDS.Controller;
+using Medella.TdsClient.TDS.Package.Writer;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {

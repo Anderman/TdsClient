@@ -76,7 +76,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
         public static Action<TdsColumnWriter, T> GetComplexWriter<T>(TdsColumnWriter writer)
         {
             var readerColumns = GetDefaultMapping(writer.MetaData);
-            var typeInfo = typeof(T).GetProperties().Where(p => p.GetSetMethod(false) != null).ToDictionary(x => x.Name, x => x.PropertyType);
+            var typeInfo = typeof(T).GetProperties().Where(p => p.GetMethod != null).ToDictionary(x => x.Name, x => x.PropertyType);
             if (readerColumns.Select(x => x.SqlName).Except(typeInfo.Keys).Any())
                 throw new ArgumentException($"Not all columns are mapped to class properties. The follow columns could not mapped: {string.Join(",", readerColumns.Select(x => x.SqlName).Except(typeInfo.Keys))}");
 
@@ -95,7 +95,6 @@ namespace Medella.TdsClient.TDS.Row.Writer
 			    writer.Write[nullable][SqlType](t.propertyY, 1)
 			}
 			 */
-            //var sqlDic = specification.Where(x => map.ContainsKey(x.SqlName)).Select((x, i) => new {x.Type, x.IsNullable, x.SqlName, Name = map[x.SqlName], SqlIndex = i}).ToArray();
 
             var writerParam = Expression.Parameter(typeof(TdsColumnWriter), "writer");
             var obj = Expression.Parameter(typeof(T), "obj");
@@ -127,7 +126,9 @@ namespace Medella.TdsClient.TDS.Row.Writer
             var a = property.Type;
             var method = SqlTypes.ContainsKey(tdsType) ? SqlTypes[tdsType] : throw new Exception($"TdsType not supported:{tdsType} index:{columnIndex}");
             if (method == null) method = ClrTypes.ContainsKey(property.Type) ? ClrTypes[property.Type] : throw new Exception($"TdsType not supported:{tdsType} index:{columnIndex}");
-            return Expression.Call(writer, method, new[] {property, Expression.Constant(columnIndex)});
+            var type=method.GetParameters()[0].ParameterType;
+            Expression convertedProperty = Expression.Convert(property, type);
+            return Expression.Call(writer, method, new[] { convertedProperty, Expression.Constant(columnIndex)});
         }
 
         private static WriterColumn[] GetDefaultMapping(MetadataBulkCopy[] metadata)
@@ -144,6 +145,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
             public byte TdsType { get; set; }
         }
 
+        [DebuggerDisplay("SqlIndex:{SqlIndex} SqlName:{SqlName} TdsType:{TdsType}")]
         internal class WriterColumn
         {
             public string SqlName { get; set; }

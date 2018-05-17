@@ -931,13 +931,10 @@ namespace Medella.TdsClient.Cleanup
                 // Only say standard values are supported if the connection string has enough
                 // information set to instantiate a connection and retrieve a list of databases
                 var flag = false;
-                if (null != context)
-                {
-                    var constr = context.Instance as SqlConnectionStringBuilder;
-                    if (null != constr)
-                        if (0 < constr.DataSource.Length && (constr.IntegratedSecurity || 0 < constr.UserID.Length))
-                            flag = true;
-                }
+                if (null == context) return flag;
+                if (!(context.Instance is SqlConnectionStringBuilder constr)) return flag;
+                if (0 < constr.DataSource.Length && (constr.IntegratedSecurity || 0 < constr.UserID.Length))
+                    flag = true;
 
                 return flag;
             }

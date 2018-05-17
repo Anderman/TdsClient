@@ -10,9 +10,8 @@ namespace Medella.TdsClient.TDS.Package.Reader
     public partial class TdsPackageReader
     {
         private const int BufferSize = 8000;
-        private const int MaxSizeSqlValue = 1 + 1 + 4 * 4; //nullable decimal 
         private const int Guidsize = 16;
-        private readonly byte[] _splitValueBuffer = new byte[MaxSizeSqlValue];
+        private readonly byte[] _splitValueBuffer = new byte[TdsEnums.MaxSizeSqlValue];
         private readonly ITdsStream _tdsStream;
         private bool _isSplitValueBuffer;
         private int _packageEnd;

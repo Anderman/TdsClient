@@ -7,36 +7,38 @@ using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Writer;
 using Medella.TdsClient.TDS.Row.Writer;
-using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Processes
 {
     public static class BulkInsertExtentions
     {
-        private static readonly byte[] Done = {0xFD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        private static readonly byte[] Done = { 0xFD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-        public static void BulkInsert<T>(this TdsPhysicalConnection cnn, List<T> objects, string tableName)
+        public static void BulkInsert<T>(this TdsPhysicalConnection cnn, IEnumerable<T> objects, string tableName)
+        {
+            cnn.BulkInsert(objects, tableName, null);
+        }
+        public static void BulkInsert<T>(this TdsPhysicalConnection cnn, IEnumerable<T> objects, string tableName, Func<MetadataBulkCopy[], MetadataBulkCopy[]> columnmapping)
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;
             var parser = cnn.StreamParser;
             MetadataBulkCopy[] metaDataAllColumns = null;
 
-            writer.SendExcuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF",cnn.SqlTransactionId);
+            writer.SendExcuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF", cnn.SqlTransactionId);
             parser.ParseInput(count => { metaDataAllColumns = reader.ColMetaDataBulkCopy(count); });
 
-            writer.ColumnsMetadata = GetUsedColumns(metaDataAllColumns).ToArray();
+            writer.ColumnsMetadata = columnmapping != null ? columnmapping(GetUsedColumns(metaDataAllColumns)) : GetUsedColumns(metaDataAllColumns);
 
             var bulkInsert = CreateBulkInsertStatement(tableName, writer.ColumnsMetadata);
-            writer.SendExcuteBatch(bulkInsert,cnn.SqlTransactionId);
+            writer.SendExcuteBatch(bulkInsert, cnn.SqlTransactionId);
             parser.ParseInput();
 
             writer.NewPackage(TdsEnums.MT_BULK);
             var columnWriter = new TdsColumnWriter(writer);
             var rowWriter = RowWriter.GetComplexWriter<T>(columnWriter);
-            //task.GetAwaiter().GetResult();
             WriteBulkInsertColMetaData(writer);
 
             foreach (var o in objects)
@@ -48,14 +50,14 @@ namespace Medella.TdsClient.TDS.Processes
             writer.WriteByteArray(Done);
             writer.SendLastMessage();
             parser.ParseInput();
-            if(parser.Status!=ParseStatus.Done)
+            if (parser.Status != ParseStatus.Done)
                 parser.ParseInput();
         }
 
 
-        private static List<MetadataBulkCopy> GetUsedColumns(MetadataBulkCopy[] metadataAllColumns)
+        private static MetadataBulkCopy[] GetUsedColumns(MetadataBulkCopy[] metadataAllColumns)
         {
-            return metadataAllColumns.Where(metadata => metadata.TdsType != TdsEnums.SQLTIMESTAMP && !metadata.IsIdentity).ToList();
+            return metadataAllColumns.Where(metadata => metadata.TdsType != TdsEnums.SQLTIMESTAMP && !metadata.IsIdentity).ToArray();
         }
 
         private static string CreateBulkInsertStatement(string tableName, MetadataBulkCopy[] columns)
@@ -90,8 +92,8 @@ namespace Medella.TdsClient.TDS.Processes
             var columns = writer.ColumnsMetadata;
             writer.WriteByte(TdsEnums.SQLCOLMETADATA);
             writer.WriteInt16(columns.Length);
-            for (var i = 0; i < columns.Length; i++)
-                WriteColumn(writer, columns[i]);
+            foreach (var column in columns)
+                WriteColumn(writer, column);
         }
 
         private static void WriteColumn(TdsPackageWriter writer, MetadataBulkCopy md)
@@ -122,7 +124,7 @@ namespace Medella.TdsClient.TDS.Processes
                 writer.WriteUnicodeString(md.PartTableName.TableName);
             }
 
-            writer.WriteByte((byte) md.Column.Length);
+            writer.WriteByte((byte)md.Column.Length);
             writer.WriteUnicodeString(md.Column);
         }
 

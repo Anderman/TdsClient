@@ -150,7 +150,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
             if (value == null) return;
             _writer.WriteInt32(value.Length); //write in chunks
             _writer.WriteByteArray(value);
-            _writer.WriteInt32(0); //chunks terminate
+            _writer.WriteInt32(TdsEnums.SQL_PLP_CHUNK_TERMINATOR); //chunks terminate
         }
 
         public void WriteNullableSqlString(string value, int index)

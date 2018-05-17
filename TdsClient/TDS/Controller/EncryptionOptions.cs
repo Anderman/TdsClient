@@ -1,4 +1,4 @@
-﻿namespace Medella.TdsClient.Exceptions
+﻿namespace Medella.TdsClient.TDS.Controller
 {
     public enum EncryptionOptions
     {

@@ -879,5 +879,6 @@ namespace Medella.TdsClient.Contants
         // Needed for UapAot, since we cannot use Enum.GetName() on SniContext.
         // Enum.GetName() uses reflection, which is blocked on UapAot for internal types
         // like SniContext.
+        public const int MaxSizeSqlValue = (4) + (2) + (2) + (17); //nullable variant decimal (len)+ variant+ options + len(decimal)
     }
 }
