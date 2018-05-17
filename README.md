@@ -14,9 +14,12 @@ The connectionstring could be a normal Json settings.
 * ExecuteQueryWithParameters<T> (string interpolation send a query to Sqlserver and the arguments in the string are send as sqlparameters)
 * Connection pooling
 * Transactions
+* Support localDb and Sqlserver
+* Protocols: NamedPipe, Tcp/ip, shared Memory
 
 ## Todo:
 * cleanup
+* ssl support
 
 ## not implemented
 * TransactionScope
