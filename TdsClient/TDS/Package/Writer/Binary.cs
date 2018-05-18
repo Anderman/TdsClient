@@ -8,21 +8,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
     public partial class TdsPackageWriter
     {
 
-        public void WriteUnicodeString(string v)
-        {
-            if (v.Length == 0) return;
-            if (v.Length * 2 <= WriteBuffer.Length - WritePosition)
-            {
-                WritePosition += Encoding.Unicode.GetBytes(v, 0, v.Length, WriteBuffer, WritePosition);
-            }
-            else
-            {
-                var buffer = new byte[v.Length * 2];
-                var bytes = Encoding.Unicode.GetBytes(v, 0, v.Length, buffer, 0);
-                WriteByteArray(buffer);
-            }
-        }
-
+       
         public void WriteByteArray(byte[] src)
         {
             var length = src.Length;
@@ -41,17 +27,11 @@ namespace Medella.TdsClient.TDS.Package.Writer
             WritePosition += bytesLeft;
         }
 
+
+
         public void WriteSqlUniqueId(Guid? value)
         {
             WriteByteArray(((Guid)value).ToByteArray());
-        }
-        public void WriteNullableSqlUniqueId(Guid? value)
-        {
-            WriteBuffer[WritePosition++] = (byte)(value == null ? 0 : 16);
-            if (value != null)
-                WriteByteArray(((Guid)value).ToByteArray());
-            else
-                CheckBuffer();
         }
     }
 }

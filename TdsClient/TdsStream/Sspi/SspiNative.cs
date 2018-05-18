@@ -21,7 +21,7 @@ namespace Medella.TdsClient.TdsStream.Sspi
             _sMaxSspiLength = maxLength;
 
             if (_sMaxSspiLength > int.MaxValue)
-                throw SQL.InvalidSSPIPacketSize(); // SqlBu 332503
+                throw SQL.InvalidSspiPacketSize(); // SqlBu 332503
         }
 
         public SspiNative(SniNativeHandle sniNativeHandle, byte[] sniSpnBuffer)
@@ -41,7 +41,7 @@ namespace Medella.TdsClient.TdsStream.Sspi
             var length = (uint) clientToken.Length;
             SniSspiData(serverToken, (uint) (serverToken?.Length ?? 0), ref clientToken, ref length);
             if (length > int.MaxValue)
-                throw SQL.InvalidSSPIPacketSize(); // SqlBu 332503
+                throw SQL.InvalidSspiPacketSize(); // SqlBu 332503
             Array.Resize(ref clientToken, (int) length);
             return clientToken;
         }

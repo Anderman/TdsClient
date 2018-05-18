@@ -5,45 +5,27 @@ using Medella.TdsClient.TdsStream.TcpIp;
 
 namespace Medella.TdsClient.TdsStream
 {
-    public class TdsStreamProxy
+    public static class TdsStreamProxy
     {
         private const string DefaultHostName = "localhost";
         private const string LocalDbHost = "(localdb)";
-        private readonly bool _isLocalDb;
-        private readonly bool _isLocalHost;
-        private readonly bool _isTcpIp;
-        private int _ipPort = -1;
 
-        public TdsStreamProxy(string dataSource)
+        public static ITdsStream CreatedsStream(string dataSource, int timeoutSeconds)
         {
-            //datasource is localDb or tcp:servername,port
             var lowercaseDataSource = dataSource.Trim().ToLowerInvariant();
-            _isLocalHost = IsLocalHost(lowercaseDataSource);
-            _isLocalDb = IsLocalDbServer(lowercaseDataSource);
-            _isTcpIp = IsTcpIp(lowercaseDataSource);
-            if (_isLocalDb)
-                SetNpProperties(lowercaseDataSource);
-            else if (_isTcpIp)
-                SetTcpProperties(lowercaseDataSource);
-        }
+            if (IsLocalHost(lowercaseDataSource))
+                return new TdsStreamNative(".", timeoutSeconds);
+            if (IsLocalDbServer(lowercaseDataSource))
+            {
+                var (pipename, serverNameNp) = GetNpProperties(lowercaseDataSource);
+                return new TdsStreamNamedpipes(serverNameNp, pipename, timeoutSeconds);
+            }
 
-        //TCp properties
-        private string IpServerName { get; set; }
-        private bool IsSsrpRequired { get; set; }
+            if (!IsTcpIp(lowercaseDataSource))
+                return null;
 
-        //NamedPpipe  properties
-        private string PipeName { get; set; }
-        private string PipeServerName { get; set; }
-
-        public ITdsStream CreateTdsStream(int timeout)
-        {
-            return _isLocalHost
-                ? new TdsStreamNative(".", timeout)
-                : _isLocalDb
-                    ? new TdsStreamNamedpipes(PipeServerName, PipeName, timeout)
-                    : _isTcpIp
-                        ? new TdsStreamTcp(IpServerName, _ipPort, timeout)
-                        : (ITdsStream) null;
+            var (port, serverNameIp, _) = GetTcpProperties(lowercaseDataSource);
+            return new TdsStreamTcp(serverNameIp, port, timeoutSeconds);
         }
 
         public static bool IsLocalDbServer(string fullServername)
@@ -55,27 +37,29 @@ namespace Medella.TdsClient.TdsStream
         }
 
         //servername=[tcp:]hostname[/intance][,port]
-        private void SetTcpProperties(string lower)
+        private static (int port, string serverName, bool isSsrpRequired) GetTcpProperties(string lower)
         {
+            var port = -1;
             var temp = lower.Split(':');
             temp = temp.Length == 2
                 ? temp[1].Split(',')
                 : lower.Split(',');
-            if (temp.Length == 2) int.TryParse(temp[1], out _ipPort);
+            if (temp.Length == 2) int.TryParse(temp[1], out port);
 
             temp = temp[0].Split('\\');
-            IpServerName = temp[0];
-            if (temp.Length == 2 && _ipPort == -1)
-                IsSsrpRequired = true;
-            if (IsLocalHost(IpServerName)) IpServerName = DefaultHostName;
+            var serverName = temp[0];
+            var isSsrpRequired = temp.Length == 2 && port == -1;
+            if (IsLocalHost(serverName)) serverName = DefaultHostName;
+            return (port, serverName, isSsrpRequired);
         }
 
-        private void SetNpProperties(string fullServerName)
+        public static (string pipeName, string ServerName) GetNpProperties(string fullServerName)
         {
             var protocolParts = GetNamedPipename(fullServerName).ToLower().Split('\\');
 
-            PipeName = string.Join(@"\", protocolParts.Skip(4)); //localdb#678e2031\tsql\query
-            PipeServerName = string.Join(@"\", protocolParts[2]); //.
+            var pipeName = string.Join(@"\", protocolParts.Skip(4)); //localdb#678e2031\tsql\query
+            var serverName = string.Join(@"\", protocolParts[2]); //.
+            return (pipeName, serverName);
         }
 
         public static string GetNamedPipename(string fullServername)

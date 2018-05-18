@@ -13,10 +13,10 @@ namespace Medella.TdsClient.TDS
             return FreePool.GetOrAdd(connectionString, x => new TdsConnectionPool(new SqlConnectionString(connectionString)));
         }
 
-        public static void Return(string connectionString, TdsPhysicalConnection tdsPhysicalConnection)
+        public static void Return(string connectionString, TdsConnection tdsConnection)
         {
             var freePool = FreePool.GetOrAdd(connectionString, x => new TdsConnectionPool(new SqlConnectionString(connectionString)));
-            freePool.Return(tdsPhysicalConnection);
+            freePool.Return(tdsConnection);
         }
     }
 }

@@ -1,51 +1,22 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
-using System.Security;
-using System.Threading;
-using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.Resources;
-using ST = System.Transactions;
 
 namespace Medella.TdsClient.Exceptions
 {
     internal  static partial class ADP
     {
-        internal const CompareOptions DefaultCompareOptions = CompareOptions.IgnoreKanaType | CompareOptions.IgnoreWidth | CompareOptions.IgnoreCase;
 
         internal const int DefaultConnectionTimeout = DbConnectionStringDefaults.ConnectTimeout;
 
-        // security issue, don't rely upon public static readonly values
-        internal static readonly string StrEmpty = ""; // String.Empty
-
-        private static Version _sSystemDataVersion;
-
-
         internal static readonly string[] AzureSqlServerEndpoints =
         {
-            SR.GetString(Strings.AZURESQL_GenericEndpoint),
-            SR.GetString(Strings.AZURESQL_GermanEndpoint),
-            SR.GetString(Strings.AZURESQL_UsGovEndpoint),
-            SR.GetString(Strings.AZURESQL_ChinaEndpoint)
+            (Strings.AZURESQL_GenericEndpoint),
+            (Strings.AZURESQL_GermanEndpoint),
+            (Strings.AZURESQL_UsGovEndpoint),
+            (Strings.AZURESQL_ChinaEndpoint)
         };
-
-        // NOTE: Initializing a Task in SQL CLR requires the "UNSAFE" permission set (http://msdn.microsoft.com/en-us/library/ms172338.aspx)
-        // Therefore we are lazily initializing these Tasks to avoid forcing customers to use the "UNSAFE" set when they are actually using no Async features
-        private static Task<bool> _trueTask;
-
-        private static Task<bool> _falseTask;
-
-        // only StackOverflowException & ThreadAbortException are sealed classes
-        private static readonly Type SStackOverflowType = typeof(StackOverflowException);
-        private static readonly Type SOutOfMemoryType = typeof(OutOfMemoryException);
-        private static readonly Type SThreadAbortType = typeof(ThreadAbortException);
-        private static readonly Type SNullReferenceType = typeof(NullReferenceException);
-        private static readonly Type SAccessViolationType = typeof(AccessViolationException);
-        private static readonly Type SSecurityType = typeof(SecurityException);
-
-        internal static readonly bool IsWindowsNt = PlatformID.Win32NT == Environment.OSVersion.Platform;
-        internal static readonly bool IsPlatformNt5 = IsWindowsNt && Environment.OSVersion.Version.Major >= 5;
 
         // The class ADP defines the exceptions that are specific to the Adapters.
         // The class contains functions that take the proper informational variables and then construct
@@ -121,7 +92,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static ArgumentException InvalidMinMaxPoolSizeValues()
         {
-            return Argument(SR.GetString(Strings.ADP_InvalidMinMaxPoolSizeValues));
+            return Argument((Strings.ADP_InvalidMinMaxPoolSizeValues));
         }
 
 
@@ -141,7 +112,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception InvalidConnectRetryIntervalValue()
         {
-            return Argument(SR.GetString(Strings.SQLCR_InvalidConnectRetryIntervalValue));
+            return Argument((Strings.SQLCR_InvalidConnectRetryIntervalValue));
         }
 
         //
@@ -208,7 +179,7 @@ namespace Medella.TdsClient.Exceptions
 
         internal static Exception InvalidConnectRetryCountValue()
         {
-            return Argument(SR.GetString(Strings.SQLCR_InvalidConnectRetryCountValue));
+            return Argument((Strings.SQLCR_InvalidConnectRetryCountValue));
         }
 
         internal static void CheckArgumentNull(object value, string parameterName)

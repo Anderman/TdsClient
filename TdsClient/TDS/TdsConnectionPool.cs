@@ -9,26 +9,27 @@ namespace Medella.TdsClient.TDS
 {
     public class TdsConnectionPool
     {
-        private readonly ConcurrentQueue<TdsPhysicalConnection> _freepool;
+        private readonly ConcurrentQueue<TdsConnection> _freepool;
         private readonly SqlConnectionString _options;
-        private const int Capacity = 100;
 
         public TdsConnectionPool(SqlConnectionString options)
         {
             _options = options;
-            _freepool = new ConcurrentQueue<TdsPhysicalConnection>();
+            _freepool = new ConcurrentQueue<TdsConnection>();
         }
 
-        public TdsPhysicalConnection GetConnection()
+        public TdsConnection GetConnection()
         {
             if (_freepool.TryDequeue(out var tdsController))
                 return tdsController;
             var options = _options;
-            var serverConnectionOptions = new TdsStreamProxy(options.DataSource);
-            var cnn = new TdsPhysicalConnection(serverConnectionOptions, options);
+            var tdsStream= TdsStreamProxy.CreatedsStream(options.DataSource, options.ConnectTimeout);
+
+            var cnn = new TdsConnection(tdsStream, options);
             return cnn;
         }
-        public void Return(TdsPhysicalConnection cnn)
+
+        public void Return(TdsConnection cnn)
         {
             Debug.WriteLine($"connection returned to the pool");
             cnn.ResetToInitialState();

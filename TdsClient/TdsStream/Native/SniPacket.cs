@@ -10,7 +10,7 @@ namespace Medella.TdsClient.TdsStream.Native
         {
             SniNativeMethodWrapper.SNIPacketAllocate(sniHandle, SniNativeMethodWrapper.IOType.WRITE, ref handle);
             if (IntPtr.Zero == handle)
-                throw SQL.SNIPacketAllocationFailure();
+                throw SQL.SniPacketAllocationFailure();
         }
 
         public override bool IsInvalid => IntPtr.Zero == handle;

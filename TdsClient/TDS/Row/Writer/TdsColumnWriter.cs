@@ -1,6 +1,4 @@
 using System;
-using System.Text;
-using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package.Writer;
 
@@ -8,8 +6,6 @@ namespace Medella.TdsClient.TDS.Row.Writer
 {
     public class TdsColumnWriter
     {
-        private static readonly byte[] TextOrImageHeader = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-
         private readonly TdsPackageWriter _writer;
         public readonly MetadataBulkCopy[] MetaData;
 
@@ -119,180 +115,17 @@ namespace Medella.TdsClient.TDS.Row.Writer
         //0x00,0x00,0x00,0x00, terminator
         public void WriteNullableSqlBinary(byte[] value, int index)
         {
-            var md = MetaData[index];
-            if (md.IsPlp)
-                WriteNullableSqlPlpBinary(value);
-            else if (md.IsTextOrImage)
-                WriteNullableSqlImage(value);
-            else
-                WriteNullableSqlBinary(value);
-        }
-
-        private void WriteNullableSqlBinary(byte[] value)
-        {
-            _writer.WriteInt16(value?.Length ?? TdsEnums.VARNULL);
-            if (value == null) return;
-            _writer.WriteByteArray(value);
-        }
-
-        private void WriteNullableSqlImage(byte[] value)
-        {
-            _writer.WriteByte(value == null ? 0 : 0x10);
-            if (value == null) return;
-            _writer.WriteByteArray(TextOrImageHeader);
-            _writer.WriteInt32(value.Length);
-            _writer.WriteByteArray(value);
-        }
-
-        private void WriteNullableSqlPlpBinary(byte[] value)
-        {
-            _writer.WriteUInt64(value == null ? TdsEnums.SQL_PLP_NULL : TdsEnums.SQL_PLP_UNKNOWNLEN);
-            if (value == null) return;
-            _writer.WriteInt32(value.Length); //write in chunks
-            _writer.WriteByteArray(value);
-            _writer.WriteInt32(TdsEnums.SQL_PLP_CHUNK_TERMINATOR); //chunks terminate
+            _writer.WriteNullableSqlBinary(value, index);
         }
 
         public void WriteNullableSqlString(string value, int index)
         {
-            if (value == null)
-            {
-                WriteNullableSqlBinary(null, index);
-                return;
-            }
-
-            var md = MetaData[index];
-            if (md.NonUniCode)
-                WriteNullableSqlBinary(md.Encoding.GetBytes(value), index);
-            else
-                WriteNullableSqlBinary(Encoding.Unicode.GetBytes(value), index);
+            _writer.WriteNullableSqlString(value, index);
         }
 
         public void WriteNullableSqlVariant(object value, int index)
         {
-            if (value == null)
-            {
-                _writer.WriteInt32(0);
-                return;
-            }
-
-            //
-            // now Write the value
-            //
-            switch (value)
-            {
-                case bool v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 1);
-                    _writer.WriteByte(TdsEnums.SQLBIT);
-                    _writer.WriteByte(0);
-                    _writer.WriteByte(v ? 1 : 0);
-                    return;
-                case byte v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 1);
-                    _writer.WriteByte(TdsEnums.SQLINT1);
-                    _writer.WriteByte(0);
-                    _writer.WriteByte(v);
-                    return;
-                case short v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 2);
-                    _writer.WriteByte(TdsEnums.SQLINT2);
-                    _writer.WriteByte(0);
-                    _writer.WriteInt16(v);
-                    return;
-                case int v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 4);
-                    _writer.WriteByte(TdsEnums.SQLINT4);
-                    _writer.WriteByte(0);
-                    _writer.WriteInt32(v);
-                    return;
-                case long v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 8);
-                    _writer.WriteByte(TdsEnums.SQLINT8);
-                    _writer.WriteByte(0);
-                    _writer.WriteInt64(v);
-                    return;
-                case float v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 4);
-                    _writer.WriteByte(TdsEnums.SQLFLT4);
-                    _writer.WriteByte(0);
-                    _writer.WriteFloat(v);
-                    return;
-                case double v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 8);
-                    _writer.WriteByte(TdsEnums.SQLFLT8);
-                    _writer.WriteByte(0);
-                    _writer.WriteDouble(v);
-                    return;
-                case DateTime v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 8);
-                    _writer.WriteByte(TdsEnums.SQLDATETIME);
-                    _writer.WriteByte(0);
-                    _writer.WriteDateTime(v);
-                    return;
-                case Guid v:
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 16);
-                    _writer.WriteByte(TdsEnums.SQLUNIQUEID);
-                    _writer.WriteByte(0);
-                    _writer.WriteSqlUniqueId(v);
-                    return;
-                case decimal v:
-                {
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 2 + 13);
-                    _writer.WriteByte(TdsEnums.SQLDECIMALN);
-                    _writer.WriteByte(2);
-                    _writer.WriteByte(28);
-                    var scale = (byte) (decimal.GetBits(v)[3] >> 16);
-                    _writer.WriteByte(scale);
-                    _writer.WriteSqlDecimal(v, 13);
-                    return;
-                }
-                case byte[] v:
-                {
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 2 + v.Length);
-                    _writer.WriteByte(TdsEnums.SQLBIGBINARY);
-                    _writer.WriteByte(2);
-                    _writer.WriteInt16(v.Length);
-                    _writer.WriteByteArray(v);
-                    return;
-                }
-                case string v:
-                {
-                    var collation = _writer.ColumnsMetadata[index].Collation;
-                    var encoding = _writer.ColumnsMetadata[index].Encoding;
-                    var bytes = encoding.GetBytes(v);
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 5 + 2 + bytes.Length);
-                    _writer.WriteByte(TdsEnums.SQLBIGVARCHAR);
-                    _writer.WriteByte(7);
-                    _writer.WriteUInt32(collation.Info);
-                    _writer.WriteByte(collation.SortId);
-                    WriteNullableSqlBinary(bytes);
-                    return;
-                }
-                case TimeSpan v:
-                {
-                    const byte scale = 7;
-                    const int len = 5;
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 1 + len);
-                    _writer.WriteByte(TdsEnums.SQLTIME);
-                    _writer.WriteByte(1);
-                    _writer.WriteByte(scale);
-                    _writer.WriteSqlTime(v, scale);
-                    return;
-                }
-                case DateTimeOffset v:
-                {
-                    const byte scale = 7;
-                    const int len = 10;
-                    _writer.WriteInt32(TdsEnums.SQLVARIANT_SIZE + 1 + len);
-                    _writer.WriteByte(TdsEnums.SQLDATETIMEOFFSET);
-                    _writer.WriteByte(1);
-                    _writer.WriteByte(scale);
-                    _writer.WriteSqlDateTimeOffset(v, scale);
-                    return;
-                }
-            }
-
-            throw new Exception("Unsupported variant object");
+            _writer.WriteNullableSqlVariant(value, index);
         }
 
 

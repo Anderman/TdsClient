@@ -24,7 +24,7 @@ namespace TdsPerformanceTester
 
             //using (var tds = TdsConnectionPools.GetConnectionPool(ConnectionString))
             {
-                var x = _tds.ExecuteParameterQuery<Post>($@"select * from Posts where Id = {i}");
+                var x = _tds.ExecuteQuery<Post>($@"select * from Posts ").ToArray();
             }
         }
     }

@@ -8,22 +8,21 @@ using Medella.TdsClient.TDS.Processes;
 
 namespace Medella.TdsClient.TDS.Controller
 {
-    public class TdsPhysicalConnection : IDisposable
+    public class TdsConnection : IDisposable
     {
         private readonly int _messageCountAfterlogin;
         private readonly ITdsStream _tdsStream;
         public readonly TdsStreamParser StreamParser;
         public readonly TdsPackage TdsPackage;
 
-        static TdsPhysicalConnection()
+        static TdsConnection()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        public TdsPhysicalConnection(TdsStreamProxy tdsStreamProxy, SqlConnectionString dbConnectionOptions)
+        public TdsConnection(ITdsStream tdsStream, SqlConnectionString dbConnectionOptions)
         {
-            _tdsStream = tdsStreamProxy.CreateTdsStream(dbConnectionOptions.ConnectTimeout);
-
+            _tdsStream = tdsStream;
             TdsPackage = new TdsPackage(_tdsStream);
             var loginProcessor = new LoginProcessor(TdsPackage, dbConnectionOptions);
             StreamParser = new TdsStreamParser(TdsPackage, loginProcessor);
@@ -46,6 +45,8 @@ namespace Medella.TdsClient.TDS.Controller
             if (SqlMessages.Count > _messageCountAfterlogin)
                 SqlMessages.RemoveAt(_messageCountAfterlogin - 1);
             SqlTransactionId = 0;
+            if (!TdsPackage.Reader.IsFinsched())
+                throw new Exception("reader not finised");
         }
     }
 }

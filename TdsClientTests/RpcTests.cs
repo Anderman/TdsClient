@@ -175,9 +175,9 @@ namespace TdsClientTests
         [Fact]
         public async Task Can_execute_query_with_datetime_parameter()
         {
-            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = new DateTime(2018, 1, 2, 3, 4, 5);
-            var r =(await tds.ExecuteParameterQueryASync<TestId>($"select cDateTime={id}")).ToArray();
+            var r =(await cnn.ExecuteParameterQueryASync<TestId>($"select cDateTime={id}")).ToArray();
             Assert.Equal(new DateTime(2018, 1, 2, 3, 4, 5), r[0].cDateTime);
         }
 

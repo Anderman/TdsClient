@@ -13,14 +13,14 @@ namespace Medella.TdsClient.TDS.Processes
         private static readonly ConcurrentDictionary<string, Delegate> Readers = new ConcurrentDictionary<string, Delegate>();
 
 
-        public static void ExecuteNonQuery(this TdsPhysicalConnection cnn, string text)
+        public static void ExecuteNonQuery(this TdsConnection cnn, string text)
         {
             cnn.TdsPackage.Writer.SendExcuteBatch(text, cnn.SqlTransactionId);
             cnn.StreamParser.ParseInput();
         }
 
 
-        public static List<T> ExecuteQuery<T>(this TdsPhysicalConnection cnn, string text) where T : class, new()
+        public static List<T> ExecuteQuery<T>(this TdsConnection cnn, string text) where T : class, new()
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;
@@ -43,7 +43,7 @@ namespace Medella.TdsClient.TDS.Processes
             return result;
         }
 
-        public static List<T> ExecuteParameterQuery<T>(this TdsPhysicalConnection cnn, FormattableString text) where T : class, new()
+        public static List<T> ExecuteParameterQuery<T>(this TdsConnection cnn, FormattableString text) where T : class, new()
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;

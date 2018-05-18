@@ -16,11 +16,11 @@ namespace Medella.TdsClient.TDS.Processes
     {
         private static readonly byte[] Done = { 0xFD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-        public static void BulkInsert<T>(this TdsPhysicalConnection cnn, IEnumerable<T> objects, string tableName)
+        public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName)
         {
             cnn.BulkInsert(objects, tableName, null);
         }
-        public static void BulkInsert<T>(this TdsPhysicalConnection cnn, IEnumerable<T> objects, string tableName, Func<MetadataBulkCopy[], MetadataBulkCopy[]> columnmapping)
+        public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName, Func<MetadataBulkCopy[], MetadataBulkCopy[]> columnmapping)
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;

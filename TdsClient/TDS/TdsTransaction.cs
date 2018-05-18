@@ -13,7 +13,7 @@ namespace Medella.TdsClient.TDS
     {
         private readonly TdsEnums.TransactionManagerIsolationLevel _isolationLevel;
         private readonly TdsConnectionPool _tdsConnectionPool;
-        private List<TdsPhysicalConnection> _openTransactions = new List<TdsPhysicalConnection>();
+        private List<TdsConnection> _openTransactions = new List<TdsConnection>();
 
         public TdsTransaction(TdsConnectionPool tdsConnectionPool, TdsEnums.TransactionManagerIsolationLevel isolationLevel)
         {
@@ -38,14 +38,14 @@ namespace Medella.TdsClient.TDS
                 _tdsConnectionPool.Return(openTransaction);
             }
 
-            _openTransactions = new List<TdsPhysicalConnection>();
+            _openTransactions = new List<TdsConnection>();
         }
 
         public void Rollback()
         {
             foreach (var openTransaction in _openTransactions)
                 openTransaction.Dispose();
-            _openTransactions = new List<TdsPhysicalConnection>();
+            _openTransactions = new List<TdsConnection>();
         }
 
         public async Task ExecuteNonQueryAsync(string text)
@@ -81,7 +81,7 @@ namespace Medella.TdsClient.TDS
             return cnn.ExecuteParameterQuery<T>(text);
         }
 
-        private TdsPhysicalConnection StartTransaction()
+        private TdsConnection StartTransaction()
         {
             var cnn = _tdsConnectionPool.GetConnection();
             cnn.TdsPackage.Writer.SendTransactionBegin(_isolationLevel);

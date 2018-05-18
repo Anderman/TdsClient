@@ -43,7 +43,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
                     sqlServerInfo.IsDenali = true;
                     break;
                 default:
-                    throw SQL.InvalidTDSVersion();
+                    throw SQL.InvalidTdsVersion();
             }
             //isYukon is always true otherwise we send an exception
 

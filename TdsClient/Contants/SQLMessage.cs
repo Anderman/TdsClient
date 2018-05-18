@@ -17,12 +17,12 @@ namespace Medella.TdsClient.Contants
 
         internal static string EncryptionNotSupportedByClient()
         {
-            return SR.GetString(Strings.SQL_EncryptionNotSupportedByClient);
+            return Strings.SQL_EncryptionNotSupportedByClient;
         }
 
         internal static string EncryptionNotSupportedByServer()
         {
-            return SR.GetString(Strings.SQL_EncryptionNotSupportedByServer);
+            return Strings.SQL_EncryptionNotSupportedByServer;
         }
     }
 }
