@@ -155,26 +155,7 @@ namespace TdsClientTests
             Assert.Equal(9_999_999_999_999_999_583_119_736_832M, v.z);
         }
 
-        [Fact]
-        public void Connection_returned_cleaned_to_the_pool()
-        {
-            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
-            var cnninternal = cnn.GetConnection();
-
-            cnninternal.ExecuteNonQuery("print 1");
-            Assert.Equal(3, cnninternal.SqlMessages.Count);
-            cnn.Return(cnninternal);
-
-
-            cnninternal = cnn.GetConnection();
-            cnninternal.ExecuteNonQuery("print 1");
-            Assert.Equal(3, cnninternal.SqlMessages.Count);
-            cnn.Return(cnninternal);
-
-            cnninternal = cnn.GetConnection();
-            Assert.Equal(2, cnninternal.SqlMessages.Count);
-            cnn.Return(cnninternal);
-        }
+      
 
 
         [Fact]
@@ -264,6 +245,41 @@ SELECT s=@v");
         }
     }
 
+    public class ConnectionPoolTests
+    {
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;";
+        [Fact]
+        public void Connection_returned_cleaned_to_the_pool()
+        {
+            var cnn = TdsConnectionPools.GetConnectionPool(ConnectionString);
+            var cnninternal = cnn.GetConnection();
+
+            cnninternal.ExecuteNonQuery("print 1");
+            Assert.Equal(3, cnninternal.SqlMessages.Count);
+            cnn.Return(cnninternal);
+
+            cnninternal = cnn.GetConnection();
+            cnninternal.ExecuteNonQuery("print 1");
+            Assert.Equal(3, cnninternal.SqlMessages.Count);
+            cnn.Return(cnninternal);
+
+            cnninternal = cnn.GetConnection();
+            Assert.Equal(2, cnninternal.SqlMessages.Count);
+            cnn.Return(cnninternal);
+        }
+
+        [Fact]
+        public void Get_50_connections_return_to_the_pool_and_use_one()
+        {
+            var x = new TdsConnection[50];
+            var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
+            for (int j = 0; j < 50; j++)
+                x[j] = tds.GetConnection();
+            //OrmTester.EnsureDbSetup(_connectionString);
+            for (int j = 0; j < 50; j++)
+                tds.Return(x[j]);
+        }
+    }
     public class UdtTypes
     {
         public byte[] Utf8String { get; set; }

@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Security;
 using System.Text;
+using System.Threading.Tasks;
 using Medella.TdsClient.TdsStream.Sspi;
 
 namespace Medella.TdsClient.TdsStream.SniNp
@@ -22,7 +24,7 @@ namespace Medella.TdsClient.TdsStream.SniNp
             if (timeOut >= int.MaxValue)
                 Stream.Connect();
             else
-                Stream.Connect((int) timeOut);
+                Stream.Connect((int)timeOut);
 
             _sspi = new SspiHelper(ServerSpn);
         }
@@ -32,7 +34,21 @@ namespace Medella.TdsClient.TdsStream.SniNp
 
         public int Receive(byte[] readBuffer, int offset, int count)
         {
+            if(!Stream.IsConnected)
+                throw new Exception("Not connected");
             var len = Stream.Read(readBuffer, offset, count);
+            if(!Stream.IsConnected)
+                throw new Exception("Not connected");
+            GetBytesString("Read- ", readBuffer, len);
+            return len;
+        }
+        public async Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count)
+        {
+            if (!Stream.IsConnected)
+                throw new Exception("Not connected");
+            var len = await Stream.ReadAsync(readBuffer, offset, count);
+            if (!Stream.IsConnected)
+                throw new Exception("Not connected");
             GetBytesString("Read- ", readBuffer, len);
             return len;
         }
@@ -69,7 +85,7 @@ namespace Medella.TdsClient.TdsStream.SniNp
             sb.Append("data: ");
             for (var i = 0; i < length; i++)
                 if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)
-                    sb.Append($"{(char) buffer[i]}");
+                    sb.Append($"{(char)buffer[i]}");
             Debug.WriteLine(sb.ToString());
         }
     }

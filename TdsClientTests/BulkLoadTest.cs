@@ -54,5 +54,6 @@ namespace TdsClientTests
             public int? Id { get; set; }
             public long? Id1 { get; set; }
         }
+        
     }
 }

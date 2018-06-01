@@ -12,13 +12,19 @@ namespace TdsPerformanceTester
 {
     internal class Program
     {
+        public const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
+        public const string ConnectionString2 = @"Server=.;Database=tempdb;Trusted_Connection=True;";
         private static void Main(string[] args)
         {
-            //StartServer();
-            //testNP();
+            var p= new Program();
+
+            ////StartServer();
+            ////testNP();
             var bm = new Benchmarks(Console.WriteLine);
-            bm.Run().GetAwaiter().GetResult();
+            bm.Run();
         }
+
+
 
         static void StartServer()
         {
@@ -50,6 +56,10 @@ namespace TdsPerformanceTester
                     sb.Append($"{(char)buffer[i]}");
             Console.WriteLine(sb.ToString());
         }
+
+        private int _endPos;
+        private int _pos;
+        private Benchmarks _bm;
     }
 }
 

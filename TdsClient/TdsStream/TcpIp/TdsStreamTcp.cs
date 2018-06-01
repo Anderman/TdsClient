@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TdsStream.Sspi;
 
@@ -72,6 +73,13 @@ namespace Medella.TdsClient.TdsStream.TcpIp
             _stream.Write(writeBuffer, 0, count);
         }
 
+        public async Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count)
+        {
+
+            var len = await _stream.ReadAsync(readBuffer, offset, count);
+            GetBytesString("Read- ", readBuffer, len);
+            return len;
+        }
         public int Receive(byte[] readBuffer, int offset, int count)
         {
             var len = _stream.Read(readBuffer, offset, count);

@@ -16,7 +16,7 @@ namespace TdsPerformanceTester
         {
             //_connection = new LoginProcessor("context connection=true");
             //_connection = new SqlConnection(@"Server=127.0.0.1;Database=tempdb;Trusted_Connection=True;");
-            _connection = new SqlConnection(@"Server=(localdb)\mssqllocaldb;Database=tempdb;Trusted_Connection=True;");
+            _connection = new SqlConnection(Program.ConnectionString);
             _connection.Open();
             _postCommand = new SqlCommand
             {
@@ -37,7 +37,7 @@ namespace TdsPerformanceTester
         {
             _idParam.Value = i;
 
-            using (var reader = _postCommand.ExecuteReader(CommandBehavior.SequentialAccess| CommandBehavior.SingleResult))
+            using (var reader = _postCommand.ExecuteReader(CommandBehavior.SequentialAccess))
             {
                 reader.Read();
                 var post = new Post

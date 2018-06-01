@@ -28,7 +28,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
             var bytesRead = 0;
             while (true)
             {
-                bytesToRead = (uint) bytesRead + (uint) bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
+                bytesToRead = ((uint) bytesRead + chungLength > int.MaxValue) ? int.MaxValue - bytesRead : (int)chungLength; //read not futher than 2Gb
 
                 ReadString(sb, encoding, bytesToRead);
                 bytesRead += bytesToRead;

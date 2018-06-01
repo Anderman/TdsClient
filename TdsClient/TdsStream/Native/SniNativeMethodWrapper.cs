@@ -272,6 +272,9 @@ namespace Medella.TdsClient.TdsStream.Native
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SNICloseWrapper")]
         internal static extern uint SNIClose(IntPtr pConn);
 
+        [DllImport(SNI, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SNIReadAsyncWrapper")]
+        internal static extern uint SNIReadAsync(SniNativeHandle pConn, ref IntPtr ppNewPacket);
+
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint SNIReadSyncOverAsync(SniNativeHandle pConn, ref IntPtr ppNewPacket, int timeout);
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Medella.TdsClient.Cleanup;
@@ -22,6 +23,7 @@ namespace Medella.TdsClient.TDS
         {
             if (_freepool.TryDequeue(out var tdsController))
                 return tdsController;
+
             var options = _options;
             var tdsStream= TdsStreamProxy.CreatedsStream(options.DataSource, options.ConnectTimeout);
 

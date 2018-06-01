@@ -1,0 +1,25 @@
+﻿1>------ Build started: Project: TdsClient, Configuration: Release Any CPU ------
+1>You are working with a preview version of the .NET Core SDK. You can define the SDK version via a global.json file in the current project. More at https://go.microsoft.com/fwlink/?linkid=869452
+1>TDS\Controller\TdsStreamParser.cs(144,13,144,19): warning CS0162: Unreachable code detected
+1>TDS\Messages\Server\ParserProcessDone.cs(58,50,58,51): warning CS0642: Possible mistaken empty statement
+1>TDS\Messages\Server\ParserProcessDone.cs(14,18,14,35): warning CS0219: The variable 'attentionReceived' is assigned but its value is never used
+1>TDS\Messages\Server\ParserProcessDone.cs(15,17,15,36): warning CS0219: The variable 'receivedColMetaData' is assigned but its value is never used
+1>TDS\Messages\Server\ParserFeatureExtAck.cs(34,17,34,36): warning CS0219: The variable 'isGlobalTransaction' is assigned but its value is never used
+1>TDS\Messages\Server\ParserFeatureExtAck.cs(35,17,35,53): warning CS0219: The variable 'isGlobalTransactionsEnabledForServer' is assigned but its value is never used
+1>TDS\Messages\Server\ParserFeatureExtAck.cs(36,17,36,27): warning CS0219: The variable 'DeltaDirty' is assigned but its value is never used
+1>TdsStream\SniNp\TdsStreamNamedpipes.cs(13,43,13,60): warning CS0649: Field 'TdsStreamNamedpipes._sslOverTdsStream' is never assigned to, and will always have its default value null
+1>TdsStream\SniNp\TdsStreamNamedpipes.cs(15,27,15,37): warning CS0649: Field 'TdsStreamNamedpipes._sslStream' is never assigned to, and will always have its default value null
+1>TDS\Messages\Client\SessionData.cs(21,23,21,33): warning CS0649: Field 'SessionData.TdsVersion' is never assigned to, and will always have its default value 0
+1>TDS\Messages\Client\SessionData.cs(14,23,14,32): warning CS0649: Field 'SessionData.Encrypted' is never assigned to, and will always have its default value false
+1>TDS\Controller\TdsStreamParser.cs(14,22,14,36): warning CS0414: The field 'TdsStreamParser._errorReceived' is assigned but its value is never used
+1>TdsClient -> C:\git\TdsClient\TdsClient\bin\Release\netcoreapp2.0\Medella.TdsClient.dll
+1>Successfully created package 'C:\git\TdsClient\TdsClient\bin\Release\Medella.TdsClient.1.0.22.nupkg'.
+1>Done building project "TdsClient.csproj".
+2>------ Build started: Project: TdsPerformanceTester, Configuration: Release Any CPU ------
+2>Benchmarks.cs(17,27,17,30): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
+2>Program.cs(62,28,62,31): warning CS0169: The field 'Program._bm' is never used
+2>Program.cs(60,21,60,28): warning CS0169: The field 'Program._endPos' is never used
+2>Program.cs(61,21,61,25): warning CS0169: The field 'Program._pos' is never used
+2>TdsPerformanceTester -> C:\git\TdsClient\TdsPerformanceTester\bin\Release\netcoreapp2.0\TdsPerformanceTester.dll
+2>Done building project "TdsPerformanceTester.csproj".
+========== Build: 2 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========

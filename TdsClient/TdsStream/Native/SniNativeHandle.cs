@@ -8,6 +8,7 @@ namespace Medella.TdsClient.TdsStream.Native
         // creates a physical connection
         public SniNativeHandle(string serverName, int timeoutSec, out byte[] instanceName) : base(IntPtr.Zero, true)
         {
+            timeoutSec = 30;
             var myInfo = new SniNativeMethodWrapper.ConsumerInfo {defaultBufferSize = 8000};
             SpnBuffer = new byte[SniNativeMethodWrapper.SniMaxComposedSpnLength];
             var timeoutmSec = timeoutSec * 1000;

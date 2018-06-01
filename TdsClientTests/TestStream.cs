@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Medella.TdsClient.TdsStream;
 
 namespace TdsClientTests
@@ -15,6 +16,11 @@ namespace TdsClientTests
             var package = new byte[count];
             Buffer.BlockCopy(writeBuffer, 0, package, 0, count);
             Queue.Enqueue(package);
+        }
+
+        public Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count)
+        {
+            throw new NotFiniteNumberException();
         }
 
         public int Receive(byte[] readBuffer, int offset, int count)

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TdsStream;
 
@@ -22,7 +23,10 @@ namespace Medella.TdsClient.TDS.Package.Reader
         private byte[] _savedReadBuffer;
         private int _savedReadEndPos;
         public byte[] ReadBuffer = new byte[BufferSize];
+        public byte[] ReadBuffer1 = new byte[BufferSize];
+        public byte[] ReadBuffer2 = new byte[BufferSize];
         private int _savedReadPackageEnd;
+        private Task<int> _readTask;
 
         public TdsPackageReader(ITdsStream tdsStream)
         {
@@ -90,12 +94,13 @@ namespace Medella.TdsClient.TDS.Package.Reader
             Buffer.BlockCopy(ReadBuffer, TdsEnums.HEADER_LEN, _splitValueBuffer, left, size - left);
             _pos = 0;
             _readEndPos = size;
+            _packageEnd = size;
             return _splitValueBuffer;
         }
 
         public void Receive()
         {
-            if (_packageEnd < _readEndPos)
+            if (_packageEnd < _readEndPos)//more than one package in buffer. move this one to the beginning of the buffer
             {
                 var count = _readEndPos - _packageEnd;
                 Buffer.BlockCopy(ReadBuffer, _packageEnd, ReadBuffer, 0, count);
@@ -104,13 +109,47 @@ namespace Medella.TdsClient.TDS.Package.Reader
                     _readEndPos = _tdsStream.Receive(ReadBuffer, count, BufferSize - count);
             }
             else
-                _readEndPos = _tdsStream.Receive(ReadBuffer, 0, BufferSize);
+            {
+                if (_readTask == null)
+                {
+                    _readEndPos = _tdsStream.Receive(ReadBuffer, 0, BufferSize);
+                    //_readTask = _tdsStream.ReceiveAsync(ReadBuffer1, 0, ReadBuffer.Length);
+                }
+                else
+                {
+                    _readEndPos = _readTask.GetAwaiter().GetResult();
+                    CheckCompletePackage();
+                    if (ReferenceEquals(ReadBuffer, ReadBuffer1))
+                    {
+                        ReadBuffer = ReadBuffer2;
+                        _readTask = _tdsStream.ReceiveAsync(ReadBuffer1, 0, ReadBuffer.Length);
+                    }
+                    else
+                    {
+                        ReadBuffer = ReadBuffer1;
+                        _readTask = _tdsStream.ReceiveAsync(ReadBuffer2, 0, ReadBuffer.Length);
+
+                    }
+                }
+            }
             _packageStatus = ReadBuffer[1];
             _packageEnd = (ReadBuffer[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1];
             if (_readEndPos < _packageEnd)
                 throw new Exception("read less than one package");
             _pos = 0;
         }
+
+        private void CheckCompletePackage()
+        {
+            if (ReferenceEquals(ReadBuffer, ReadBuffer1))
+                while (_readEndPos<8 || ((ReadBuffer2[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer2[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1])>_readEndPos)
+                    _readEndPos = _tdsStream.Receive(ReadBuffer2, _readEndPos, BufferSize);
+            else
+                while (_readEndPos < 8 || ((ReadBuffer1[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer1[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1]) > _readEndPos)
+                    _readEndPos = _tdsStream.Receive(ReadBuffer1, _readEndPos, BufferSize);
+
+        }
+
 
         public void PackageDone()
         {
@@ -156,7 +195,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
             CheckBuffer(length);
             while (length > 0)
             {
-                var packageLength = _readEndPos - _pos;
+                var packageLength = _packageEnd - _pos;
                 var count = length > packageLength ? packageLength : length;
 
                 Buffer.BlockCopy(ReadBuffer, _pos, dstArray, offset, count);
@@ -173,7 +212,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
         public string ReadString(Encoding encoding, int length)
         {
             CheckBuffer(length);
-            var packageLength = _readEndPos - _pos;
+            var packageLength = _packageEnd - _pos;
             var count = length > packageLength ? packageLength : length;
 
             var str = encoding.GetString(ReadBuffer, _pos, count);
@@ -183,7 +222,8 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
         public void ReadString(StringBuilder sb, Encoding encoding, int length)
         {
-            while(length>0){
+            while (length > 0)
+            {
                 CheckBuffer(1);
                 var left = _packageEnd - _pos;
                 var count = length > left ? left : length;
@@ -198,7 +238,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
         public string ReadUnicodeChars(int length)
         {
             CheckBuffer(length);
-            var packageLength = _readEndPos - _pos;
+            var packageLength = _packageEnd - _pos;
             var count = length > packageLength ? packageLength : length;
             var unicode = Encoding.Unicode.GetString(ReadBuffer, _pos, count);
             //var unicode = MemoryMarshal.Cast<byte, char>(new ReadOnlySpan<byte>(ReadBuffer, _pos, count));
@@ -209,7 +249,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
         public void ReadUnicodeChars(StringBuilder sb, int length)
         {
             CheckBuffer(length);
-            var packageLength = _readEndPos - _pos;
+            var packageLength = _packageEnd - _pos;
             var count = length > packageLength ? packageLength : length;
             var unicode = Encoding.Unicode.GetString(ReadBuffer, _pos, count);
             //var unicode = MemoryMarshal.Cast<byte, char>(new ReadOnlySpan<byte>(ReadBuffer, _pos, count));
@@ -254,5 +294,11 @@ namespace Medella.TdsClient.TDS.Package.Reader
         {
             return _pos == _readEndPos;
         }
+    }
+
+    public enum ParseState
+    {
+        token,
+        tokenLen
     }
 }

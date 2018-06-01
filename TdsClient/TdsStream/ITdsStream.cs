@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Medella.TdsClient.TdsStream
 {
@@ -7,6 +8,7 @@ namespace Medella.TdsClient.TdsStream
         string InstanceName { get; }
         void FlushBuffer(byte[] writeBuffer, int count);
         int Receive(byte[] readBuffer, int offset, int count);
+        Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count);
 
         byte[] GetClientToken(byte[] serverToken);
     }

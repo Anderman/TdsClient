@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
+using Medella.TdsClient.Contants;
 using Medella.TdsClient.TdsStream.Sspi;
 
 namespace Medella.TdsClient.TdsStream.Native
@@ -37,15 +39,24 @@ namespace Medella.TdsClient.TdsStream.Native
             SniNativeMethodWrapper.SNIWritePacket(_sniNativeHandle, _writePacket, true);
         }
 
+        public async Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count)
+        {
+            return await Task.Run(() => Receive(readBuffer, offset, count));
+        }
         public int Receive(byte[] readBuffer, int offset, int count)
         {
             var readPacketPtr = IntPtr.Zero;
             var error = SniNativeMethodWrapper.SNIReadSyncOverAsync(_sniNativeHandle, ref readPacketPtr, 15000);
-            var dataSize = (uint) count;
+            if (error != TdsEnums.SNI_SUCCESS)
+            {
+                SniNativeMethodWrapper.SNIGetLastError(out var errorStruct);
+                throw new Exception(errorStruct.errorMessage);
+            }
+            var dataSize = (uint)count;
             SniNativeMethodWrapper.SNIPacketGetData(readPacketPtr, readBuffer, ref dataSize);
-            GetBytesString("Read- ", readBuffer, (int) dataSize);
+            GetBytesString("Read- ", readBuffer, (int)dataSize);
             SniNativeMethodWrapper.SNIPacketRelease(readPacketPtr);
-            return (int) dataSize;
+            return (int)dataSize;
         }
 
         public byte[] GetClientToken(byte[] serverToken)

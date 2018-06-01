@@ -41,7 +41,6 @@ namespace Medella.TdsClient.TDS.Controller
                     {
                         if (token == TdsEnums.SQLERROR) _errorReceived = true;
                         _tdsPackage.Reader.SqlErrorAndInfo(token, tokenLength);
-                        //_pendingInfoEvents.Add(error);
                         break;
                     }
 

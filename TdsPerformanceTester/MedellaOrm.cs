@@ -1,20 +1,24 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Medella.TdsClient.TDS;
+using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Processes;
 
 namespace TdsPerformanceTester
 {
-    public class MedellaOrm 
+    public class MedellaOrm
     {
+        private readonly string _connectionString = Program.ConnectionString;
         private readonly TdsConnectionPool _tds;
+        private const int conc = 4;
         private int i = 1;
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tempdb;Trusted_Connection=True;";
 
         public MedellaOrm()
         {
-            _tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
-            OrmTester.EnsureDbSetup(ConnectionString);
+            var connections = new TdsConnection[conc];
+            _tds = TdsConnectionPools.GetConnectionPool(_connectionString);
+            var task = Parallel.For(0, conc, (x) => connections[x]=_tds.GetConnection());
+            //OrmTester.EnsureDbSetup(_connectionString);
+            task= Parallel.For(0, conc, (x) => _tds.Return(connections[x]));
         }
 
         public void Run()
@@ -24,7 +28,8 @@ namespace TdsPerformanceTester
 
             //using (var tds = TdsConnectionPools.GetConnectionPool(ConnectionString))
             {
-                var x = _tds.ExecuteQuery<Post>($@"select * from Posts ").ToArray();
+                var task = Parallel.For(0, conc,
+                    ctr => _tds.ExecuteQuery<Post>($@"select Id,CreationDate,LastChangeDate, Counter1, Counter2, Counter3, Counter4, Counter5, Counter6, Counter7, Counter8, Counter9 from Posts"));
             }
         }
     }
