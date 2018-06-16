@@ -74,11 +74,11 @@ namespace Medella.TdsClient.TdsStream.Native
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
-            var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
-            sb.Append("data: ");
-            for (var i = 0; i < length; i++)
-                sb.Append($"{buffer[i],2:X2} ");
-            Debug.WriteLine(sb.ToString());
+            //var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            //sb.Append("data: ");
+            //for (var i = 0; i < length; i++)
+            //    sb.Append($"{buffer[i],2:X2} ");
+            //Debug.WriteLine(sb.ToString());
         }
     }
 }
