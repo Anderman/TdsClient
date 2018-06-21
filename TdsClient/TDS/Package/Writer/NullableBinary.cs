@@ -50,8 +50,11 @@ namespace Medella.TdsClient.TDS.Package.Writer
         {
             WriteUInt64(value == null ? TdsEnums.SQL_PLP_NULL : TdsEnums.SQL_PLP_UNKNOWNLEN);
             if (value == null) return;
-            WriteInt32(value.Length); //write in chunks
-            WriteByteArray(value);
+            if (value.Length > 0)
+            {
+                WriteInt32(value.Length); //write in chunks
+                WriteByteArray(value);
+            }
             WriteInt32(TdsEnums.SQL_PLP_CHUNK_TERMINATOR); //chunks terminate
         }
 
