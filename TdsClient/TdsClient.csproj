@@ -30,9 +30,9 @@
     <None Remove="TdsClient.csproj.DotSettings" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="runtime.native.System.Data.SqlClient.sni" Version="4.4.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.4.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
+    <PackageReference Include="runtime.native.System.Data.SqlClient.sni" Version="4.5.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
