@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Medella.TdsClient.Contants;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
@@ -9,6 +5,10 @@ using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package.Writer;
 using Medella.TdsClient.TDS.Row.Writer;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Medella.TdsClient.TDS.Processes
 {
@@ -65,14 +65,18 @@ namespace Medella.TdsClient.TDS.Processes
             var seperator = "";
 
             var sb = new StringBuilder("insert bulk ");
+            sb.Append("[");
             sb.Append(tableName);
+            sb.Append("]");
             sb.Append(" (");
 
             foreach (var metadata in columns)
             {
                 var value = CreateParameter(metadata);
                 sb.Append(seperator);
+                sb.Append("[");
                 sb.Append(EscapeIdentifier(metadata.Column));
+                sb.Append("]");
                 sb.Append(value);
                 seperator = ",";
             }
