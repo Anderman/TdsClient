@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Medella.TdsClient.Contants;
 
 // ReSharper disable once CheckNamespace
@@ -8,8 +6,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
     {
-
-        private static readonly byte[] TextOrImageHeader = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+        private static readonly byte[] TextOrImageHeader = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
         public void WriteNullableSqlBinary(byte[] value, int index)
         {
@@ -21,11 +18,12 @@ namespace Medella.TdsClient.TDS.Package.Writer
             else
                 WriteNullableSqlBinary(value);
         }
+
         public void WriteNullableSqlUniqueId(Guid? value)
         {
-            WriteBuffer[WritePosition++] = (byte)(value == null ? 0 : 16);
+            WriteBuffer[WritePosition++] = (byte) (value == null ? 0 : 16);
             if (value != null)
-                WriteByteArray(((Guid)value).ToByteArray());
+                WriteByteArray(((Guid) value).ToByteArray());
             else
                 CheckBuffer();
         }
@@ -55,8 +53,8 @@ namespace Medella.TdsClient.TDS.Package.Writer
                 WriteInt32(value.Length); //write in chunks
                 WriteByteArray(value);
             }
+
             WriteInt32(TdsEnums.SQL_PLP_CHUNK_TERMINATOR); //chunks terminate
         }
-
     }
 }
