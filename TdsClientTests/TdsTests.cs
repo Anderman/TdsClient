@@ -215,7 +215,9 @@ namespace TdsClientTests
         {
             var tds = TdsConnectionPools.GetConnectionPool(@"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;");
             {
-                var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"SELECT s=test FROM TestVarCharmax");
+	            tds.ExecuteNonQuery("if OBJECT_ID('TestVarCharMax') is not null DROP TABLE TestVarCharMax CREATE TABLE TestVarCharMax (test varchar(max))");
+	            tds.ExecuteNonQuery("Insert TestVarCharMax (test) values (replicate(CONVERT(VARCHAR(MAX),'x'), 16000))");
+				var result = await tds.ExecuteQueryAsync<TestLongStringType>(@"SELECT s=test FROM TestVarCharMax");
                 Assert.Equal(16000, result[0].s.Length);
             }
         }
