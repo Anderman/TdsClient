@@ -1,6 +1,6 @@
 # TdsClient
 
-A Rewrite of SqlClient with improved performance and memory footprint. A cleaned library with is suitable for DI.
+A Rewrite of SqlClient with improved performance and memory footprint. A cleaned library which is suitable for DI.
 
 Goal a new lib. without connectionstring and SqlDataReader, 
 
