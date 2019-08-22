@@ -30,7 +30,7 @@ namespace Medella.TdsClient.TDS.Processes
             tdsConnectionPool.Return(cnn);
             return result;
         }
-        public static async Task BulkInsertAsync<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, List<ColumnMapping> columnMapping)
+        public static async Task BulkInsertAsync<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, Dictionary<string, PropertyInfo> columnMapping)
         {
             await Task.Run(() => BulkInsert<T>(tdsConnectionPool, objects, tableName, columnMapping));
         }
@@ -47,17 +47,11 @@ namespace Medella.TdsClient.TDS.Processes
             tdsConnectionPool.Return(cnn);
         }
 
-        public static void BulkInsert<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, List<ColumnMapping> columnMapping)
+        public static void BulkInsert<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, Dictionary<string,PropertyInfo> columnMapping)
         {
             var cnn = tdsConnectionPool.GetConnection();
             cnn.BulkInsert(objects, tableName, columnMapping);
             tdsConnectionPool.Return(cnn);
         }
-    }
-
-    public class ColumnMapping
-    {
-        public string SqlName { get; set; }
-        public PropertyInfo PropertyInfo { get; set; }
     }
 }

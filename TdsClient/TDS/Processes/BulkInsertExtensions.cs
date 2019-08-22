@@ -8,6 +8,7 @@ using Medella.TdsClient.TDS.Row.Writer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Medella.TdsClient.TDS.Processes
@@ -20,7 +21,7 @@ namespace Medella.TdsClient.TDS.Processes
         {
             cnn.BulkInsert(objects, tableName, null);
         }
-        public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName, List<ColumnMapping> columnMapping)
+        public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName, Dictionary<string, PropertyInfo> columnMapping)
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;
@@ -59,13 +60,12 @@ namespace Medella.TdsClient.TDS.Processes
         {
             return metadataAllColumns.Where(metadata => metadata.TdsType != TdsEnums.SQLTIMESTAMP && !metadata.IsIdentity).ToArray();
         }
-        private static MetadataBulkCopy[] GetUsedColumns(MetadataBulkCopy[] metadataAllColumns, List<ColumnMapping> columnMappings)
+        private static MetadataBulkCopy[] GetUsedColumns(MetadataBulkCopy[] metadataAllColumns, Dictionary<string, PropertyInfo> columnMappings)
         {
             var result = new List<MetadataBulkCopy>();
-            var dict= columnMappings.ToDictionary(x => x.SqlName, x => x.PropertyInfo);
             foreach (var metadata in metadataAllColumns)
             {
-                if(metadata.TdsType == TdsEnums.SQLTIMESTAMP || metadata.IsIdentity || !dict.TryGetValue(metadata.Column, out var propertyInfo)) continue;
+                if(metadata.TdsType == TdsEnums.SQLTIMESTAMP || metadata.IsIdentity || !columnMappings.TryGetValue(metadata.Column, out var propertyInfo)) continue;
                 metadata.PropertyInfo = propertyInfo;
                 result.Add(metadata);
             }
