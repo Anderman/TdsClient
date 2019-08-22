@@ -24,6 +24,6 @@ namespace Medella.TdsClient.TDS.Messages.Server.Internal
         public SqlCollations Collation { get; set; }
         public Encoding Encoding { get; set; }
         public bool NonUniCode => TdsType == TdsEnums.SQLBIGCHAR || TdsType == TdsEnums.SQLBIGVARCHAR || TdsType == TdsEnums.SQLTEXT;
-        public PropertyInfo PropertyInfo;
+        public PropertyInfo PropertyInfo { get; set; }
     }
 }
