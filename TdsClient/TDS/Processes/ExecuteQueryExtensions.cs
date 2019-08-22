@@ -8,7 +8,7 @@ using Medella.TdsClient.TDS.Row.Reader;
 
 namespace Medella.TdsClient.TDS.Processes
 {
-    public static class ExecuteQueryExtenstions
+    public static class ExecuteQueryExtensions
     {
         private static readonly ConcurrentDictionary<string, Delegate> Readers = new ConcurrentDictionary<string, Delegate>();
 

@@ -70,7 +70,15 @@ namespace Medella.TdsClient.TDS.Row.Writer
             { typeof(int?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt32)) },
             { typeof(long?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt64)) },
             { typeof(float?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlFloat)) },
-            { typeof(double?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble)) }
+            { typeof(double?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble)) },
+                        
+            // Allow not nullable type to write nullable sqltype
+            { typeof(byte), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlByte)) },
+            { typeof(short), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt16)) },
+            { typeof(int), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt32)) },
+            { typeof(long), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt64)) },
+            { typeof(float), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlFloat)) },
+            { typeof(double), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble)) }
         };
 
         public static Action<TdsColumnWriter, T> GetComplexWriter<T>(TdsColumnWriter writer)
