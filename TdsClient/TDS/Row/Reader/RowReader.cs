@@ -71,7 +71,7 @@ namespace Medella.TdsClient.TDS.Row.Reader
 			if (columnsNotMapped.Any())
 				throw new ArgumentException($"Not all columns are mapped to class properties. The follow columns could not mapped: {string.Join(",", columnsNotMapped)}");
 
-			var newMapping = sqlTableColumns.Select(x => new Mapping { SqlIndex = x.SqlIndex, ClrType = typeColumns[x.SqlName], TdsType = x.TdsType, PropertyName = x.SqlName }).ToArray();
+			var newMapping = sqlTableColumns.Select(x => new Mapping { SqlIndex = x.SqlIndex, ClrType = typeColumns[x.SqlName].PropertyType, TdsType = x.TdsType, PropertyName = x.SqlName }).ToArray();
 
 			return _GetReader<T>(newMapping);
 		}
