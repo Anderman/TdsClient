@@ -72,7 +72,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
             { typeof(float?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlFloat)) },
             { typeof(double?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble)) },
                         
-            // Allow not nullable type to write nullable sqltype
+            // Allow not nullable clrType to write nullable sqlType
             { typeof(byte), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlByte)) },
             { typeof(short), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt16)) },
             { typeof(int), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt32)) },
@@ -145,7 +145,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
         private static MethodCallExpression GetValue(Expression writer, Expression property, int columnIndex, int tdsType)
         {
             if (!SqlTypes.TryGetValue(tdsType, out var method)) throw new Exception($"TdsType not supported:{tdsType} index:{columnIndex}");
-            if (method == null && !ClrTypes.TryGetValue(property.Type, out method)) throw new Exception($"TdsType not supported:{tdsType} index:{columnIndex}");
+            if (method == null && !ClrTypes.TryGetValue(property.Type, out method)) throw new Exception($"TdsType with clrType not supported:{tdsType} index:{columnIndex} propertyType:{property.Type}");
             var type = method.GetParameters()[0].ParameterType;
             Expression convertedProperty = Expression.Convert(property, type);
             return Expression.Call(writer, method, new[] { convertedProperty, Expression.Constant(columnIndex) });
