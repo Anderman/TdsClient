@@ -29,7 +29,7 @@ namespace TdsClientTests
         //row data
         //0xD1,0x04,0x02,0x00,0x00,0x00, datarow 4 bytes value=0x0000_0002
         //0xFD,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=TdsTest;Trusted_Connection=True;";
 
         [Fact]
         public async Task can_upload_int_Column()

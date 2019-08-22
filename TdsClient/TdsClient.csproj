@@ -9,6 +9,7 @@
     <RootNamespace>Medella.TdsClient</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>1.0.22</Version>
+    <Description>A Fast Tds Client for MsSql server</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

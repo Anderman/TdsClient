@@ -7,7 +7,7 @@ namespace TdsClientTests
 {
     public class TdsTransactionsTests
     {
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=TdsTest;Trusted_Connection=True;";
         [Fact]
         public void Can_begin_transaction()
         {

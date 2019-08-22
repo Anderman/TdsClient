@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Medella.TdsClient.TDS.Processes
 {
-    public static class BulkInsertExtentions
+    public static class BulkInsertExtensions
     {
         private static readonly byte[] Done = { 0xFD, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
@@ -20,7 +20,7 @@ namespace Medella.TdsClient.TDS.Processes
         {
             cnn.BulkInsert(objects, tableName, null);
         }
-        public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName, Func<MetadataBulkCopy[], MetadataBulkCopy[]> columnmapping)
+        public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName, List<ColumnMapping> columnMapping)
         {
             var writer = cnn.TdsPackage.Writer;
             var reader = cnn.TdsPackage.Reader;
@@ -30,7 +30,7 @@ namespace Medella.TdsClient.TDS.Processes
             writer.SendExcuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF", cnn.SqlTransactionId);
             parser.ParseInput(count => { metaDataAllColumns = reader.ColMetaDataBulkCopy(count); });
 
-            writer.ColumnsMetadata = columnmapping != null ? columnmapping(GetUsedColumns(metaDataAllColumns)) : GetUsedColumns(metaDataAllColumns);
+            writer.ColumnsMetadata = columnMapping != null ? GetUsedColumns(metaDataAllColumns, columnMapping) : GetUsedColumns(metaDataAllColumns);
 
             var bulkInsert = CreateBulkInsertStatement(tableName, writer.ColumnsMetadata);
             writer.SendExcuteBatch(bulkInsert, cnn.SqlTransactionId);
@@ -59,10 +59,22 @@ namespace Medella.TdsClient.TDS.Processes
         {
             return metadataAllColumns.Where(metadata => metadata.TdsType != TdsEnums.SQLTIMESTAMP && !metadata.IsIdentity).ToArray();
         }
+        private static MetadataBulkCopy[] GetUsedColumns(MetadataBulkCopy[] metadataAllColumns, List<ColumnMapping> columnMappings)
+        {
+            var result = new List<MetadataBulkCopy>();
+            var dict= columnMappings.ToDictionary(x => x.SqlName, x => x.PropertyInfo);
+            foreach (var metadata in metadataAllColumns)
+            {
+                if(metadata.TdsType == TdsEnums.SQLTIMESTAMP || metadata.IsIdentity || !dict.TryGetValue(metadata.Column, out var propertyInfo)) continue;
+                metadata.PropertyInfo = propertyInfo;
+                result.Add(metadata);
+            }
+            return result.ToArray();
+        }
 
         private static string CreateBulkInsertStatement(string tableName, MetadataBulkCopy[] columns)
         {
-            var seperator = "";
+            var separator = "";
 
             var sb = new StringBuilder("insert bulk ");
             sb.Append("[");
@@ -73,12 +85,12 @@ namespace Medella.TdsClient.TDS.Processes
             foreach (var metadata in columns)
             {
                 var value = CreateParameter(metadata);
-                sb.Append(seperator);
+                sb.Append(separator);
                 sb.Append("[");
                 sb.Append(EscapeIdentifier(metadata.Column));
                 sb.Append("]");
                 sb.Append(value);
-                seperator = ",";
+                separator = ",";
             }
 
             sb.Append(")");

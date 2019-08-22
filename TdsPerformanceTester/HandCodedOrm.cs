@@ -15,7 +15,7 @@ namespace TdsPerformanceTester
         public HandCodedOrm()
         {
             //_connection = new LoginProcessor("context connection=true");
-            //_connection = new SqlConnection(@"Server=127.0.0.1;Database=tempdb;Trusted_Connection=True;");
+            //_connection = new SqlConnection(@"Server=127.0.0.1;Database=TdsTest;Trusted_Connection=True;");
             _connection = new SqlConnection(Program.ConnectionString);
             _connection.Open();
             _postCommand = new SqlCommand

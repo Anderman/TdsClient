@@ -16,7 +16,7 @@ namespace TdsClientTests
 {
     public class RpcTests
     {
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=tmp;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=TdsTest;Trusted_Connection=True;";
 
         public static byte[] ExpectedString =
         {

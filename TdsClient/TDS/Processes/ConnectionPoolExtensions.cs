@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
-using Medella.TdsClient.TDS.Messages.Server.Internal;
 
 namespace Medella.TdsClient.TDS.Processes
 {
-    public static class ConnectionPoolExtenstions
+    public static class ConnectionPoolExtensions
     {
         public static async Task ExecuteNonQueryAsync(this TdsConnectionPool tdsConnectionPool, string text) => await Task.Run(() => ExecuteNonQuery(tdsConnectionPool, text));
         public static void ExecuteNonQuery(this TdsConnectionPool tdsConnectionPool, string text)
@@ -30,9 +30,9 @@ namespace Medella.TdsClient.TDS.Processes
             tdsConnectionPool.Return(cnn);
             return result;
         }
-        public static async Task BulkInsertAsync<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, Func<MetadataBulkCopy[], MetadataBulkCopy[]> columnmapping)
+        public static async Task BulkInsertAsync<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, List<ColumnMapping> columnMapping)
         {
-            await Task.Run(() => BulkInsert<T>(tdsConnectionPool, objects, tableName, columnmapping));
+            await Task.Run(() => BulkInsert<T>(tdsConnectionPool, objects, tableName, columnMapping));
         }
 
         public static async Task BulkInsertAsync<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName)
@@ -46,11 +46,18 @@ namespace Medella.TdsClient.TDS.Processes
             cnn.BulkInsert(objects, tableName);
             tdsConnectionPool.Return(cnn);
         }
-        public static void BulkInsert<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, Func<MetadataBulkCopy[], MetadataBulkCopy[]> columnmapping)
+
+        public static void BulkInsert<T>(this TdsConnectionPool tdsConnectionPool, IEnumerable<T> objects, string tableName, List<ColumnMapping> columnMapping)
         {
             var cnn = tdsConnectionPool.GetConnection();
-            cnn.BulkInsert(objects, tableName, columnmapping);
+            cnn.BulkInsert(objects, tableName, columnMapping);
             tdsConnectionPool.Return(cnn);
         }
+    }
+
+    public class ColumnMapping
+    {
+        public string SqlName { get; set; }
+        public PropertyInfo PropertyInfo { get; set; }
     }
 }

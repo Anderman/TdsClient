@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Pipes;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,11 +8,15 @@ namespace TdsPerformanceTester
 {
     internal class Program
     {
-        public const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
+        public const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=TdsTest;Trusted_Connection=True;";
         public const string ConnectionString2 = @"Server=.;Database=tempdb;Trusted_Connection=True;";
+        private Benchmarks _bm;
+        private int _endPos;
+        private int _pos;
+
         private static void Main(string[] args)
         {
-            var p= new Program();
+            var p = new Program();
 
             ////StartServer();
             ////testNP();
@@ -25,8 +25,7 @@ namespace TdsPerformanceTester
         }
 
 
-
-        static void StartServer()
+        private static void StartServer()
         {
             var buffer = new byte[8000];
             Task.Run(() =>
@@ -41,6 +40,7 @@ namespace TdsPerformanceTester
                 }
             });
         }
+
         [Conditional("DEBUG")]
         private static void LogBytesString(string prefix, byte[] buffer, int length)
         {
@@ -56,10 +56,5 @@ namespace TdsPerformanceTester
                     sb.Append($"{(char)buffer[i]}");
             Console.WriteLine(sb.ToString());
         }
-
-        private int _endPos;
-        private int _pos;
-        private Benchmarks _bm;
     }
 }
-

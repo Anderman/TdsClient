@@ -7,7 +7,7 @@ namespace TdsClientTests
 {
     public class UdtTests
     {
-        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=test;Trusted_Connection=True;";
+        private const string ConnectionString = @"Server=(localdb)\mssqllocaldb;Database=TdsTest;Trusted_Connection=True;";
 
         [Fact]
         public async Task can_read_Udt()
