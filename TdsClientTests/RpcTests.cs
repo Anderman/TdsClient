@@ -165,11 +165,11 @@ namespace TdsClientTests
         }
 
         [Fact]
-        public void Can_execute_query_with_byte_parameter()
+        public async Task Can_execute_query_with_byte_parameter()
         {
             var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = (byte) 0xff;
-            tds.ExecuteParameterQueryASync<TestId>($"select cByte={id}");
+            await tds.ExecuteParameterQueryASync<TestId>($"select cByte={id}");
         }
 
         [Fact]
@@ -182,11 +182,11 @@ namespace TdsClientTests
         }
 
         [Fact]
-        public void Can_execute_query_with_decimal_parameter()
+        public async Task Can_execute_query_with_decimal_parameter()
         {
             var tds = TdsConnectionPools.GetConnectionPool(ConnectionString);
             var id = 123.4M;
-            tds.ExecuteParameterQueryASync<TestId>($"select Decimal={id}");
+            await tds.ExecuteParameterQueryASync<TestId>($"select Decimal={id}");
         }
 
         [Fact]

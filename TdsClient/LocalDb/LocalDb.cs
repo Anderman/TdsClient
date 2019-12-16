@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
+using System.Diagnostics;
 
 namespace Medella.TdsClient.LocalDb
 {
@@ -60,7 +61,12 @@ namespace Medella.TdsClient.LocalDb
                 var dllPath = GetUserInstanceDllPath(out var registryQueryErrorState);
 
                 // Load the dll
-                var libraryHandle = LoadLibraryExW(dllPath.Trim(), IntPtr.Zero, 0);
+                var libraryHandle = LoadLibraryExW(dllPath.Trim(), IntPtr.Zero, 0x1F08);
+                if(libraryHandle.IsInvalid)
+                {
+                    var error = GetLastError();
+                    throw new Exception(error.ToString());
+                }
 
                 // Load the procs from the DLLs
                 _startInstanceHandle = GetProcAddress(libraryHandle, ProcLocalDbStartInstance);
@@ -74,14 +80,13 @@ namespace Medella.TdsClient.LocalDb
         }
 
         [DllImport(Kernel32, CharSet = CharSet.Ansi, BestFitMapping = false)]
-        public static extern IntPtr GetProcAddress(SafeLibraryHandle hModule, string lpProcName);
+        private static extern IntPtr GetProcAddress(SafeLibraryHandle hModule, string lpProcName);
 
         [DllImport(Kernel32, ExactSpelling = true, CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern SafeLibraryHandle LoadLibraryExW([In] string lpwLibFileName, [In] IntPtr hFile, [In] uint dwFlags);
+        private static extern SafeLibraryHandle LoadLibraryExW([In] string lpwLibFileName, [In] IntPtr hFile, [In] uint dwFlags);
 
-        [DllImport(Kernel32, ExactSpelling = true, SetLastError = true)]
-        public static extern bool FreeLibrary([In] IntPtr hModule);
-
+        [DllImport(Kernel32, CharSet = CharSet.Ansi, BestFitMapping = false)]
+        private static extern uint GetLastError();
 
         private static string GetUserInstanceDllPath(out LocalDbErrorState errorState)
         {
@@ -121,7 +126,10 @@ namespace Medella.TdsClient.LocalDb
 
         protected override bool ReleaseHandle()
         {
-            return LocalDb.FreeLibrary(handle);
+            return FreeLibrary(handle);
         }
+        internal const string Kernel32 = "kernel32.dll";
+        [DllImport(Kernel32, ExactSpelling = true, SetLastError = true)]
+        private static extern bool FreeLibrary([In] IntPtr hModule);
     }
 }
