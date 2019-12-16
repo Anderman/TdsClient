@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TdsClientTests", "TdsClient
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TdsPerformanceTester", "TdsPerformanceTester\TdsPerformanceTester.csproj", "{EE3FD944-A960-443C-AD8A-DC6BC9D3BD55}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "loadLibrary", "loadLibrary\loadLibrary.csproj", "{C52EC881-6B21-496D-B89B-D27ECA5E53BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{EE3FD944-A960-443C-AD8A-DC6BC9D3BD55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE3FD944-A960-443C-AD8A-DC6BC9D3BD55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE3FD944-A960-443C-AD8A-DC6BC9D3BD55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C52EC881-6B21-496D-B89B-D27ECA5E53BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C52EC881-6B21-496D-B89B-D27ECA5E53BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C52EC881-6B21-496D-B89B-D27ECA5E53BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C52EC881-6B21-496D-B89B-D27ECA5E53BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
