@@ -15,7 +15,7 @@ namespace Medella.TdsClient.TDS.Processes
 
         public static void ExecuteNonQuery(this TdsConnection cnn, string text)
         {
-            cnn.TdsPackage.Writer.SendExcuteBatch(text, cnn.SqlTransactionId);
+            cnn.TdsPackage.Writer.SendExecuteBatch(text, cnn.SqlTransactionId);
             cnn.StreamParser.ParseInput();
         }
 
@@ -26,7 +26,7 @@ namespace Medella.TdsClient.TDS.Processes
             var reader = cnn.TdsPackage.Reader;
             var parser = cnn.StreamParser;
 
-            writer.SendExcuteBatch(text, cnn.SqlTransactionId);
+            writer.SendExecuteBatch(text, cnn.SqlTransactionId);
             parser.ParseInput();
             if (parser.Status == ParseStatus.Done)
                 return null;
@@ -68,7 +68,7 @@ namespace Medella.TdsClient.TDS.Processes
 
         private static Func<TdsColumnReader, T> GetRowReader<T>(TdsPackageReader reader, string key) where T : class, new()
         {
-            return (Func<TdsColumnReader, T>) Readers.GetOrAdd(key, x => RowReader.GetComplexReader<T>(reader));
+            return (Func<TdsColumnReader, T>)Readers.GetOrAdd(key, x => RowReader.GetComplexReader<T>(reader));
         }
     }
 }

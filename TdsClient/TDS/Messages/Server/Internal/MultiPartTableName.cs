@@ -2,12 +2,12 @@
 {
     public class MultiPartTableName
     {
-        internal string ServerName { get; set; }
+        internal string? ServerName { get; set; }
 
-        internal string CatalogName { get; set; }
+        internal string? CatalogName { get; set; }
 
-        internal string SchemaName { get; set; }
+        internal string? SchemaName { get; set; }
 
-        internal string TableName { get; set; }
+        internal string? TableName { get; set; }
     }
 }

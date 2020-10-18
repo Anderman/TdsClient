@@ -1,7 +1,6 @@
-﻿using System;
-using Medella.TdsClient.Resources;
+﻿using Medella.TdsClient.Resources;
 
-namespace Medella.TdsClient.Contants
+namespace Medella.TdsClient.Constants
 {
     public static class SQLResource
     {

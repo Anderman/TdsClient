@@ -5,10 +5,9 @@ using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TdsStream.Sspi;
 
 namespace Medella.TdsClient.TdsStream.TcpIp
@@ -21,11 +20,11 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         private const int DefaultSqlServerPort = 1433;
         private readonly SspiHelper _sspi;
         private readonly string _targetServer;
-        private Socket _socket;
-        private SslOverTdsStream _sslOverTdsStream;
-        private SslStream _sslStream;
-        private Stream _stream;
-        private NetworkStream _tcpStream;
+        private Socket? _socket;
+        private SslOverTdsStream? _sslOverTdsStream;
+        private SslStream? _sslStream;
+        private Stream? _stream;
+        private NetworkStream? _tcpStream;
         private bool _validateCert = true;
 
         public TdsStreamTcp(string serverName, int port, int timeoutSec)
@@ -70,22 +69,29 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         {
             GetBytesString("Write-", writeBuffer, count);
             //Stream.WriteAsync(writeBuffer, 0, count);
-            _stream.Write(writeBuffer, 0, count);
+            _stream!.Write(writeBuffer, 0, count);
         }
 
         public async Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count)
         {
-
-            var len = await _stream.ReadAsync(readBuffer, offset, count);
+            var len = await _stream!.ReadAsync(readBuffer, offset, count);
             GetBytesString("Read- ", readBuffer, len);
             return len;
         }
+
         public int Receive(byte[] readBuffer, int offset, int count)
         {
-            var len = _stream.Read(readBuffer, offset, count);
+            var len = _stream!.Read(readBuffer, offset, count);
             GetBytesString("Read- ", readBuffer, len);
             return len;
         }
+
+        public byte[] GetClientToken(byte[] serverToken)
+        {
+            _sspi.CreateClientToken(serverToken);
+            return _sspi.ClientToken;
+        }
+
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
@@ -100,12 +106,6 @@ namespace Medella.TdsClient.TdsStream.TcpIp
             //    if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)
             //        sb.Append($"{(char)buffer[i]}");
             //Debug.WriteLine(sb.ToString());
-        }
-
-        public byte[] GetClientToken(byte[] serverToken)
-        {
-            _sspi.CreateClientToken(serverToken);
-            return _sspi.ClientToken;
         }
 
         private string GetSqlServerSpn(string serverName, int port)
@@ -125,28 +125,29 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         {
             var hostEntry = Dns.GetHostEntry(hostNameOrAddress);
             var fullyQualifiedDomainName = hostEntry.HostName;
-            var serverSpn = $"MSSQLSvc/"+fullyQualifiedDomainName;
+            var serverSpn = "MSSQLSvc/" + fullyQualifiedDomainName;
             if (!string.IsNullOrWhiteSpace(portOrInstanceName)) serverSpn += ":" + portOrInstanceName;
             return serverSpn;
         }
 
-        private static Socket Connect(string serverName, int port, TimeSpan timeout)
+        private static Socket? Connect(string serverName, int port, TimeSpan timeout)
         {
             var ipAddresses = Dns.GetHostAddresses(serverName);
-            IPAddress serverIPv4 = null;
-            IPAddress serverIPv6 = null;
-            foreach (var ipAdress in ipAddresses)
-                switch (ipAdress.AddressFamily)
+            IPAddress? serverIPv4 = null;
+            IPAddress? serverIPv6 = null;
+            foreach (var ipAddress in ipAddresses)
+                switch (ipAddress.AddressFamily)
                 {
                     case AddressFamily.InterNetwork:
-                        serverIPv4 = ipAdress;
+                        serverIPv4 = ipAddress;
                         break;
                     case AddressFamily.InterNetworkV6:
-                        serverIPv6 = ipAdress;
+                        serverIPv6 = ipAddress;
                         break;
                 }
-            ipAddresses = new[] {serverIPv4, serverIPv6};
-            var sockets = new Socket[2];
+
+            ipAddresses = new[] { serverIPv4, serverIPv6 };
+            Socket?[] sockets = new Socket[2];
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(timeout);
@@ -156,9 +157,9 @@ namespace Medella.TdsClient.TdsStream.TcpIp
                 for (var i = 0; i < sockets.Length; ++i)
                     try
                     {
-                        if (sockets[i] == null || sockets[i].Connected)
+                        if (sockets[i] == null || sockets[i]!.Connected)
                             continue;
-                        sockets[i].Dispose();
+                        sockets[i]!.Dispose();
                         sockets[i] = null;
                     }
                     catch
@@ -169,23 +170,23 @@ namespace Medella.TdsClient.TdsStream.TcpIp
 
             cts.Token.Register(Cancel);
 
-            Socket availableSocket = null;
+            Socket? availableSocket = null;
             for (var i = 0; i < sockets.Length; ++i)
                 try
                 {
                     if (ipAddresses[i] == null)
                         continue;
                     sockets[i] = new Socket(ipAddresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                    sockets[i].Connect(ipAddresses[i], port);
+                    sockets[i]!.Connect(ipAddresses[i], port);
                     if (sockets[i] == null)
                         continue;
-                    if (sockets[i].Connected)
+                    if (sockets[i]!.Connected)
                     {
-                        availableSocket = sockets[i];
+                        availableSocket = sockets[i]!;
                         break;
                     }
 
-                    sockets[i].Dispose();
+                    sockets[i]!.Dispose();
                     sockets[i] = null;
                 }
                 catch
@@ -204,8 +205,8 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         {
             _validateCert = (options & TdsEnums.SNI_SSL_VALIDATE_CERTIFICATE) != 0;
 
-            _sslStream.AuthenticateAsClient(_targetServer);
-            _sslOverTdsStream.FinishHandshake();
+            _sslStream!.AuthenticateAsClient(_targetServer);
+            _sslOverTdsStream!.FinishHandshake();
 
             _stream = _sslStream;
         }
@@ -215,9 +216,9 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         /// </summary>
         public void DisableSsl()
         {
-            _sslStream.Dispose();
+            _sslStream!.Dispose();
             _sslStream = null;
-            _sslOverTdsStream.Dispose();
+            _sslOverTdsStream!.Dispose();
             _sslOverTdsStream = null;
 
             _stream = _tcpStream;
@@ -245,7 +246,7 @@ namespace Medella.TdsClient.TdsStream.TcpIp
         /// <returns>SNI error status</returns>
         public uint CheckConnection()
         {
-            if (!_socket.Connected || _socket.Poll(0, SelectMode.SelectError)) return TdsEnums.SNI_ERROR;
+            if (!_socket!.Connected || _socket.Poll(0, SelectMode.SelectError)) return TdsEnums.SNI_ERROR;
             return TdsEnums.SNI_SUCCESS;
         }
     }

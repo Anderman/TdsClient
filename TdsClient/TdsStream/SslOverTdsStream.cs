@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 using System.IO.Pipes;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TdsStream
 {
@@ -136,9 +136,9 @@ namespace Medella.TdsClient.TdsStream
                     // partial packet (whether or not count != 0).
                     // 
                     combinedBuffer[0] = PRELOGIN_PACKET_TYPE;
-                    combinedBuffer[1] = (byte) (count > 0 ? 0 : 1);
-                    combinedBuffer[2] = (byte) ((currentCount + TdsEnums.HEADER_LEN) / 0x100);
-                    combinedBuffer[3] = (byte) ((currentCount + TdsEnums.HEADER_LEN) % 0x100);
+                    combinedBuffer[1] = (byte)(count > 0 ? 0 : 1);
+                    combinedBuffer[2] = (byte)((currentCount + TdsEnums.HEADER_LEN) / 0x100);
+                    combinedBuffer[3] = (byte)((currentCount + TdsEnums.HEADER_LEN) % 0x100);
                     combinedBuffer[4] = 0;
                     combinedBuffer[5] = 0;
                     combinedBuffer[6] = 0;
@@ -186,9 +186,6 @@ namespace Medella.TdsClient.TdsStream
         /// <param name="offset">Offset</param>
         /// <param name="origin">Origin</param>
         /// <returns>Position</returns>
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new NotSupportedException();
-        }
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
     }
 }

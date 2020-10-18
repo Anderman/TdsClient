@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TdsStream.Sspi;
 
 namespace Medella.TdsClient.TdsStream.Native
@@ -43,6 +43,7 @@ namespace Medella.TdsClient.TdsStream.Native
         {
             return await Task.Run(() => Receive(readBuffer, offset, count));
         }
+
         public int Receive(byte[] readBuffer, int offset, int count)
         {
             var readPacketPtr = IntPtr.Zero;
@@ -52,6 +53,7 @@ namespace Medella.TdsClient.TdsStream.Native
                 SniNativeMethodWrapper.SNIGetLastError(out var errorStruct);
                 throw new Exception(errorStruct.errorMessage);
             }
+
             var dataSize = (uint)count;
             SniNativeMethodWrapper.SNIPacketGetData(readPacketPtr, readBuffer, ref dataSize);
             GetBytesString("Read- ", readBuffer, (int)dataSize);
@@ -59,10 +61,7 @@ namespace Medella.TdsClient.TdsStream.Native
             return (int)dataSize;
         }
 
-        public byte[] GetClientToken(byte[] serverToken)
-        {
-            return _sspi.GetClientToken(serverToken);
-        }
+        public byte[] GetClientToken(byte[] serverToken) => _sspi.GetClientToken(serverToken);
 
         public void Dispose()
         {

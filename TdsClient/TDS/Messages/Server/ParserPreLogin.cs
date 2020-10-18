@@ -1,5 +1,5 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
@@ -24,17 +24,17 @@ namespace Medella.TdsClient.TDS.Messages.Server
             var offset = payloadOffset;
             int option = payload[offset++];
 
-            while (option != (byte) PreLoginOptions.LASTOPT)
+            while (option != (byte)PreLoginOptions.LASTOPT)
             {
                 var dataOffset = ((payload[offset] << 8) | payload[offset + 1]) + payloadOffset;
                 switch (option)
                 {
-                    case (int) PreLoginOptions.VERSION:
+                    case (int)PreLoginOptions.VERSION:
                         result.Version = payload[dataOffset];
                         break;
 
-                    case (int) PreLoginOptions.ENCRYPT:
-                        var serverOption = (EncryptionOptions) payload[dataOffset];
+                    case (int)PreLoginOptions.ENCRYPT:
+                        var serverOption = (EncryptionOptions)payload[dataOffset];
 
                         /* internal enum encryptionOptions {
                             OFF,
@@ -74,21 +74,21 @@ namespace Medella.TdsClient.TDS.Messages.Server
 
                         break;
 
-                    case (int) PreLoginOptions.INSTANCE:
+                    case (int)PreLoginOptions.INSTANCE:
 
                         if (payload[dataOffset] == 0x1) throw new Exception("Instancename not correct");
 
                         break;
 
-                    case (int) PreLoginOptions.THREADID:
+                    case (int)PreLoginOptions.THREADID:
                         // DO NOTHING FOR THREADID
                         break;
 
-                    case (int) PreLoginOptions.MARS:
+                    case (int)PreLoginOptions.MARS:
                         result.IsMarsCapable = payload[dataOffset] != 0;
                         break;
 
-                    case (int) PreLoginOptions.TRACEID:
+                    case (int)PreLoginOptions.TRACEID:
                         // DO NOTHING FOR TRACEID
                         break;
                 }

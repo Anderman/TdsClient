@@ -9,18 +9,18 @@ namespace Medella.TdsClient.TDS.Package.Reader
             if (length == 8)
             {
                 var mid = ReadInt32();
-                var l = ((long) mid << 0x20) + ReadUInt32();
+                var l = ((long)mid << 0x20) + ReadUInt32();
                 if (l > 0)
-                    return new decimal((int) (l & 0xffffffff), (int) (l >> 32), 0, false, 4);
+                    return new decimal((int)(l & 0xffffffff), (int)(l >> 32), 0, false, 4);
                 l = -l;
-                return new decimal((int) (l & 0xffffffff), (int) (l >> 32), 0, true, 4);
+                return new decimal((int)(l & 0xffffffff), (int)(l >> 32), 0, true, 4);
             }
 
             var lo = ReadInt32();
 
             return lo >= 0
-                ? new decimal((int) (lo & 0xffffffff), 0, 0, false, 4)
-                : new decimal((int) (-lo & 0xffffffff), 0, 0, true, 4);
+                ? new decimal((int)(lo & 0xffffffff), 0, 0, false, 4)
+                : new decimal((int)(-lo & 0xffffffff), 0, 0, true, 4);
         }
 
         public decimal ReadSqlDecimal(int length, byte scale)

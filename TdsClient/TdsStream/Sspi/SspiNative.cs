@@ -38,11 +38,11 @@ namespace Medella.TdsClient.TdsStream.Sspi
         public byte[] GetClientToken(byte[] serverToken)
         {
             var clientToken = new byte[_sMaxSspiLength];
-            var length = (uint) clientToken.Length;
-            SniSspiData(serverToken, (uint) (serverToken?.Length ?? 0), ref clientToken, ref length);
+            var length = (uint)clientToken.Length;
+            SniSspiData(serverToken, (uint)(serverToken?.Length ?? 0), ref clientToken, ref length);
             if (length > int.MaxValue)
                 throw SQL.InvalidSspiPacketSize(); // SqlBu 332503
-            Array.Resize(ref clientToken, (int) length);
+            Array.Resize(ref clientToken, (int)length);
             return clientToken;
         }
 
@@ -52,14 +52,14 @@ namespace Medella.TdsClient.TdsStream.Sspi
 
             // we need to respond to the server's message with SSPI data
             if (SniSecGenClientContext(receivedBuff, receivedLength, sendBuff, ref sendLength) != 0)
-                throw new Exception("Failed to get sspi clientcontext");
+                throw new Exception("Failed to get sspi clientContext");
         }
 
-        internal unsafe uint SniSecGenClientContext(byte[] inBuff, uint receivedLength, byte[] outBuff, ref uint sendLength)
+        internal unsafe uint SniSecGenClientContext(byte[]? inBuff, uint receivedLength, byte[] outBuff, ref uint sendLength)
         {
             fixed (byte* pinServerUserName = &_sniSpnBuffer[0])
             {
-                return SniNativeMethodWrapper.SNISecGenClientContextWrapper(_sniNativeHandle, inBuff, receivedLength, outBuff, ref sendLength, out _, pinServerUserName, (uint) _sniSpnBuffer.Length, null, null);
+                return SniNativeMethodWrapper.SNISecGenClientContextWrapper(_sniNativeHandle, inBuff, receivedLength, outBuff, ref sendLength, out _, pinServerUserName, (uint)_sniSpnBuffer.Length, null, null);
             }
         }
     }

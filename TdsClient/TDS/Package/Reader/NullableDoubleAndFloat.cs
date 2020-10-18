@@ -17,13 +17,13 @@
         public float? ReadNullableSqlFloat(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (float?) null : ReadFloat();
+            return length == null ? (float?)null : ReadFloat();
         }
 
         public double? ReadNullableSqlDouble(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (double?) null : ReadDouble();
+            return length == null ? (double?)null : ReadDouble();
         }
     }
 }

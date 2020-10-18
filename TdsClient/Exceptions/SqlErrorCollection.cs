@@ -18,11 +18,11 @@ namespace Medella.TdsClient.Exceptions
         {
         }
 
-        public SqlInfoAndError this[int index] => (SqlInfoAndError) _errors[index];
+        public SqlInfoAndError this[int index] => (SqlInfoAndError)_errors[index];
 
         public void CopyTo(Array array, int index)
         {
-            ((ICollection) _errors).CopyTo(array, index);
+            ((ICollection)_errors).CopyTo(array, index);
         }
 
         public int Count => _errors.Count;
@@ -31,10 +31,7 @@ namespace Medella.TdsClient.Exceptions
 
         bool ICollection.IsSynchronized => false;
 
-        public IEnumerator GetEnumerator()
-        {
-            return _errors.GetEnumerator();
-        }
+        public IEnumerator GetEnumerator() => _errors.GetEnumerator();
 
         public void CopyTo(SqlInfoAndError[] array, int index)
         {

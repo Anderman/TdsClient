@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
     {
-
         public void WriteSqlBit(bool value)
         {
             WriteSqlBitUnchecked(value);
@@ -68,16 +65,19 @@ namespace Medella.TdsClient.TDS.Package.Writer
         {
             WriteBuffer[WritePosition++] = (byte)(value ? 1 : 0);
         }
+
         public void WriteSqlByteUnchecked(byte value)
         {
             WriteBuffer[WritePosition++] = value;
         }
+
         private void WriteInt16Unchecked(int v)
         {
             WriteBuffer[WritePosition] = (byte)(v & 0xff);
             WriteBuffer[WritePosition + 1] = (byte)((v >> 8) & 0xff);
             WritePosition += sizeof(short);
         }
+
         private void WriteInt32Unchecked(int v)
         {
             WriteBuffer[WritePosition] = (byte)(v & 0xff);
@@ -99,7 +99,5 @@ namespace Medella.TdsClient.TDS.Package.Writer
             WriteBuffer[WritePosition + 7] = (byte)((v >> 56) & 0xff);
             WritePosition += 8;
         }
-
-
     }
 }

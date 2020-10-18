@@ -1,14 +1,14 @@
 ﻿using System.Text;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
 namespace Medella.TdsClient.TDS.Package.Reader
 {
     public partial class TdsPackageReader
     {
-        public object ReadNullableSqlVariant(int index)
+        public object? ReadNullableSqlVariant(int index)
         {
-            var lenTotal = (int?) ReadLengthNullableData(index);
+            var lenTotal = (int?)ReadLengthNullableData(index);
             // get the SQLVariant type
             if (lenTotal == null) return null;
             var type = ReadByte();
@@ -16,7 +16,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
             var cbPropsActual = ReadByte();
 
             var lenConsumed = TdsEnums.SQLVARIANT_SIZE + cbPropsActual; // type, count of propBytes, and actual propBytes
-            var lenData = (int) lenTotal - lenConsumed; // length of actual data
+            var lenData = (int)lenTotal - lenConsumed; // length of actual data
 
             // read known properties and skip unknown properties
 
@@ -60,14 +60,14 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 case TdsEnums.SQLBIGBINARY:
                 case TdsEnums.SQLBIGVARBINARY:
                 {
-                    var lenmax = ReadUInt16();
+                    var lenMax = ReadUInt16();
                     return ReadByteArray(new byte[lenData], 0, lenData);
                 }
                 case TdsEnums.SQLBIGCHAR:
                 case TdsEnums.SQLBIGVARCHAR:
                 {
                     var collation = ReadCollation();
-                    var lenmax = ReadUInt16();
+                    var lenMax = ReadUInt16();
                     var encoding = Encoding.GetEncoding(collation.GetCodePage());
                     return ReadString(encoding, lenData);
                 }
@@ -75,7 +75,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 case TdsEnums.SQLNVARCHAR:
                 {
                     var collation = ReadCollation();
-                    var lenmax = ReadUInt16();
+                    var lenMax = ReadUInt16();
                     return ReadUnicodeChars(lenData);
                 }
                 case TdsEnums.SQLDATE:

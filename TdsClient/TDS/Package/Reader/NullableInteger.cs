@@ -5,31 +5,31 @@
         public bool? ReadNullableSqlBit(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (bool?) null : ReadByte() != 0;
+            return length == null ? (bool?)null : ReadByte() != 0;
         }
 
         public byte? ReadNullableSqlByte(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (byte?) null : ReadByte();
+            return length == null ? (byte?)null : ReadByte();
         }
 
         public short? ReadNullableSqlInt16(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (short?) null : ReadInt16();
+            return length == null ? (short?)null : ReadInt16();
         }
 
         public int? ReadNullableSqlInt32(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (int?) null : ReadInt32();
+            return length == null ? (int?)null : ReadInt32();
         }
 
         public long? ReadNullableSqlInt64(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (long?) null : ReadInt64();
+            return length == null ? (long?)null : ReadInt64();
         }
 
         public long? ReadNullableSqlIntN(int index)

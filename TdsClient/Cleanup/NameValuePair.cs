@@ -10,7 +10,7 @@ namespace Medella.TdsClient.Cleanup
 
         internal NameValuePair(string name, string value, int length)
         {
-            Debug.Assert(!string.IsNullOrEmpty(name), "empty keyname");
+            Debug.Assert(!string.IsNullOrEmpty(name), "empty keyName");
             Name = name;
             Value = value;
             _length = length;

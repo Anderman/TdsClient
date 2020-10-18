@@ -1,6 +1,5 @@
-﻿using Medella.TdsClient.Contants;
+﻿using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
@@ -68,6 +67,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 col.Length = TdsEnums.SQL_USHORTVARMAXLEN;
                 col.Collation = new SqlCollations();
             }
+
             if (tdsType == TdsEnums.SQLUDT)
             {
                 col.TdsType = TdsEnums.SQLBIGVARBINARY;

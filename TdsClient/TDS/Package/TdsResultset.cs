@@ -2,8 +2,8 @@
 
 namespace Medella.TdsClient.TDS.Package
 {
-    public class TdsResultset
+    public class TdsResultSet
     {
-        public ColumnsMetadata ColumnsMetadata { get; set; }
+        public ColumnsMetadata? ColumnsMetadata { get; set; }
     }
 }

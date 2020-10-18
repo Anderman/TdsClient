@@ -1,6 +1,6 @@
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TdsStream.Native;
 using Xunit;
 

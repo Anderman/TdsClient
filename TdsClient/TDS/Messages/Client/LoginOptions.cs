@@ -1,5 +1,5 @@
 ﻿using Medella.TdsClient.Cleanup;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {

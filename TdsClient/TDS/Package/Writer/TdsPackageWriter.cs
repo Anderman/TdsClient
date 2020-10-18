@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.TdsStream;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
+using Medella.TdsClient.TdsStream;
 
 namespace Medella.TdsClient.TDS.Package.Writer
 {
@@ -20,12 +20,9 @@ namespace Medella.TdsClient.TDS.Package.Writer
         }
 
         public string InstanceName => _tdsStream.InstanceName;
-        public MetadataBulkCopy[] ColumnsMetadata { get; set; }
+        public MetadataBulkCopy[]? ColumnsMetadata { get; set; }
 
-        public byte[] GetClientToken(byte[] servertoken)
-        {
-            return _tdsStream.GetClientToken(servertoken);
-        }
+        public byte[] GetClientToken(byte[] serverToken) => _tdsStream.GetClientToken(serverToken);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CheckBuffer()
@@ -53,8 +50,8 @@ namespace Medella.TdsClient.TDS.Package.Writer
             var length = WritePosition - _packageStart;
 
             WriteBuffer[_packageStart + 1] = status;
-            WriteBuffer[_packageStart + 2] = (byte) (length >> 8); // length - upper byte
-            WriteBuffer[_packageStart + 3] = (byte) (length & 0xff); // length - lower byte
+            WriteBuffer[_packageStart + 2] = (byte)(length >> 8); // length - upper byte
+            WriteBuffer[_packageStart + 3] = (byte)(length & 0xff); // length - lower byte
             WriteBuffer[_packageStart + 4] = 0; // channel
             WriteBuffer[_packageStart + 5] = 0;
             WriteBuffer[_packageStart + 6] = _packageNumber; // packet

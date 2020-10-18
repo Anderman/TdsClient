@@ -1,5 +1,4 @@
-﻿using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Package;
+﻿using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server
@@ -12,10 +11,9 @@ namespace Medella.TdsClient.TDS.Messages.Server
             // command
             // rowcount (valid only if DONE_COUNT bit is set)
             bool attentionReceived;
-            var receivedColMetaData = false;
             var status = reader.ReadUInt16();
             var curCmd = reader.ReadUInt16();
-            var count = (int) reader.ReadInt64();
+            var count = (int)reader.ReadInt64();
 
 
             // We get a done token with the attention bit set

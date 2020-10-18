@@ -1,7 +1,6 @@
-﻿using System;
-using Medella.TdsClient.Resources;
+﻿using Medella.TdsClient.Resources;
 
-namespace Medella.TdsClient.Contants
+namespace Medella.TdsClient.Constants
 {
     public static class SQLMessage
     {
@@ -15,14 +14,8 @@ namespace Medella.TdsClient.Contants
         // locale.
 
 
-        internal static string EncryptionNotSupportedByClient()
-        {
-            return Strings.SQL_EncryptionNotSupportedByClient;
-        }
+        internal static string EncryptionNotSupportedByClient() => Strings.SQL_EncryptionNotSupportedByClient;
 
-        internal static string EncryptionNotSupportedByServer()
-        {
-            return Strings.SQL_EncryptionNotSupportedByServer;
-        }
+        internal static string EncryptionNotSupportedByServer() => Strings.SQL_EncryptionNotSupportedByServer;
     }
 }

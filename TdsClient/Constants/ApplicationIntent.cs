@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Medella.TdsClient.Contants
+namespace Medella.TdsClient.Constants
 {
     public enum ApplicationIntent
     {
@@ -10,10 +10,7 @@ namespace Medella.TdsClient.Contants
 
     internal class SqlUdtInfo
     {
-        public static object TryGetFromType(Type dataType)
-        {
-            throw new NotImplementedException();
-        }
+        public static object TryGetFromType(Type dataType) => throw new NotImplementedException();
     }
 
     internal class SqlDataRecord

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Exceptions;
 
 namespace Medella.TdsClient.Cleanup
@@ -14,19 +14,18 @@ namespace Medella.TdsClient.Cleanup
         internal static bool ConvertToBoolean(object value)
         {
             Debug.Assert(null != value, "ConvertToBoolean(null)");
-            var svalue = value as string;
-            if (null != svalue)
+            if (value is string sValue)
             {
-                if (StringComparer.OrdinalIgnoreCase.Equals(svalue, "true") || StringComparer.OrdinalIgnoreCase.Equals(svalue, "yes")) return true;
+                if (StringComparer.OrdinalIgnoreCase.Equals(sValue, "true") || StringComparer.OrdinalIgnoreCase.Equals(sValue, "yes")) return true;
 
-                if (StringComparer.OrdinalIgnoreCase.Equals(svalue, "false") || StringComparer.OrdinalIgnoreCase.Equals(svalue, "no")) return false;
+                if (StringComparer.OrdinalIgnoreCase.Equals(sValue, "false") || StringComparer.OrdinalIgnoreCase.Equals(sValue, "no")) return false;
 
-                var tmp = svalue.Trim(); // Remove leading & trailing whitespace.
+                var tmp = sValue.Trim(); // Remove leading & trailing whitespace.
                 if (StringComparer.OrdinalIgnoreCase.Equals(tmp, "true") || StringComparer.OrdinalIgnoreCase.Equals(tmp, "yes"))
                     return true;
                 if (StringComparer.OrdinalIgnoreCase.Equals(tmp, "false") || StringComparer.OrdinalIgnoreCase.Equals(tmp, "no"))
                     return false;
-                return bool.Parse(svalue);
+                return bool.Parse(sValue);
             }
 
             try
@@ -42,19 +41,18 @@ namespace Medella.TdsClient.Cleanup
         internal static bool ConvertToIntegratedSecurity(object value)
         {
             Debug.Assert(null != value, "ConvertToIntegratedSecurity(null)");
-            var svalue = value as string;
-            if (null != svalue)
+            if (value is string sValue)
             {
-                if (StringComparer.OrdinalIgnoreCase.Equals(svalue, "sspi") || StringComparer.OrdinalIgnoreCase.Equals(svalue, "true") || StringComparer.OrdinalIgnoreCase.Equals(svalue, "yes")) return true;
+                if (StringComparer.OrdinalIgnoreCase.Equals(sValue, "sspi") || StringComparer.OrdinalIgnoreCase.Equals(sValue, "true") || StringComparer.OrdinalIgnoreCase.Equals(sValue, "yes")) return true;
 
-                if (StringComparer.OrdinalIgnoreCase.Equals(svalue, "false") || StringComparer.OrdinalIgnoreCase.Equals(svalue, "no")) return false;
+                if (StringComparer.OrdinalIgnoreCase.Equals(sValue, "false") || StringComparer.OrdinalIgnoreCase.Equals(sValue, "no")) return false;
 
-                var tmp = svalue.Trim(); // Remove leading & trailing whitespace.
+                var tmp = sValue.Trim(); // Remove leading & trailing whitespace.
                 if (StringComparer.OrdinalIgnoreCase.Equals(tmp, "sspi") || StringComparer.OrdinalIgnoreCase.Equals(tmp, "true") || StringComparer.OrdinalIgnoreCase.Equals(tmp, "yes"))
                     return true;
                 if (StringComparer.OrdinalIgnoreCase.Equals(tmp, "false") || StringComparer.OrdinalIgnoreCase.Equals(tmp, "no"))
                     return false;
-                return bool.Parse(svalue);
+                return bool.Parse(sValue);
             }
 
             try
@@ -79,7 +77,7 @@ namespace Medella.TdsClient.Cleanup
             }
         }
 
-        internal static string ConvertToString(object value)
+        internal static string? ConvertToString(object value)
         {
             try
             {
@@ -140,15 +138,13 @@ namespace Medella.TdsClient.Cleanup
         internal static ApplicationIntent ConvertToApplicationIntent(string keyword, object value)
         {
             Debug.Assert(null != value, "ConvertToApplicationIntent(null)");
-            var sValue = value as string;
-            ApplicationIntent result;
-            if (null != sValue)
+            if (value is string sValue)
             {
                 // We could use Enum.TryParse<ApplicationIntent> here, but it accepts value combinations like
                 // "ReadOnly, ReadWrite" which are unwelcome here
                 // Also, Enum.TryParse is 100x slower than plain StringComparer.OrdinalIgnoreCase.Equals method.
 
-                if (TryConvertToApplicationIntent(sValue, out result)) return result;
+                if (TryConvertToApplicationIntent(sValue, out var result)) return result;
 
                 // try again after remove leading & trailing whitespace.
                 sValue = sValue.Trim();
@@ -161,15 +157,15 @@ namespace Medella.TdsClient.Cleanup
             // the value is not string, try other options
             ApplicationIntent eValue;
 
-            if (value is ApplicationIntent)
-                eValue = (ApplicationIntent) value;
+            if (value is ApplicationIntent intent)
+                eValue = intent;
             else if (value.GetType().GetTypeInfo().IsEnum)
                 throw ADP.ConvertFailed(value.GetType(), typeof(ApplicationIntent), null);
             else
                 try
                 {
                     // Enum.ToObject allows only integral and enum values (enums are blocked above), raising ArgumentException for the rest
-                    eValue = (ApplicationIntent) Enum.ToObject(typeof(ApplicationIntent), value);
+                    eValue = (ApplicationIntent)Enum.ToObject(typeof(ApplicationIntent), value);
                 }
                 catch (ArgumentException e)
                 {
@@ -181,7 +177,7 @@ namespace Medella.TdsClient.Cleanup
             // ensure value is in valid range
             if (IsValidApplicationIntentValue(eValue))
                 return eValue;
-            throw ADP.InvalidEnumerationValue(typeof(ApplicationIntent), (int) eValue);
+            throw ADP.InvalidEnumerationValue(typeof(ApplicationIntent), (int)eValue);
         }
     }
 }

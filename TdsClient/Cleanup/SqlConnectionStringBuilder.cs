@@ -7,14 +7,14 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Exceptions;
 
 namespace Medella.TdsClient.Cleanup
 {
     public sealed class SqlConnectionStringBuilder : DbConnectionStringBuilder
     {
-        internal const int KeywordsCount = (int) Keywords.KeywordsCount;
+        internal const int KeywordsCount = (int)Keywords.KeywordsCount;
         internal const int DeprecatedKeywordsCount = 4;
 
         private static readonly string[] SValidKeywords = CreateValidKeywords();
@@ -203,7 +203,7 @@ namespace Medella.TdsClient.Cleanup
             get => _applicationIntent;
             set
             {
-                if (!DbConnectionStringBuilderUtil.IsValidApplicationIntentValue(value)) throw ADP.InvalidEnumerationValue(typeof(ApplicationIntent), (int) value);
+                if (!DbConnectionStringBuilderUtil.IsValidApplicationIntentValue(value)) throw ADP.InvalidEnumerationValue(typeof(ApplicationIntent), (int)value);
 
                 SetApplicationIntentValue(value);
                 _applicationIntent = value;
@@ -524,7 +524,7 @@ namespace Medella.TdsClient.Cleanup
                 // written this way so if the ordering of Keywords & _validKeywords changes
                 // this is one less place to maintain
                 var values = new object[SValidKeywords.Length];
-                for (var i = 0; i < values.Length; ++i) values[i] = GetAt((Keywords) i);
+                for (var i = 0; i < values.Length; ++i) values[i] = GetAt((Keywords)i);
                 return new ReadOnlyCollection<object>(values);
             }
         }
@@ -532,36 +532,36 @@ namespace Medella.TdsClient.Cleanup
         private static string[] CreateValidKeywords()
         {
             var validKeywords = new string[KeywordsCount];
-            validKeywords[(int) Keywords.ApplicationIntent] = DbConnectionStringKeywords.ApplicationIntent;
-            validKeywords[(int) Keywords.ApplicationName] = DbConnectionStringKeywords.ApplicationName;
-            validKeywords[(int) Keywords.AttachDBFilename] = DbConnectionStringKeywords.AttachDBFilename;
-            validKeywords[(int) Keywords.ConnectTimeout] = DbConnectionStringKeywords.ConnectTimeout;
-            validKeywords[(int) Keywords.CurrentLanguage] = DbConnectionStringKeywords.CurrentLanguage;
-            validKeywords[(int) Keywords.DataSource] = DbConnectionStringKeywords.DataSource;
-            validKeywords[(int) Keywords.Encrypt] = DbConnectionStringKeywords.Encrypt;
-            validKeywords[(int) Keywords.Enlist] = DbConnectionStringKeywords.Enlist;
-            validKeywords[(int) Keywords.FailoverPartner] = DbConnectionStringKeywords.FailoverPartner;
-            validKeywords[(int) Keywords.InitialCatalog] = DbConnectionStringKeywords.InitialCatalog;
-            validKeywords[(int) Keywords.IntegratedSecurity] = DbConnectionStringKeywords.IntegratedSecurity;
-            validKeywords[(int) Keywords.LoadBalanceTimeout] = DbConnectionStringKeywords.LoadBalanceTimeout;
-            validKeywords[(int) Keywords.MaxPoolSize] = DbConnectionStringKeywords.MaxPoolSize;
-            validKeywords[(int) Keywords.MinPoolSize] = DbConnectionStringKeywords.MinPoolSize;
-            validKeywords[(int) Keywords.MultipleActiveResultSets] = DbConnectionStringKeywords.MultipleActiveResultSets;
-            validKeywords[(int) Keywords.MultiSubnetFailover] = DbConnectionStringKeywords.MultiSubnetFailover;
+            validKeywords[(int)Keywords.ApplicationIntent] = DbConnectionStringKeywords.ApplicationIntent;
+            validKeywords[(int)Keywords.ApplicationName] = DbConnectionStringKeywords.ApplicationName;
+            validKeywords[(int)Keywords.AttachDBFilename] = DbConnectionStringKeywords.AttachDBFilename;
+            validKeywords[(int)Keywords.ConnectTimeout] = DbConnectionStringKeywords.ConnectTimeout;
+            validKeywords[(int)Keywords.CurrentLanguage] = DbConnectionStringKeywords.CurrentLanguage;
+            validKeywords[(int)Keywords.DataSource] = DbConnectionStringKeywords.DataSource;
+            validKeywords[(int)Keywords.Encrypt] = DbConnectionStringKeywords.Encrypt;
+            validKeywords[(int)Keywords.Enlist] = DbConnectionStringKeywords.Enlist;
+            validKeywords[(int)Keywords.FailoverPartner] = DbConnectionStringKeywords.FailoverPartner;
+            validKeywords[(int)Keywords.InitialCatalog] = DbConnectionStringKeywords.InitialCatalog;
+            validKeywords[(int)Keywords.IntegratedSecurity] = DbConnectionStringKeywords.IntegratedSecurity;
+            validKeywords[(int)Keywords.LoadBalanceTimeout] = DbConnectionStringKeywords.LoadBalanceTimeout;
+            validKeywords[(int)Keywords.MaxPoolSize] = DbConnectionStringKeywords.MaxPoolSize;
+            validKeywords[(int)Keywords.MinPoolSize] = DbConnectionStringKeywords.MinPoolSize;
+            validKeywords[(int)Keywords.MultipleActiveResultSets] = DbConnectionStringKeywords.MultipleActiveResultSets;
+            validKeywords[(int)Keywords.MultiSubnetFailover] = DbConnectionStringKeywords.MultiSubnetFailover;
             //          validKeywords[(int)Keywords.NamedConnection]          = DbConnectionStringKeywords.NamedConnection;
-            validKeywords[(int) Keywords.PacketSize] = DbConnectionStringKeywords.PacketSize;
-            validKeywords[(int) Keywords.Password] = DbConnectionStringKeywords.Password;
-            validKeywords[(int) Keywords.PersistSecurityInfo] = DbConnectionStringKeywords.PersistSecurityInfo;
-            validKeywords[(int) Keywords.Pooling] = DbConnectionStringKeywords.Pooling;
-            validKeywords[(int) Keywords.Replication] = DbConnectionStringKeywords.Replication;
-            validKeywords[(int) Keywords.TransactionBinding] = DbConnectionStringKeywords.TransactionBinding;
-            validKeywords[(int) Keywords.TrustServerCertificate] = DbConnectionStringKeywords.TrustServerCertificate;
-            validKeywords[(int) Keywords.TypeSystemVersion] = DbConnectionStringKeywords.TypeSystemVersion;
-            validKeywords[(int) Keywords.UserID] = DbConnectionStringKeywords.UserID;
-            validKeywords[(int) Keywords.UserInstance] = DbConnectionStringKeywords.UserInstance;
-            validKeywords[(int) Keywords.WorkstationID] = DbConnectionStringKeywords.WorkstationID;
-            validKeywords[(int) Keywords.ConnectRetryCount] = DbConnectionStringKeywords.ConnectRetryCount;
-            validKeywords[(int) Keywords.ConnectRetryInterval] = DbConnectionStringKeywords.ConnectRetryInterval;
+            validKeywords[(int)Keywords.PacketSize] = DbConnectionStringKeywords.PacketSize;
+            validKeywords[(int)Keywords.Password] = DbConnectionStringKeywords.Password;
+            validKeywords[(int)Keywords.PersistSecurityInfo] = DbConnectionStringKeywords.PersistSecurityInfo;
+            validKeywords[(int)Keywords.Pooling] = DbConnectionStringKeywords.Pooling;
+            validKeywords[(int)Keywords.Replication] = DbConnectionStringKeywords.Replication;
+            validKeywords[(int)Keywords.TransactionBinding] = DbConnectionStringKeywords.TransactionBinding;
+            validKeywords[(int)Keywords.TrustServerCertificate] = DbConnectionStringKeywords.TrustServerCertificate;
+            validKeywords[(int)Keywords.TypeSystemVersion] = DbConnectionStringKeywords.TypeSystemVersion;
+            validKeywords[(int)Keywords.UserID] = DbConnectionStringKeywords.UserID;
+            validKeywords[(int)Keywords.UserInstance] = DbConnectionStringKeywords.UserInstance;
+            validKeywords[(int)Keywords.WorkstationID] = DbConnectionStringKeywords.WorkstationID;
+            validKeywords[(int)Keywords.ConnectRetryCount] = DbConnectionStringKeywords.ConnectRetryCount;
+            validKeywords[(int)Keywords.ConnectRetryInterval] = DbConnectionStringKeywords.ConnectRetryInterval;
             return validKeywords;
         }
 
@@ -624,7 +624,7 @@ namespace Medella.TdsClient.Cleanup
         public override void Clear()
         {
             base.Clear();
-            for (var i = 0; i < SValidKeywords.Length; ++i) Reset((Keywords) i);
+            for (var i = 0; i < SValidKeywords.Length; ++i) Reset((Keywords)i);
         }
 
         public override bool ContainsKey(string keyword)
@@ -633,30 +633,15 @@ namespace Medella.TdsClient.Cleanup
             return SKeywords.ContainsKey(keyword);
         }
 
-        private static bool ConvertToBoolean(object value)
-        {
-            return DbConnectionStringBuilderUtil.ConvertToBoolean(value);
-        }
+        private static bool ConvertToBoolean(object value) => DbConnectionStringBuilderUtil.ConvertToBoolean(value);
 
-        private static int ConvertToInt32(object value)
-        {
-            return DbConnectionStringBuilderUtil.ConvertToInt32(value);
-        }
+        private static int ConvertToInt32(object value) => DbConnectionStringBuilderUtil.ConvertToInt32(value);
 
-        private static bool ConvertToIntegratedSecurity(object value)
-        {
-            return DbConnectionStringBuilderUtil.ConvertToIntegratedSecurity(value);
-        }
+        private static bool ConvertToIntegratedSecurity(object value) => DbConnectionStringBuilderUtil.ConvertToIntegratedSecurity(value);
 
-        private static string ConvertToString(object value)
-        {
-            return DbConnectionStringBuilderUtil.ConvertToString(value);
-        }
+        private static string ConvertToString(object value) => DbConnectionStringBuilderUtil.ConvertToString(value);
 
-        private static ApplicationIntent ConvertToApplicationIntent(string keyword, object value)
-        {
-            return DbConnectionStringBuilderUtil.ConvertToApplicationIntent(keyword, value);
-        }
+        private static ApplicationIntent ConvertToApplicationIntent(string keyword, object value) => DbConnectionStringBuilderUtil.ConvertToApplicationIntent(keyword, value);
 
         private object GetAt(Keywords index)
         {
@@ -695,7 +680,7 @@ namespace Medella.TdsClient.Cleanup
 
                 default:
                     Debug.Assert(false, "unexpected keyword");
-                    throw UnsupportedKeyword(SValidKeywords[(int) index]);
+                    throw UnsupportedKeyword(SValidKeywords[(int)index]);
             }
         }
 
@@ -711,7 +696,7 @@ namespace Medella.TdsClient.Cleanup
         {
             ADP.CheckArgumentNull(keyword, nameof(keyword));
             if (SKeywords.TryGetValue(keyword, out var index))
-                if (base.Remove(SValidKeywords[(int) index]))
+                if (base.Remove(SValidKeywords[(int)index]))
                 {
                     Reset(index);
                     return true;
@@ -816,7 +801,7 @@ namespace Medella.TdsClient.Cleanup
                     break;
                 default:
                     Debug.Assert(false, "unexpected keyword");
-                    throw UnsupportedKeyword(SValidKeywords[(int) index]);
+                    throw UnsupportedKeyword(SValidKeywords[(int)index]);
             }
         }
 
@@ -827,7 +812,7 @@ namespace Medella.TdsClient.Cleanup
 
         private void SetValue(string keyword, int value)
         {
-            base[keyword] = value.ToString((IFormatProvider) null);
+            base[keyword] = value.ToString((IFormatProvider)null);
         }
 
         private void SetValue(string keyword, string value)
@@ -845,7 +830,7 @@ namespace Medella.TdsClient.Cleanup
         public override bool ShouldSerialize(string keyword)
         {
             ADP.CheckArgumentNull(keyword, nameof(keyword));
-            return SKeywords.TryGetValue(keyword, out var index) && base.ShouldSerialize(SValidKeywords[(int) index]);
+            return SKeywords.TryGetValue(keyword, out var index) && base.ShouldSerialize(SValidKeywords[(int)index]);
         }
 
         public override bool TryGetValue(string keyword, out object value)
@@ -921,10 +906,7 @@ namespace Medella.TdsClient.Cleanup
         {
             // converter classes should have public ctor
 
-            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-            {
-                return GetStandardValuesSupportedInternal(context);
-            }
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context) => GetStandardValuesSupportedInternal(context);
 
             private bool GetStandardValuesSupportedInternal(ITypeDescriptorContext context)
             {
@@ -939,11 +921,9 @@ namespace Medella.TdsClient.Cleanup
                 return flag;
             }
 
-            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
-            {
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) =>
                 // Although theoretically this could be true, some people may want to just type in a name
-                return false;
-            }
+                false;
         }
     }
 }

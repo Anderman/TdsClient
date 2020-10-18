@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 
 namespace Medella.TdsClient.TDS.Row.Writer
@@ -71,7 +71,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
             { typeof(long?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt64)) },
             { typeof(float?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlFloat)) },
             { typeof(double?), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlDouble)) },
-                        
+
             // Allow not nullable clrType to write nullable sqlType
             { typeof(byte), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlByte)) },
             { typeof(short), typeof(TdsColumnWriter).GetMethod(nameof(TdsColumnWriter.WriteNullableSqlInt16)) },
@@ -103,7 +103,7 @@ namespace Medella.TdsClient.TDS.Row.Writer
 
         private static Mapping[] GetPreMappedColumns(TdsColumnWriter writer)
         {
-            return writer.MetaData.Where(x => x.PropertyInfo != null).Select((x, i) => new Mapping() { PropertyInfo = x.PropertyInfo, SqlName = x.Column, TdsType = x.TdsType, SqlIndex = i }).ToArray();
+            return writer.MetaData.Where(x => x.PropertyInfo != null).Select((x, i) => new Mapping { PropertyInfo = x.PropertyInfo, SqlName = x.Column, TdsType = x.TdsType, SqlIndex = i }).ToArray();
         }
 
         private static Action<TdsColumnWriter, T> _GetWriter<T>(Mapping[] mapping)

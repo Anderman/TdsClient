@@ -1,5 +1,4 @@
-﻿using System;
-using Medella.TdsClient.Contants;
+﻿
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
@@ -13,6 +12,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
                 WriteSqlBitUnchecked((bool)value);
             CheckBuffer();
         }
+
         public void WriteNullableSqlByte(byte? value)
         {
             WriteBuffer[WritePosition++] = (byte)(value == null ? 0 : 1);

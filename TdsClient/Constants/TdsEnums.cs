@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Medella.TdsClient.Contants
+namespace Medella.TdsClient.Constants
 {
     public static class TdsEnums
     {
@@ -34,6 +34,28 @@ namespace Medella.TdsClient.Contants
             None = 0,
             SessionRecovery = 1,
             GlobalTransactions = 8
+        }
+
+        public enum TransactionManagerIsolationLevel
+        {
+            Unspecified = 0x00,
+            ReadUncommitted = 0x01,
+            ReadCommitted = 0x02,
+            RepeatableRead = 0x03,
+            Serializable = 0x04,
+            Snapshot = 0x05
+        }
+
+
+        public enum TransactionManagerRequestType
+        {
+            GetDTCAddress = 0,
+            Propagate = 1,
+            Begin = 5,
+            Promote = 6,
+            Commit = 7,
+            Rollback = 8,
+            Save = 9
         }
         // internal tdsparser constants
 
@@ -514,7 +536,7 @@ namespace Medella.TdsClient.Contants
 
         // SNI\Win32 error values
         // NOTE: these are simply windows system error codes, not SNI specific
-        public const uint SNI_UNINITIALIZED = unchecked((uint) -1);
+        public const uint SNI_UNINITIALIZED = unchecked((uint)-1);
         public const uint SNI_SUCCESS = 0; // The operation completed successfully.
         public const uint SNI_ERROR = 1; // Error
         public const uint SNI_WAIT_TIMEOUT = 258; // The wait operation timed out.
@@ -566,9 +588,14 @@ namespace Medella.TdsClient.Contants
 
         internal const int WHIDBEY_DATE_LENGTH = 10;
 
+        // Needed for UapAot, since we cannot use Enum.GetName() on SniContext.
+        // Enum.GetName() uses reflection, which is blocked on UapAot for internal types
+        // like SniContext.
+        public const int MaxSizeSqlValue = 4 + 2 + 2 + 17; //nullable variant decimal (len)+ variant+ options + len(decimal)
+
         public static readonly decimal SQL_SMALL_MONEY_MIN = new decimal(-214748.3648);
         public static readonly decimal SQL_SMALL_MONEY_MAX = new decimal(214748.3647);
-        public static readonly byte[] XMLUNICODEBOMBYTES = {0xff, 0xfe};
+        public static readonly byte[] XMLUNICODEBOMBYTES = { 0xff, 0xfe };
 
 
         // array copied directly from tdssort.h from luxor
@@ -835,50 +862,23 @@ namespace Medella.TdsClient.Contants
         // Date, Time, DateTime2, DateTimeOffset specific constants
         internal static readonly long[] TICKS_FROM_SCALE =
         {
-            10000000,//0
-            1000000,//1
-            100000,//2
-            10000,//3
-            1000,//4
-            100,//5
-            10,//6
-            1//7
+            10000000, //0
+            1000000, //1
+            100000, //2
+            10000, //3
+            1000, //4
+            100, //5
+            10, //6
+            1 //7
         };
 
-        internal static readonly int[] WHIDBEY_TIME_LENGTH = {8, 10, 11, 12, 13, 14, 15, 16};
-        internal static readonly int[] WHIDBEY_DATETIME2_LENGTH = {19, 21, 22, 23, 24, 25, 26, 27};
-        internal static readonly int[] WHIDBEY_DATETIMEOFFSET_LENGTH = {26, 28, 29, 30, 31, 32, 33, 34};
-
-
-        public enum TransactionManagerRequestType
-        {
-            GetDTCAddress = 0,
-            Propagate = 1,
-            Begin = 5,
-            Promote = 6,
-            Commit = 7,
-            Rollback = 8,
-            Save = 9
-        }
-
-        public enum TransactionManagerIsolationLevel
-        {
-            Unspecified = 0x00,
-            ReadUncommitted = 0x01,
-            ReadCommitted = 0x02,
-            RepeatableRead = 0x03,
-            Serializable = 0x04,
-            Snapshot = 0x05
-        }
+        internal static readonly int[] WHIDBEY_TIME_LENGTH = { 8, 10, 11, 12, 13, 14, 15, 16 };
+        internal static readonly int[] WHIDBEY_DATETIME2_LENGTH = { 19, 21, 22, 23, 24, 25, 26, 27 };
+        internal static readonly int[] WHIDBEY_DATETIMEOFFSET_LENGTH = { 26, 28, 29, 30, 31, 32, 33, 34 };
 
         internal enum GenericType
         {
             MultiSet = 131
         }
-
-        // Needed for UapAot, since we cannot use Enum.GetName() on SniContext.
-        // Enum.GetName() uses reflection, which is blocked on UapAot for internal types
-        // like SniContext.
-        public const int MaxSizeSqlValue = (4) + (2) + (2) + (17); //nullable variant decimal (len)+ variant+ options + len(decimal)
     }
 }

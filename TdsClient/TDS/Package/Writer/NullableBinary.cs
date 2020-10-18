@@ -1,14 +1,14 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
     {
-        private static readonly byte[] TextOrImageHeader = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+        private static readonly byte[] TextOrImageHeader = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
-        public void WriteNullableSqlBinary(byte[] value, int index)
+        public void WriteNullableSqlBinary(byte[]? value, int index)
         {
             var md = ColumnsMetadata[index];
             if (md.IsPlp)
@@ -21,21 +21,21 @@ namespace Medella.TdsClient.TDS.Package.Writer
 
         public void WriteNullableSqlUniqueId(Guid? value)
         {
-            WriteBuffer[WritePosition++] = (byte) (value == null ? 0 : 16);
+            WriteBuffer[WritePosition++] = (byte)(value == null ? 0 : 16);
             if (value != null)
-                WriteByteArray(((Guid) value).ToByteArray());
+                WriteByteArray(((Guid)value).ToByteArray());
             else
                 CheckBuffer();
         }
 
-        public void WriteNullableSqlBinary(byte[] value)
+        public void WriteNullableSqlBinary(byte[]? value)
         {
             WriteInt16(value?.Length ?? TdsEnums.VARNULL);
             if (value == null) return;
             WriteByteArray(value);
         }
 
-        private void WriteNullableSqlImage(byte[] value)
+        private void WriteNullableSqlImage(byte[]? value)
         {
             WriteByte(value == null ? 0 : 0x10);
             if (value == null) return;
@@ -44,7 +44,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
             WriteByteArray(value);
         }
 
-        private void WriteNullableSqlPlpBinary(byte[] value)
+        private void WriteNullableSqlPlpBinary(byte[]? value)
         {
             WriteUInt64(value == null ? TdsEnums.SQL_PLP_NULL : TdsEnums.SQL_PLP_UNKNOWNLEN);
             if (value == null) return;

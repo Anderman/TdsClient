@@ -1,4 +1,4 @@
-﻿namespace Medella.TdsClient.Contants
+﻿namespace Medella.TdsClient.Constants
 {
     internal static class DbConnectionStringDefaults
     {
@@ -6,7 +6,7 @@
         // internal const string NamedConnection = "";
 
         // SqlClient
-        internal const ApplicationIntent ApplicationIntent = Contants.ApplicationIntent.ReadWrite;
+        internal const ApplicationIntent ApplicationIntent = Constants.ApplicationIntent.ReadWrite;
         internal const string ApplicationName = "Core .Net SqlClient Data Provider";
         internal const string AttachDBFilename = "";
         internal const int ConnectTimeout = 15;

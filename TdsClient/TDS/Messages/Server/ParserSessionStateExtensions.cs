@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Messages.Client;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server
 {
-    public static class ParserSessionStateExtentions
+    public static class ParserSessionStateExtensions
     {
         public static void ParseSessionState(this TdsPackageReader reader, int length)
         {

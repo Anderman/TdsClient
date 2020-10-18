@@ -10,8 +10,8 @@ namespace Medella.TdsClient.Cleanup
     public class DbConnectionOptions
     {
         private readonly bool _hasPasswordKeyword;
-        private readonly NameValuePair _keyChain;
-        private readonly Dictionary<string, string> _parsetable;
+        private readonly NameValuePair? _keyChain;
+        private readonly Dictionary<string, string> _parseTable;
 
         private readonly string _usersConnectionString;
         // instances of this class are intended to be immutable, i.e readonly
@@ -20,13 +20,13 @@ namespace Medella.TdsClient.Cleanup
 
         public DbConnectionOptions(string connectionString, Dictionary<string, string> synonyms)
         {
-            _parsetable = new Dictionary<string, string>();
+            _parseTable = new Dictionary<string, string>();
             _usersConnectionString = connectionString ?? "";
 
             // first pass on parsing, initial syntax check
             if (0 >= _usersConnectionString.Length) return;
-            _keyChain = ParseInternal(_parsetable, _usersConnectionString, true, synonyms, false);
-            _hasPasswordKeyword = _parsetable.ContainsKey(Key.Password) || _parsetable.ContainsKey(Synonym.Pwd);
+            _keyChain = ParseInternal(_parseTable, _usersConnectionString, true, synonyms, false);
+            _hasPasswordKeyword = _parseTable.ContainsKey(Key.Password) || _parseTable.ContainsKey(Synonym.Pwd);
         }
 
         protected DbConnectionOptions(DbConnectionOptions connectionOptions)
@@ -34,30 +34,24 @@ namespace Medella.TdsClient.Cleanup
             // Clone used by SqlConnectionString
             _usersConnectionString = connectionOptions._usersConnectionString;
             _hasPasswordKeyword = connectionOptions._hasPasswordKeyword;
-            _parsetable = connectionOptions._parsetable;
+            _parseTable = connectionOptions._parseTable;
             _keyChain = connectionOptions._keyChain;
         }
 
-        internal bool HasPersistablePassword => !_hasPasswordKeyword || ConvertValueToBoolean(Key.PersistSecurityInfo, false); // no password means persistable password so we don't have to munge
+        internal bool HasPersisTablePassword => !_hasPasswordKeyword || ConvertValueToBoolean(Key.PersistSecurityInfo, false); // no password means persistable password so we don't have to munge
 
         public bool IsEmpty => _keyChain == null;
 
-        public string UsersConnectionString(bool hidePassword)
-        {
-            return UsersConnectionString(hidePassword, false);
-        }
+        public string UsersConnectionString(bool hidePassword) => UsersConnectionString(hidePassword, false);
 
         private string UsersConnectionString(bool hidePassword, bool forceHidePassword)
         {
             var connectionString = _usersConnectionString;
-            if (_hasPasswordKeyword && (forceHidePassword || hidePassword && !HasPersistablePassword)) connectionString = ReplacePasswordPwd();
+            if (_hasPasswordKeyword && (forceHidePassword || hidePassword && !HasPersisTablePassword)) connectionString = ReplacePasswordPwd();
             return connectionString ?? string.Empty;
         }
 
-        public bool ConvertValueToBoolean(string keyName, bool defaultValue)
-        {
-            return _parsetable.TryGetValue(keyName, out var value) ? ConvertValueToBooleanInternal(keyName, value) : defaultValue;
-        }
+        public bool ConvertValueToBoolean(string keyName, bool defaultValue) => _parseTable.TryGetValue(keyName, out var value) ? ConvertValueToBooleanInternal(keyName, value) : defaultValue;
 
         internal static bool ConvertValueToBooleanInternal(string keyName, string stringValue)
         {
@@ -70,10 +64,7 @@ namespace Medella.TdsClient.Cleanup
             throw ADP.InvalidConnectionOptionValue(keyName);
         }
 
-        private static bool CompareInsensitiveInvariant(string strvalue, string strconst)
-        {
-            return 0 == StringComparer.OrdinalIgnoreCase.Compare(strvalue, strconst);
-        }
+        private static bool CompareInsensitiveInvariant(string strValue, string strConst) => 0 == StringComparer.OrdinalIgnoreCase.Compare(strValue, strConst);
 
         private static string GetKeyName(StringBuilder buffer)
         {
@@ -87,20 +78,20 @@ namespace Medella.TdsClient.Cleanup
             var count = buffer.Length;
             var index = 0;
             if (!trimWhitespace)
-                return buffer.ToString(index, count - index);
+                return buffer.ToString(index, count);
             while (index < count && char.IsWhiteSpace(buffer[index])) index++; // leading whitespace
             while (0 < count && char.IsWhiteSpace(buffer[count - 1])) count--; // trailing whitespace
 
             return buffer.ToString(index, count - index);
         }
 
-        internal static int GetKeyValuePair(string connectionString, int currentPosition, StringBuilder buffer, bool useOdbcRules, out string keyname, out string keyvalue)
+        internal static int GetKeyValuePair(string connectionString, int currentPosition, StringBuilder buffer, bool useOdbcRules, out string? keyName, out string? keyValue)
         {
-            var startposition = currentPosition;
+            var startPosition = currentPosition;
 
             buffer.Length = 0;
-            keyname = null;
-            keyvalue = null;
+            keyName = null;
+            keyValue = null;
 
             var currentChar = '\0';
 
@@ -120,8 +111,8 @@ namespace Medella.TdsClient.Cleanup
                             continue;
                         }
 
-                        if (char.IsControl(currentChar)) throw ADP.ConnectionStringSyntax(startposition);
-                        startposition = currentPosition;
+                        if (char.IsControl(currentChar)) throw ADP.ConnectionStringSyntax(startPosition);
+                        startPosition = currentPosition;
                         if ('=' != currentChar)
                         {
                             parserState = ParserState.Key;
@@ -141,7 +132,7 @@ namespace Medella.TdsClient.Cleanup
                         }
 
                         if (char.IsWhiteSpace(currentChar)) break;
-                        if (char.IsControl(currentChar)) throw ADP.ConnectionStringSyntax(startposition);
+                        if (char.IsControl(currentChar)) throw ADP.ConnectionStringSyntax(startPosition);
                         break;
 
                     case ParserState.KeyEqual: // \\s*=(?!=)\\s*
@@ -151,8 +142,8 @@ namespace Medella.TdsClient.Cleanup
                             break;
                         }
 
-                        keyname = GetKeyName(buffer);
-                        if (string.IsNullOrEmpty(keyname)) throw ADP.ConnectionStringSyntax(startposition);
+                        keyName = GetKeyName(buffer);
+                        if (string.IsNullOrEmpty(keyName)) throw ADP.ConnectionStringSyntax(startPosition);
                         buffer.Length = 0;
                         parserState = ParserState.KeyEnd;
                         goto case ParserState.KeyEnd;
@@ -184,7 +175,7 @@ namespace Medella.TdsClient.Cleanup
 
                         if (';' == currentChar) goto ParserExit;
                         if ('\0' == currentChar) goto ParserExit;
-                        if (char.IsControl(currentChar)) throw ADP.ConnectionStringSyntax(startposition);
+                        if (char.IsControl(currentChar)) throw ADP.ConnectionStringSyntax(startPosition);
                         parserState = ParserState.UnquotedValue;
                         break;
 
@@ -200,7 +191,7 @@ namespace Medella.TdsClient.Cleanup
                             continue;
                         }
 
-                        if ('\0' == currentChar) throw ADP.ConnectionStringSyntax(startposition);
+                        if ('\0' == currentChar) throw ADP.ConnectionStringSyntax(startPosition);
                         break;
 
                     case ParserState.DoubleQuoteValueQuote:
@@ -210,7 +201,7 @@ namespace Medella.TdsClient.Cleanup
                             break;
                         }
 
-                        keyvalue = GetKeyValue(buffer, false);
+                        keyValue = GetKeyValue(buffer, false);
                         parserState = ParserState.QuotedValueEnd;
                         goto case ParserState.QuotedValueEnd;
 
@@ -221,7 +212,7 @@ namespace Medella.TdsClient.Cleanup
                             continue;
                         }
 
-                        if ('\0' == currentChar) throw ADP.ConnectionStringSyntax(startposition);
+                        if ('\0' == currentChar) throw ADP.ConnectionStringSyntax(startPosition);
                         break;
 
                     case ParserState.SingleQuoteValueQuote:
@@ -231,7 +222,7 @@ namespace Medella.TdsClient.Cleanup
                             break;
                         }
 
-                        keyvalue = GetKeyValue(buffer, false);
+                        keyValue = GetKeyValue(buffer, false);
                         parserState = ParserState.QuotedValueEnd;
                         goto case ParserState.QuotedValueEnd;
 
@@ -242,7 +233,7 @@ namespace Medella.TdsClient.Cleanup
                             break;
                         }
 
-                        if ('\0' == currentChar) throw ADP.ConnectionStringSyntax(startposition);
+                        if ('\0' == currentChar) throw ADP.ConnectionStringSyntax(startPosition);
                         break;
 
                     case ParserState.BraceQuoteValueQuote:
@@ -252,7 +243,7 @@ namespace Medella.TdsClient.Cleanup
                             break;
                         }
 
-                        keyvalue = GetKeyValue(buffer, false);
+                        keyValue = GetKeyValue(buffer, false);
                         parserState = ParserState.QuotedValueEnd;
                         goto case ParserState.QuotedValueEnd;
 
@@ -265,7 +256,7 @@ namespace Medella.TdsClient.Cleanup
                             continue;
                         }
 
-                        throw ADP.ConnectionStringSyntax(startposition); // unbalanced single quote
+                        throw ADP.ConnectionStringSyntax(startPosition); // unbalanced single quote
 
                     case ParserState.NullTermination: // [\\s;\u0000]*
                         if ('\0' == currentChar) continue;
@@ -287,20 +278,20 @@ namespace Medella.TdsClient.Cleanup
                 case ParserState.SingleQuoteValue:
                 case ParserState.BraceQuoteValue:
                     // keyword not found/unbalanced double/single quote
-                    throw ADP.ConnectionStringSyntax(startposition);
+                    throw ADP.ConnectionStringSyntax(startPosition);
 
                 case ParserState.KeyEqual:
                     // equal sign at end of line
-                    keyname = GetKeyName(buffer);
-                    if (string.IsNullOrEmpty(keyname)) throw ADP.ConnectionStringSyntax(startposition);
+                    keyName = GetKeyName(buffer);
+                    if (string.IsNullOrEmpty(keyName)) throw ADP.ConnectionStringSyntax(startPosition);
                     break;
 
                 case ParserState.UnquotedValue:
                     // unquoted value at end of line
-                    keyvalue = GetKeyValue(buffer, true);
+                    keyValue = GetKeyValue(buffer, true);
 
-                    var tmpChar = keyvalue[keyvalue.Length - 1];
-                    if (!useOdbcRules && ('\'' == tmpChar || '"' == tmpChar)) throw ADP.ConnectionStringSyntax(startposition); // unquoted value must not end in quote, except for odbc
+                    var tmpChar = keyValue[^1];
+                    if (!useOdbcRules && ('\'' == tmpChar || '"' == tmpChar)) throw ADP.ConnectionStringSyntax(startPosition); // unquoted value must not end in quote, except for odbc
                     break;
 
                 case ParserState.DoubleQuoteValueQuote:
@@ -308,7 +299,7 @@ namespace Medella.TdsClient.Cleanup
                 case ParserState.BraceQuoteValueQuote:
                 case ParserState.QuotedValueEnd:
                     // quoted value at end of line
-                    keyvalue = GetKeyValue(buffer, false);
+                    keyValue = GetKeyValue(buffer, false);
                     break;
 
                 case ParserState.NothingYet:
@@ -325,31 +316,29 @@ namespace Medella.TdsClient.Cleanup
             return currentPosition;
         }
 
-        private static bool IsKeyNameValid(string keyname)
-        {
-            return !string.IsNullOrEmpty(keyname) && ';' != keyname[0] && !char.IsWhiteSpace(keyname[0]) && -1 == keyname.IndexOf('\u0000');
-        }
+        private static bool IsKeyNameValid(string? keyName) => !string.IsNullOrEmpty(keyName) && ';' != keyName[0] && !char.IsWhiteSpace(keyName[0]) && -1 == keyName.IndexOf('\u0000');
 
-        private static NameValuePair ParseInternal(Dictionary<string, string> parsetable, string connectionString, bool buildChain, Dictionary<string, string> synonyms, bool firstKey)
+        private static NameValuePair? ParseInternal(Dictionary<string, string> parseTable, string connectionString, bool buildChain, Dictionary<string, string> synonyms, bool firstKey)
         {
-            Debug.Assert(null != connectionString, "null connectionstring");
+            Debug.Assert(null != connectionString, "null connectionString");
             var buffer = new StringBuilder();
-            NameValuePair localKeychain = null, keychain = null;
+            NameValuePair? localKeychain = null;
+            NameValuePair? keychain = null;
             var nextStartPosition = 0;
             var endPosition = connectionString.Length;
             while (nextStartPosition < endPosition)
             {
                 var startPosition = nextStartPosition;
 
-                nextStartPosition = GetKeyValuePair(connectionString, startPosition, buffer, firstKey, out var keyname, out var keyvalue);
-                if (string.IsNullOrEmpty(keyname)) break;
-                var realkeyname = null != synonyms ? (synonyms.TryGetValue(keyname, out var synonym) ? synonym : null) : keyname;
-                if (!IsKeyNameValid(realkeyname)) throw ADP.KeywordNotSupported(keyname);
-                if (!firstKey || !parsetable.ContainsKey(realkeyname)) parsetable[realkeyname] = keyvalue; // last key-value pair wins (or first)
+                nextStartPosition = GetKeyValuePair(connectionString, startPosition, buffer, firstKey, out var keyName, out var keyValue);
+                if (string.IsNullOrEmpty(keyName)) break;
+                var realKeyName = null != synonyms ? synonyms.TryGetValue(keyName, out var synonym) ? synonym : null : keyName;
+                if (realKeyName == null || !IsKeyNameValid(realKeyName)) throw ADP.KeywordNotSupported(keyName);
+                if (!firstKey || !parseTable.ContainsKey(realKeyName)) parseTable[realKeyName] = keyValue!; // last key-value pair wins (or first)
 
                 if (null != localKeychain)
-                    localKeychain = localKeychain.Next = new NameValuePair(realkeyname, keyvalue, nextStartPosition - startPosition);
-                else if (buildChain) keychain = localKeychain = new NameValuePair(realkeyname, keyvalue, nextStartPosition - startPosition);
+                    localKeychain = localKeychain.Next = new NameValuePair(realKeyName, keyValue!, nextStartPosition - startPosition);
+                else if (buildChain) keychain = localKeychain = new NameValuePair(realKeyName, keyValue!, nextStartPosition - startPosition);
             }
 
             return keychain;
@@ -365,20 +354,14 @@ namespace Medella.TdsClient.Cleanup
                 copyPosition += current.Length;
             }
 
-            var constr = builder.ToString();
-            return constr;
+            var conStr = builder.ToString();
+            return conStr;
         }
 
-        internal bool TryGetParsetableValue(string key, out string value)
-        {
-            return _parsetable.TryGetValue(key, out value);
-        }
+        internal bool TryGetParseTableValue(string key, out string? value) => _parseTable.TryGetValue(key, out value);
 
         // same as Boolean, but with SSPI thrown in as valid yes
-        public bool ConvertValueToIntegratedSecurity()
-        {
-            return _parsetable.TryGetValue(Key.IntegratedSecurity, out var value) && value != null && ConvertValueToIntegratedSecurityInternal(value);
-        }
+        public bool ConvertValueToIntegratedSecurity() => _parseTable.TryGetValue(Key.IntegratedSecurity, out var value) && value != null && ConvertValueToIntegratedSecurityInternal(value);
 
         private bool ConvertValueToIntegratedSecurityInternal(string stringValue)
         {
@@ -394,12 +377,9 @@ namespace Medella.TdsClient.Cleanup
             throw ADP.InvalidConnectionOptionValue(Key.IntegratedSecurity);
         }
 
-        public int ConvertValueToInt32(string keyName, int defaultValue)
-        {
-            return _parsetable.TryGetValue(keyName, out var value) && value != null ? ConvertToInt32Internal(keyName, value) : defaultValue;
-        }
+        public int ConvertValueToInt32(string keyName, int defaultValue) => _parseTable.TryGetValue(keyName, out var value) && value != null ? ConvertToInt32Internal(keyName, value) : defaultValue;
 
-        private static int ConvertToInt32Internal(string keyname, string stringValue)
+        private static int ConvertToInt32Internal(string keyName, string stringValue)
         {
             try
             {
@@ -407,23 +387,17 @@ namespace Medella.TdsClient.Cleanup
             }
             catch (FormatException e)
             {
-                throw ADP.InvalidConnectionOptionValue(keyname, e);
+                throw ADP.InvalidConnectionOptionValue(keyName, e);
             }
             catch (OverflowException e)
             {
-                throw ADP.InvalidConnectionOptionValue(keyname, e);
+                throw ADP.InvalidConnectionOptionValue(keyName, e);
             }
         }
 
-        public string ConvertValueToString(string keyName, string defaultValue)
-        {
-            return _parsetable.TryGetValue(keyName, out var value) && value != null ? value : defaultValue;
-        }
+        public string ConvertValueToString(string keyName, string defaultValue) => _parseTable.TryGetValue(keyName, out var value) && value != null ? value : defaultValue;
 
-        public bool ContainsKey(string keyword)
-        {
-            return _parsetable.ContainsKey(keyword);
-        }
+        public bool ContainsKey(string keyword) => _parseTable.ContainsKey(keyword);
 
         // connection string common keywords
         private static class Key

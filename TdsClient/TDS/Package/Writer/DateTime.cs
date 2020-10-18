@@ -1,5 +1,5 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
@@ -20,11 +20,13 @@ namespace Medella.TdsClient.TDS.Package.Writer
             WriteSqlTimeUnchecked(value, scale);
             CheckBuffer();
         }
+
         public void WriteSqlDateTime4(DateTime value)
         {
             WriteSqlDateTime4Uncheked(value);
             CheckBuffer();
         }
+
         public void WriteSqlDateTime(DateTime value)
         {
             WriteSqlDateTimeUnchecked(value);

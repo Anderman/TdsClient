@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.LocalDb;
 using Medella.TdsClient.TDS;
 using Medella.TdsClient.TDS.Controller;
@@ -189,7 +189,7 @@ namespace TdsClientTests
         {
             const bool marsOn = false;
             var p = new ServerConnectionOptions(@"(localdb)\mssqllocaldb", false);
-            var handle = new TdsStreamNamedpipes(p.PipeServerName, p.PipeName, 15);
+            var handle = new TdsStreamNamedPipes(p.PipeServerName, p.PipeName, 15);
             var writer = new TdsPackageWriter(handle);
             var reader = new TdsPackageReader(handle);
 

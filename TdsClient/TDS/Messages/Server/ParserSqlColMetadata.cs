@@ -1,8 +1,6 @@
-﻿using System;
-using System.Text;
-using Medella.TdsClient.Contants;
+﻿using System.Text;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
 
@@ -17,7 +15,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
             var newMetaData = new ColumnsMetadata(columns);
             for (var i = 0; i < columns; i++)
                 ReadMetadata(reader, newMetaData[i]);
-            reader.CurrentResultset.ColumnsMetadata = newMetaData;
+            reader.CurrentResultSet.ColumnsMetadata = newMetaData;
         }
 
         private static void ReadMetadata(TdsPackageReader reader, ColumnMetadata col)
@@ -31,7 +29,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
 
             var tdsType = col.TdsType = reader.ReadByte();
 
-            var tmp = col.MetaType= TdsMetaType.TdsTypes[tdsType];
+            var tmp = col.MetaType = TdsMetaType.TdsTypes[tdsType];
             col.IsPlp = tmp.IsPlp;
             col.IsTextOrImage = tmp.IsTextOrImage;
 
@@ -61,10 +59,10 @@ namespace Medella.TdsClient.TDS.Messages.Server
             col.Column = reader.ReadString(reader.ReadByte());
         }
 
-        public static XmlSchema ReadXmlSchema(this TdsPackageReader reader)
+        public static XmlSchema? ReadXmlSchema(this TdsPackageReader reader)
         {
-            var schemapresent = reader.ReadByte();
-            if ((schemapresent & 1) != 0)
+            var schemaPresent = reader.ReadByte();
+            if ((schemaPresent & 1) != 0)
                 return new XmlSchema
                 {
                     CollectionDatabase = reader.ReadString(reader.ReadByte()),
@@ -81,18 +79,16 @@ namespace Medella.TdsClient.TDS.Messages.Server
             return reader.CurrentSession.GetEncodingFromCache(codePage);
         }
 
-        public static int ReadTdsTypeLen(this TdsPackageReader reader, int len)
-        {
-            return len == 0
+        public static int ReadTdsTypeLen(this TdsPackageReader reader, int len) =>
+            len == 0
                 ? 0
                 : len == 1
                     ? reader.ReadByte()
                     : len == 2
                         ? reader.ReadUInt16()
                         : reader.ReadInt32();
-        }
 
-        public static MultiPartTableName ReadMultiPartTableName(this TdsPackageReader reader)
+        public static MultiPartTableName? ReadMultiPartTableName(this TdsPackageReader reader)
         {
             // Find out how many parts in the TDS stream
             var nParts = reader.ReadByte();
@@ -111,16 +107,14 @@ namespace Medella.TdsClient.TDS.Messages.Server
             return mpt;
         }
 
-        internal static Udt ReadUdtMetadata(this TdsPackageReader reader)
-        {
-            return new Udt
+        internal static Udt ReadUdtMetadata(this TdsPackageReader reader) =>
+            new Udt
             {
                 DatabaseName = reader.ReadString(reader.ReadByte()),
                 SchemaName = reader.ReadString(reader.ReadByte()),
                 TypeName = reader.ReadString(reader.ReadByte()),
                 AssemblyQualifiedName = reader.ReadString(reader.ReadUInt16())
             };
-        }
     }
 
     public class Udt

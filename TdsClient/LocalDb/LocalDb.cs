@@ -1,75 +1,47 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Win32.SafeHandles;
 
 namespace Medella.TdsClient.LocalDb
 {
-    public class LocalDb
+    public static class LocalDb
     {
-        //HKEY_LOCAL_MACHINE
-
         private const string ProcLocalDbStartInstance = "LocalDBStartInstance";
-
         private const int MaxLocalDbConnectionStringSize = 260;
-        internal const string Kernel32 = "kernel32.dll";
+        private const string Kernel32 = "kernel32.dll";
+        private static readonly object SpinLock = new object();
+        private static LocalDbStartInstance? _localDbStartInstanceFunc;
+        private static SafeLibraryHandle? _libraryHandle;
 
-        /// <summary>
-        ///     Retrieves the part of the sqlUserInstance.dll from the registry
-        /// </summary>
-        /// <returns></returns>
-        private static readonly LocalDb Instance = new LocalDb();
-
-        private LocalDbStartInstance _localDbStartInstanceFunc;
-
-        private volatile object _sqlUserInstanceLibraryHandle;
-
-        private IntPtr _startInstanceHandle = IntPtr.Zero;
-
-        private LocalDb()
+        public static string? GetLocalDbConnectionString(string localDbInstance) // "mssqllocaldb"
         {
-        }
-
-        public static string GetLocalDbConnectionString(string localDbInstance) => Instance.LoadUserInstanceDll() ? Instance.GetConnectionString(localDbInstance) : null;
-
-        private string GetConnectionString(string localDbInstance)
-        {
+            if (_libraryHandle == null && !TryLoadUserInstanceDll())
+                return null;
             var localDbConnectionString = new StringBuilder(MaxLocalDbConnectionStringSize + 1);
             var sizeOfBuffer = localDbConnectionString.Capacity;
-            _localDbStartInstanceFunc(localDbInstance, 0, localDbConnectionString, ref sizeOfBuffer);
-            return localDbConnectionString.ToString();
+            _localDbStartInstanceFunc!(localDbInstance, 0, localDbConnectionString, ref sizeOfBuffer);
+            return localDbConnectionString.ToString(); //np:\\.\pipe\LOCALDB#7A7A31A5\tsql\query
         }
 
-        /// <summary>
-        ///     Loads the User Instance dll.
-        /// </summary>
-        private bool LoadUserInstanceDll()
+        private static bool TryLoadUserInstanceDll()
         {
             // Check in a non thread-safe way if the handle is already set for performance.
-            if (_sqlUserInstanceLibraryHandle != null) return true;
-
-            lock (this)
+            lock (SpinLock)
             {
-                if (_sqlUserInstanceLibraryHandle != null) return true;
-                //Get UserInstance Dll path
-
-                // Get the LocalDB instance dll path from the registry
-                var dllPath = GetUserInstanceDllPath();
+                if (_libraryHandle != null) return true;
+                var dllPath = SqlLocalDbPathResolver.GetDllPath();
 
                 // Load the dll
                 var libraryHandle = LoadLibraryExW(dllPath.Trim(), IntPtr.Zero, 0);
                 if (libraryHandle.IsInvalid)
-                {
-                    var error = GetLastError();
-                    throw new Exception(error.ToString());
-                }
+                    throw new Exception(GetLastError().ToString());
 
                 // Load the process from the DLLs
-                _startInstanceHandle = GetProcAddress(libraryHandle, ProcLocalDbStartInstance);
+                var startInstanceHandle = GetProcAddress(libraryHandle, ProcLocalDbStartInstance);
 
                 // Set the delegate the invoke.
-                _localDbStartInstanceFunc = (LocalDbStartInstance)Marshal.GetDelegateForFunctionPointer(_startInstanceHandle, typeof(LocalDbStartInstance));
-                _sqlUserInstanceLibraryHandle = libraryHandle;
+                _localDbStartInstanceFunc = (LocalDbStartInstance)Marshal.GetDelegateForFunctionPointer(startInstanceHandle, typeof(LocalDbStartInstance));
+                _libraryHandle = libraryHandle; // Hold ref to prevent garbage collection
 
                 return true;
             }
@@ -84,30 +56,10 @@ namespace Medella.TdsClient.LocalDb
         [DllImport(Kernel32, CharSet = CharSet.Ansi, BestFitMapping = false)]
         private static extern uint GetLastError();
 
-        private static string GetUserInstanceDllPath() => @"C:\Program Files\Microsoft SQL Server\130\LocalDB\Binn\SqlUserInstance.dll";
-
         // Local Db api doc https://msdn.microsoft.com/en-us/library/hh217143.aspx
         // HRESULT LocalDBStartInstance( [Input ] PCWSTR pInstanceName, [Input ] DWORD dwFlags,[Output] LPWSTR wszSqlConnection,[Input/Output] LPDWORD lpcchSqlConnection);  
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int LocalDbStartInstance([In] [MarshalAs(UnmanagedType.LPWStr)] string localDbInstanceName, [In] int flags, [Out] [MarshalAs(UnmanagedType.LPWStr)]
             StringBuilder sqlConnectionDataSource, [In] [Out] ref int bufferLength);
-    }
-
-    public sealed class SafeLibraryHandle : SafeHandleZeroOrMinusOneIsInvalid
-    {
-        internal const string Kernel32 = "kernel32.dll";
-
-        internal SafeLibraryHandle() : base(true)
-        {
-        }
-
-        internal SafeLibraryHandle(bool ownsHandle) : base(ownsHandle)
-        {
-        }
-
-        protected override bool ReleaseHandle() => FreeLibrary(handle);
-
-        [DllImport(Kernel32, ExactSpelling = true, SetLastError = true)]
-        private static extern bool FreeLibrary([In] IntPtr hModule);
     }
 }

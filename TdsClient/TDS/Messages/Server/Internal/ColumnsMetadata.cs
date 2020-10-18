@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Medella.TdsClient.TDS.Messages.Server.Internal
+﻿namespace Medella.TdsClient.TDS.Messages.Server.Internal
 {
     public class ColumnsMetadata
     {

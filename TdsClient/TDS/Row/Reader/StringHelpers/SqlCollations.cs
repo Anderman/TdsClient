@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TDS.Row.Reader.StringHelpers
 {
@@ -16,7 +16,7 @@ namespace Medella.TdsClient.TDS.Row.Reader.StringHelpers
 
         internal const uint MaskLcid = 0xfffff;
         private const int LcidVersionBitOffset = 28;
-        private const uint MaskLcidVersion = unchecked((uint) (0xf << LcidVersionBitOffset));
+        private const uint MaskLcidVersion = unchecked((uint)(0xf << LcidVersionBitOffset));
         private const uint MaskCompareOpt = IgnoreCase | IgnoreNonSpace | IgnoreWidth | IgnoreKanaType | BinarySort;
 
         public uint Info;
@@ -25,10 +25,10 @@ namespace Medella.TdsClient.TDS.Row.Reader.StringHelpers
         internal int LcId
         {
             // First 20 bits of info field represent the lcid
-            get => unchecked((int) (Info & MaskLcid));
+            get => unchecked((int)(Info & MaskLcid));
             set
             {
-                var lcid = value & (int) MaskLcid;
+                var lcid = value & (int)MaskLcid;
                 Debug.Assert(lcid == value, "invalid set_LCID value");
 
                 // Some new Katmai LCIDs do not have collation with version = 0
@@ -37,7 +37,7 @@ namespace Medella.TdsClient.TDS.Row.Reader.StringHelpers
                 Debug.Assert((versionBits & MaskLcidVersion) == versionBits, "invalid version returned by FirstSupportedCollationVersion");
 
                 // combine the current compare options with the new locale ID and its first supported version
-                Info = (Info & MaskCompareOpt) | unchecked((uint) lcid) | unchecked((uint) versionBits);
+                Info = (Info & MaskCompareOpt) | unchecked((uint)lcid) | unchecked((uint)versionBits);
             }
         }
 
@@ -94,7 +94,7 @@ namespace Medella.TdsClient.TDS.Row.Reader.StringHelpers
             }
         }
 
-        internal static bool AreSame(SqlCollations a, SqlCollations b)
+        internal static bool AreSame(SqlCollations? a, SqlCollations? b)
         {
             if (a == null || b == null)
                 return a == b;

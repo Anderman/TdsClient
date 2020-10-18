@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data.SqlTypes;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TDS.Package.Reader
 {
@@ -16,11 +16,11 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
         public TimeSpan ReadSqlTime(int length, byte scale)
         {
-            var tickUnits = ReadByte() + ((long) ReadByte() << 8) + ((long) ReadByte() << 16);
+            var tickUnits = ReadByte() + ((long)ReadByte() << 8) + ((long)ReadByte() << 16);
             if (length > 3)
-                tickUnits += (long) ReadByte() << 24;
+                tickUnits += (long)ReadByte() << 24;
             if (length > 4)
-                tickUnits += (long) ReadByte() << 32;
+                tickUnits += (long)ReadByte() << 32;
             var ticks = tickUnits * TdsEnums.TICKS_FROM_SCALE[scale];
             return new TimeSpan(ticks);
         }
@@ -44,10 +44,10 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
         public DateTime ReadSqlDateTime(int length)
         {
-            var daypart = length == 4 ? ReadUInt16() : ReadInt32();
-            var timepart = length == 4 ? (uint) ReadUInt16() * SqlDateTime.SQLTicksPerMinute : ReadUInt32();
+            var dayPart = length == 4 ? ReadUInt16() : ReadInt32();
+            var timePart = length == 4 ? (uint)ReadUInt16() * SqlDateTime.SQLTicksPerMinute : ReadUInt32();
             // Values need to match those from SqlDateTime
-            return ConvertSqlDate(daypart, timepart);
+            return ConvertSqlDate(dayPart, timePart);
         }
 
         public static DateTime ConvertSqlDate(int daypart, long timepart)
@@ -65,10 +65,10 @@ namespace Medella.TdsClient.TDS.Package.Reader
             if (daypart < MinDay || daypart > MaxDay || timepart < MinTime || timepart > MaxTime) throw new OverflowException(SQLResource.DateTimeOverflowMessage);
 
             var baseDateTicks = new DateTime(1900, 1, 1).Ticks;
-            var dayticks = daypart * TimeSpan.TicksPerDay;
-            var timeticks = (long) (timepart / SQLTicksPerMillisecond + 0.5) * TimeSpan.TicksPerMillisecond;
+            var dayTicks = daypart * TimeSpan.TicksPerDay;
+            var timeTicks = (long)(timepart / SQLTicksPerMillisecond + 0.5) * TimeSpan.TicksPerMillisecond;
 
-            return new DateTime(baseDateTicks + dayticks + timeticks);
+            return new DateTime(baseDateTicks + dayTicks + timeTicks);
         }
     }
 }

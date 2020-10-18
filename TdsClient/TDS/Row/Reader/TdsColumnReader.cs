@@ -12,112 +12,49 @@ namespace Medella.TdsClient.TDS.Row.Reader
         public TdsColumnReader(TdsPackageReader reader)
         {
             _reader = reader;
-            MetaData = reader.CurrentResultset.ColumnsMetadata;
+            MetaData = reader.CurrentResultSet.ColumnsMetadata;
         }
 
-        public decimal? ReadDecimal(int index)
-        {
-            return _reader.ReadNullableDecimal(index, MetaData[index].Scale);
-        }
+        public decimal? ReadDecimal(int index) => _reader.ReadNullableDecimal(index, MetaData[index].Scale);
 
-        public byte[] ReadBinary(int index)
-        {
-            return _reader.ReadNullableSqlBinary(index);
-        }
+        public byte[] ReadBinary(int index) => _reader.ReadNullableSqlBinary(index);
 
-        public string ReadString(int index)
-        {
-            return _reader.ReadNullableSqlString(index);
-        }
+        public string ReadString(int index) => _reader.ReadNullableSqlString(index);
 
-        public string ReadUnicodeString(int index)
-        {
-            return _reader.ReadNullableUnicodeString(index);
-        }
+        public string ReadUnicodeString(int index) => _reader.ReadNullableUnicodeString(index);
 
-        public DateTime? ReadSqlDate(int index)
-        {
-            return _reader.ReadNullableSqlDate(index);
-        }
+        public DateTime? ReadSqlDate(int index) => _reader.ReadNullableSqlDate(index);
 
-        public TimeSpan? ReadSqlTime(int index)
-        {
-            return _reader.ReadNullableSqlTime(index);
-        }
+        public TimeSpan? ReadSqlTime(int index) => _reader.ReadNullableSqlTime(index);
 
-        public DateTime? ReadSqlDateTime2(int index)
-        {
-            return _reader.ReadNullableSqlDateTime2(index);
-        }
+        public DateTime? ReadSqlDateTime2(int index) => _reader.ReadNullableSqlDateTime2(index);
 
-        public DateTime? ReadSqlDateTime(int index)
-        {
-            return _reader.ReadNullableSqlDateTime(index);
-        }
+        public DateTime? ReadSqlDateTime(int index) => _reader.ReadNullableSqlDateTime(index);
 
-        public DateTimeOffset? ReadSqlDateTimeOffset(int index)
-        {
-            return _reader.ReadNullableSqlDateTimeOffset(index);
-        }
+        public DateTimeOffset? ReadSqlDateTimeOffset(int index) => _reader.ReadNullableSqlDateTimeOffset(index);
 
-        public bool? ReadSqlBit(int index)
-        {
-            return _reader.ReadNullableSqlBit(index);
-        }
+        public bool? ReadSqlBit(int index) => _reader.ReadNullableSqlBit(index);
 
-        public long? ReadSqlIntN(int index)
-        {
-            return _reader.ReadNullableSqlIntN(index);
-        }
+        public long? ReadSqlIntN(int index) => _reader.ReadNullableSqlIntN(index);
 
-        public byte? ReadSqlByte(int index)
-        {
-            return _reader.ReadNullableSqlByte(index);
-        }
+        public byte? ReadSqlByte(int index) => _reader.ReadNullableSqlByte(index);
 
-        public short? ReadSqlInt16(int index)
-        {
-            return _reader.ReadNullableSqlInt16(index);
-        }
+        public short? ReadSqlInt16(int index) => _reader.ReadNullableSqlInt16(index);
 
-        public int? ReadSqlInt32(int index)
-        {
-            return _reader.ReadNullableSqlInt32(index);
-        }
+        public int? ReadSqlInt32(int index) => _reader.ReadNullableSqlInt32(index);
 
-        public long? ReadSqlInt64(int index)
-        {
-            return _reader.ReadNullableSqlInt64(index);
-        }
+        public long? ReadSqlInt64(int index) => _reader.ReadNullableSqlInt64(index);
 
-        public double? ReadSqlFloatN(int index)
-        {
-            return _reader.ReadNullableSqlFloatN(index);
-        }
+        public double? ReadSqlFloatN(int index) => _reader.ReadNullableSqlFloatN(index);
 
-        public float? ReadSqlFloat(int index)
-        {
-            return _reader.ReadNullableSqlFloat(index);
-        }
+        public float? ReadSqlFloat(int index) => _reader.ReadNullableSqlFloat(index);
 
-        public double? ReadSqlDouble(int index)
-        {
-            return _reader.ReadNullableSqlDouble(index);
-        }
+        public double? ReadSqlDouble(int index) => _reader.ReadNullableSqlDouble(index);
 
-        public decimal? ReadSqlMoney(int index)
-        {
-            return _reader.ReadNullableSqlMoney(index);
-        }
+        public decimal? ReadSqlMoney(int index) => _reader.ReadNullableSqlMoney(index);
 
-        public Guid? ReadSqlGuid(int index)
-        {
-            return _reader.ReadNullableSqlGuid(index);
-        }
+        public Guid? ReadSqlGuid(int index) => _reader.ReadNullableSqlGuid(index);
 
-        public object ReadSqlVariant(int index)
-        {
-            return _reader.ReadNullableSqlVariant(index);
-        }
+        public object ReadSqlVariant(int index) => _reader.ReadNullableSqlVariant(index);
     }
 }

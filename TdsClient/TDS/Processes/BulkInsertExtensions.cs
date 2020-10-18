@@ -1,15 +1,15 @@
-using Medella.TdsClient.Contants;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package.Writer;
 using Medella.TdsClient.TDS.Row.Writer;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace Medella.TdsClient.TDS.Processes
 {
@@ -21,6 +21,7 @@ namespace Medella.TdsClient.TDS.Processes
         {
             cnn.BulkInsert(objects, tableName, null);
         }
+
         public static void BulkInsert<T>(this TdsConnection cnn, IEnumerable<T> objects, string tableName, Dictionary<string, PropertyInfo> columnMapping)
         {
             var writer = cnn.TdsPackage.Writer;
@@ -28,13 +29,13 @@ namespace Medella.TdsClient.TDS.Processes
             var parser = cnn.StreamParser;
             MetadataBulkCopy[] metaDataAllColumns = null;
 
-            writer.SendExcuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF", cnn.SqlTransactionId);
+            writer.SendExecuteBatch($"SET FMTONLY ON select * from {tableName} SET FMTONLY OFF", cnn.SqlTransactionId);
             parser.ParseInput(count => { metaDataAllColumns = reader.ColMetaDataBulkCopy(count); });
 
             writer.ColumnsMetadata = columnMapping != null ? GetUsedColumns(metaDataAllColumns, columnMapping) : GetUsedColumns(metaDataAllColumns);
 
             var bulkInsert = CreateBulkInsertStatement(tableName, writer.ColumnsMetadata);
-            writer.SendExcuteBatch(bulkInsert, cnn.SqlTransactionId);
+            writer.SendExecuteBatch(bulkInsert, cnn.SqlTransactionId);
             parser.ParseInput();
 
             writer.NewPackage(TdsEnums.MT_BULK);
@@ -60,15 +61,17 @@ namespace Medella.TdsClient.TDS.Processes
         {
             return metadataAllColumns.Where(metadata => metadata.TdsType != TdsEnums.SQLTIMESTAMP && !metadata.IsIdentity).ToArray();
         }
+
         private static MetadataBulkCopy[] GetUsedColumns(MetadataBulkCopy[] metadataAllColumns, Dictionary<string, PropertyInfo> columnMappings)
         {
             var result = new List<MetadataBulkCopy>();
             foreach (var metadata in metadataAllColumns)
             {
-                if(metadata.TdsType == TdsEnums.SQLTIMESTAMP || metadata.IsIdentity || !columnMappings.TryGetValue(metadata.Column, out var propertyInfo)) continue;
+                if (metadata.TdsType == TdsEnums.SQLTIMESTAMP || metadata.IsIdentity || !columnMappings.TryGetValue(metadata.Column, out var propertyInfo)) continue;
                 metadata.PropertyInfo = propertyInfo;
                 result.Add(metadata);
             }
+
             return result.ToArray();
         }
 
@@ -200,9 +203,6 @@ namespace Medella.TdsClient.TDS.Processes
             throw new Exception("TdsType Unknown");
         }
 
-        internal static string EscapeIdentifier(string name)
-        {
-            return name.Replace("]", "]]");
-        }
+        internal static string EscapeIdentifier(string name) => name.Replace("]", "]]");
     }
 }

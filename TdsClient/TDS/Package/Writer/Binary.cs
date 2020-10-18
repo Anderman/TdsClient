@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
     {
-
-       
         public void WriteByteArray(byte[] src)
         {
             var length = src.Length;
@@ -28,10 +24,9 @@ namespace Medella.TdsClient.TDS.Package.Writer
         }
 
 
-
-        public void WriteSqlUniqueId(Guid? value)
+        public void WriteSqlUniqueId(Guid value)
         {
-            WriteByteArray(((Guid)value).ToByteArray());
+            WriteByteArray(value.ToByteArray());
         }
     }
 }

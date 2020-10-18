@@ -5,6 +5,6 @@ namespace Medella.TdsClient.TDS.Controller
         Row,
         Done,
         AltRow,
-        Unknown,
+        Unknown
     }
 }

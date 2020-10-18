@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server.Environment
@@ -20,6 +19,7 @@ namespace Medella.TdsClient.TDS.Messages.Server.Environment
                 reader.CurrentSession.DefaultEncoding = Encoding.GetEncoding(reader.CurrentSession.DefaultCodePage);
                 return;
             }
+
             var stringCodePage = newValue.Substring(TdsEnums.CHARSET_CODE_PAGE_OFFSET);
             reader.CurrentSession.DefaultCodePage = int.Parse(stringCodePage, NumberStyles.Integer, CultureInfo.InvariantCulture);
             reader.CurrentSession.DefaultEncoding = Encoding.GetEncoding(reader.CurrentSession.DefaultCodePage);

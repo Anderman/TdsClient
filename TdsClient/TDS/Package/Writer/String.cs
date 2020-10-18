@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
     {
-
         public void WriteUnicodeString(string v)
         {
             if (v.Length == 0) return;

@@ -1,4 +1,4 @@
-﻿namespace Medella.TdsClient.Contants
+﻿namespace Medella.TdsClient.Constants
 {
     public enum SortOrder
     {

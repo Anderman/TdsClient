@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Exceptions;
-using Medella.TdsClient.LocalDb;
 
 namespace Medella.TdsClient.Cleanup
 {
@@ -283,61 +282,61 @@ namespace Medella.TdsClient.Cleanup
             const int count = SqlConnectionStringBuilder.KeywordsCount + SqlConnectionStringBuilder.DeprecatedKeywordsCount + SynonymCount + DeprecatedSynonymCount;
             synonyms = new Dictionary<string, string>(count)
             {
-                {KEY.ApplicationIntent, KEY.ApplicationIntent},
-                {KEY.Application_Name, KEY.Application_Name},
-                {KEY.AsynchronousProcessing, KEY.AsynchronousProcessing},
-                {KEY.AttachDBFilename, KEY.AttachDBFilename},
-                {KEY.Connect_Timeout, KEY.Connect_Timeout},
-                {KEY.Connection_Reset, KEY.Connection_Reset},
-                {KEY.Context_Connection, KEY.Context_Connection},
-                {KEY.Current_Language, KEY.Current_Language},
-                {KEY.Data_Source, KEY.Data_Source},
-                {KEY.Encrypt, KEY.Encrypt},
-                {KEY.Enlist, KEY.Enlist},
-                {KEY.FailoverPartner, KEY.FailoverPartner},
-                {KEY.Initial_Catalog, KEY.Initial_Catalog},
-                {KEY.Integrated_Security, KEY.Integrated_Security},
-                {KEY.Load_Balance_Timeout, KEY.Load_Balance_Timeout},
-                {KEY.MARS, KEY.MARS},
-                {KEY.Max_Pool_Size, KEY.Max_Pool_Size},
-                {KEY.Min_Pool_Size, KEY.Min_Pool_Size},
-                {KEY.MultiSubnetFailover, KEY.MultiSubnetFailover},
-                {KEY.Network_Library, KEY.Network_Library},
-                {KEY.Packet_Size, KEY.Packet_Size},
-                {KEY.Password, KEY.Password},
-                {KEY.Persist_Security_Info, KEY.Persist_Security_Info},
-                {KEY.Pooling, KEY.Pooling},
-                {KEY.Replication, KEY.Replication},
-                {KEY.TrustServerCertificate, KEY.TrustServerCertificate},
-                {KEY.TransactionBinding, KEY.TransactionBinding},
-                {KEY.Type_System_Version, KEY.Type_System_Version},
-                {KEY.User_ID, KEY.User_ID},
-                {KEY.User_Instance, KEY.User_Instance},
-                {KEY.Workstation_Id, KEY.Workstation_Id},
-                {KEY.Connect_Retry_Count, KEY.Connect_Retry_Count},
-                {KEY.Connect_Retry_Interval, KEY.Connect_Retry_Interval},
+                { KEY.ApplicationIntent, KEY.ApplicationIntent },
+                { KEY.Application_Name, KEY.Application_Name },
+                { KEY.AsynchronousProcessing, KEY.AsynchronousProcessing },
+                { KEY.AttachDBFilename, KEY.AttachDBFilename },
+                { KEY.Connect_Timeout, KEY.Connect_Timeout },
+                { KEY.Connection_Reset, KEY.Connection_Reset },
+                { KEY.Context_Connection, KEY.Context_Connection },
+                { KEY.Current_Language, KEY.Current_Language },
+                { KEY.Data_Source, KEY.Data_Source },
+                { KEY.Encrypt, KEY.Encrypt },
+                { KEY.Enlist, KEY.Enlist },
+                { KEY.FailoverPartner, KEY.FailoverPartner },
+                { KEY.Initial_Catalog, KEY.Initial_Catalog },
+                { KEY.Integrated_Security, KEY.Integrated_Security },
+                { KEY.Load_Balance_Timeout, KEY.Load_Balance_Timeout },
+                { KEY.MARS, KEY.MARS },
+                { KEY.Max_Pool_Size, KEY.Max_Pool_Size },
+                { KEY.Min_Pool_Size, KEY.Min_Pool_Size },
+                { KEY.MultiSubnetFailover, KEY.MultiSubnetFailover },
+                { KEY.Network_Library, KEY.Network_Library },
+                { KEY.Packet_Size, KEY.Packet_Size },
+                { KEY.Password, KEY.Password },
+                { KEY.Persist_Security_Info, KEY.Persist_Security_Info },
+                { KEY.Pooling, KEY.Pooling },
+                { KEY.Replication, KEY.Replication },
+                { KEY.TrustServerCertificate, KEY.TrustServerCertificate },
+                { KEY.TransactionBinding, KEY.TransactionBinding },
+                { KEY.Type_System_Version, KEY.Type_System_Version },
+                { KEY.User_ID, KEY.User_ID },
+                { KEY.User_Instance, KEY.User_Instance },
+                { KEY.Workstation_Id, KEY.Workstation_Id },
+                { KEY.Connect_Retry_Count, KEY.Connect_Retry_Count },
+                { KEY.Connect_Retry_Interval, KEY.Connect_Retry_Interval },
 
-                {SYNONYM.APP, KEY.Application_Name},
-                {SYNONYM.Async, KEY.AsynchronousProcessing},
-                {SYNONYM.EXTENDED_PROPERTIES, KEY.AttachDBFilename},
-                {SYNONYM.INITIAL_FILE_NAME, KEY.AttachDBFilename},
-                {SYNONYM.CONNECTION_TIMEOUT, KEY.Connect_Timeout},
-                {SYNONYM.TIMEOUT, KEY.Connect_Timeout},
-                {SYNONYM.LANGUAGE, KEY.Current_Language},
-                {SYNONYM.ADDR, KEY.Data_Source},
-                {SYNONYM.ADDRESS, KEY.Data_Source},
-                {SYNONYM.NETWORK_ADDRESS, KEY.Data_Source},
-                {SYNONYM.SERVER, KEY.Data_Source},
-                {SYNONYM.DATABASE, KEY.Initial_Catalog},
-                {SYNONYM.TRUSTED_CONNECTION, KEY.Integrated_Security},
-                {SYNONYM.Connection_Lifetime, KEY.Load_Balance_Timeout},
-                {SYNONYM.NET, KEY.Network_Library},
-                {SYNONYM.NETWORK, KEY.Network_Library},
-                {SYNONYM.Pwd, KEY.Password},
-                {SYNONYM.PERSISTSECURITYINFO, KEY.Persist_Security_Info},
-                {SYNONYM.UID, KEY.User_ID},
-                {SYNONYM.User, KEY.User_ID},
-                {SYNONYM.WSID, KEY.Workstation_Id}
+                { SYNONYM.APP, KEY.Application_Name },
+                { SYNONYM.Async, KEY.AsynchronousProcessing },
+                { SYNONYM.EXTENDED_PROPERTIES, KEY.AttachDBFilename },
+                { SYNONYM.INITIAL_FILE_NAME, KEY.AttachDBFilename },
+                { SYNONYM.CONNECTION_TIMEOUT, KEY.Connect_Timeout },
+                { SYNONYM.TIMEOUT, KEY.Connect_Timeout },
+                { SYNONYM.LANGUAGE, KEY.Current_Language },
+                { SYNONYM.ADDR, KEY.Data_Source },
+                { SYNONYM.ADDRESS, KEY.Data_Source },
+                { SYNONYM.NETWORK_ADDRESS, KEY.Data_Source },
+                { SYNONYM.SERVER, KEY.Data_Source },
+                { SYNONYM.DATABASE, KEY.Initial_Catalog },
+                { SYNONYM.TRUSTED_CONNECTION, KEY.Integrated_Security },
+                { SYNONYM.Connection_Lifetime, KEY.Load_Balance_Timeout },
+                { SYNONYM.NET, KEY.Network_Library },
+                { SYNONYM.NETWORK, KEY.Network_Library },
+                { SYNONYM.Pwd, KEY.Password },
+                { SYNONYM.PERSISTSECURITYINFO, KEY.Persist_Security_Info },
+                { SYNONYM.UID, KEY.User_ID },
+                { SYNONYM.User, KEY.User_ID },
+                { SYNONYM.WSID, KEY.Workstation_Id }
             };
             Debug.Assert(synonyms.Count == count, "incorrect initial ParseSynonyms size");
             s_sqlClientSynonyms = synonyms;
@@ -371,7 +370,7 @@ namespace Medella.TdsClient.Cleanup
 
         internal ApplicationIntent ConvertValueToApplicationIntent()
         {
-            if (!TryGetParsetableValue(KEY.ApplicationIntent, out var value)) return DEFAULT.ApplicationIntent;
+            if (!TryGetParseTableValue(KEY.ApplicationIntent, out var value)) return DEFAULT.ApplicationIntent;
 
             // when wrong value is used in the connection string provided to LoginProcessor.ConnectionString or c-tor,
             // wrap Format and Overflow exceptions with Argument one, to be consistent with rest of the keyword types (like int and bool)

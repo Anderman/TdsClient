@@ -1,6 +1,5 @@
-﻿using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Package;
-using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
+﻿using Medella.TdsClient.Constants;
+using Medella.TdsClient.TDS.Package.Writer;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
@@ -8,11 +7,11 @@ namespace Medella.TdsClient.TDS.Messages.Client
     {
         public static void SendTransactionBegin(this TdsPackageWriter writer, TdsEnums.TransactionManagerIsolationLevel isoLevel)
         {
-            var transactionname = "";
+            var transactionName = "";
             WriteTransactionHeader(writer, TdsEnums.TransactionManagerRequestType.Begin, 0);
-            writer.WriteByte((byte) isoLevel);
-            writer.WriteByte((byte) (transactionname.Length * 2)); // Write number of bytes (unicode string).
-            writer.WriteUnicodeString(transactionname);
+            writer.WriteByte((byte)isoLevel);
+            writer.WriteByte((byte)(transactionName.Length * 2)); // Write number of bytes (unicode string).
+            writer.WriteUnicodeString(transactionName);
             writer.SendLastMessage();
         }
 
@@ -26,11 +25,11 @@ namespace Medella.TdsClient.TDS.Messages.Client
 
         public static void SendTransactionRollback(this TdsPackageWriter writer, long sqlTransactionId)
         {
-            var transactionname = "";
+            var transactionName = "";
             WriteTransactionHeader(writer, TdsEnums.TransactionManagerRequestType.Rollback, sqlTransactionId);
 
-            writer.WriteByte((byte) (transactionname.Length * 2)); // Write number of bytes (unicode string).
-            writer.WriteUnicodeString(transactionname);
+            writer.WriteByte((byte)(transactionName.Length * 2)); // Write number of bytes (unicode string).
+            writer.WriteUnicodeString(transactionName);
             writer.WriteByte(0); // No flags
             writer.SendLastMessage();
         }
@@ -40,7 +39,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.NewPackage(TdsEnums.MT_TRANS);
             writer.WriteMarsHeader(sqlTransactionId);
 
-            writer.WriteInt16((short) request); // write TransactionManager Request type
+            writer.WriteInt16((short)request); // write TransactionManager Request type
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Medella.TdsClient.Contants;
+﻿using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TDS.Package.Reader
 {
@@ -15,7 +15,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
         private ulong? ReadLengthNotNullData(int columnOrdinal)
         {
-            var col = CurrentResultset.ColumnsMetadata[columnOrdinal];
+            var col = CurrentResultSet.ColumnsMetadata[columnOrdinal];
             // plp-blob columns  Var...(max) + SQLXMLTYPE
             if (col.IsPlp)
                 return ReadPlpLength();
@@ -25,7 +25,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 return ReadBlobLength();
 
             // All other Columns
-            return (ulong?) GetDataLen(col.TdsType);
+            return (ulong?)GetDataLen(col.TdsType);
         }
 
         public ulong? ReadBlobLength()
@@ -39,19 +39,19 @@ namespace Medella.TdsClient.TDS.Package.Reader
             // 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
             // 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
             // 0x02,0x00,0x00,0x00, 32bit len
-            var lengthTextpointer = ReadByte();
-            if (lengthTextpointer == 0) return null;
-            SkipBytes(lengthTextpointer + TdsEnums.TEXT_TIME_STAMP_LEN); // read past text pointer and timestamp
-            return (ulong) ReadInt32();
+            var lengthTextPointer = ReadByte();
+            if (lengthTextPointer == 0) return null;
+            SkipBytes(lengthTextPointer + TdsEnums.TEXT_TIME_STAMP_LEN); // read past text pointer and timestamp
+            return (ulong)ReadInt32();
         }
 
         public ulong? ReadPlpLength()
         {
-            var plpLength = (ulong) ReadInt64();
+            var plpLength = (ulong)ReadInt64();
 
             return plpLength == TdsEnums.SQL_PLP_NULL
                 ? null
-                : (ulong?) plpLength;
+                : (ulong?)plpLength;
         }
 
         public int? GetDataLen(byte tdsType)

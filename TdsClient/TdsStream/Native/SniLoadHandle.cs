@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TdsStream.Native
 {
@@ -13,7 +13,7 @@ namespace Medella.TdsClient.TdsStream.Native
             SniStatus = SniNativeMethodWrapper.SNIInitialize();
             if (TdsEnums.SNI_SUCCESS != SniStatus)
                 throw new Exception("Failed to Load spi");
-            handle = (IntPtr) 1; // Initialize to non-zero dummy variable.
+            handle = (IntPtr)1; // Initialize to non-zero dummy variable.
         }
 
         public uint SniStatus { get; }

@@ -5,15 +5,15 @@
         public decimal? ReadNullableSqlMoney(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (decimal?) null : ReadSqlMoney((int) length);
+            return length == null ? (decimal?)null : ReadSqlMoney((int)length);
         }
 
         public decimal? ReadNullableDecimal(int index, byte scale)
         {
             var length = ReadLengthNullableData(index);
             return length == null
-                ? (decimal?) null
-                : ReadSqlDecimal((int) length, scale);
+                ? (decimal?)null
+                : ReadSqlDecimal((int)length, scale);
         }
     }
 }

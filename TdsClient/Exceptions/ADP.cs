@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Globalization;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Resources;
 
 namespace Medella.TdsClient.Exceptions
 {
-    internal  static partial class ADP
+    internal static class ADP
     {
-
         internal const int DefaultConnectionTimeout = DbConnectionStringDefaults.ConnectTimeout;
 
         internal static readonly string[] AzureSqlServerEndpoints =
         {
-            (Strings.AZURESQL_GenericEndpoint),
-            (Strings.AZURESQL_GermanEndpoint),
-            (Strings.AZURESQL_UsGovEndpoint),
-            (Strings.AZURESQL_ChinaEndpoint)
+            Strings.AZURESQL_GenericEndpoint,
+            Strings.AZURESQL_GermanEndpoint,
+            Strings.AZURESQL_UsGovEndpoint,
+            Strings.AZURESQL_ChinaEndpoint
         };
 
         // The class ADP defines the exceptions that are specific to the Adapters.
@@ -34,22 +33,12 @@ namespace Medella.TdsClient.Exceptions
         }
 
 
-
-        internal static Exception InternalError(InternalErrorCode internalError)
-        {
-            return InvalidOperation(SR.Format(Strings.ADP_InternalProviderError, (int) internalError));
-        }
+        internal static Exception InternalError(InternalErrorCode internalError) => InvalidOperation(SR.Format(Strings.ADP_InternalProviderError, (int)internalError));
 
 
-        internal static Exception InvalidConnectionOptionValue(string key)
-        {
-            return InvalidConnectionOptionValue(key, null);
-        }
+        internal static Exception InvalidConnectionOptionValue(string key) => InvalidConnectionOptionValue(key, null);
 
-        internal static Exception InvalidConnectionOptionValue(string key, Exception inner)
-        {
-            return Argument(SR.Format(Strings.ADP_InvalidConnectionOptionValue, key), inner);
-        }
+        internal static Exception InvalidConnectionOptionValue(string key, Exception inner) => Argument(SR.Format(Strings.ADP_InvalidConnectionOptionValue, key), inner);
 
 
         internal static ArgumentException Argument(string error, Exception inner)
@@ -59,20 +48,11 @@ namespace Medella.TdsClient.Exceptions
             return e;
         }
 
-        internal static ArgumentException ConnectionStringSyntax(int index)
-        {
-            return Argument(SR.Format(Strings.ADP_ConnectionStringSyntax, index));
-        }
+        internal static ArgumentException ConnectionStringSyntax(int index) => Argument(SR.Format(Strings.ADP_ConnectionStringSyntax, index));
 
-        internal static InvalidOperationException DataAdapter(string error)
-        {
-            return InvalidOperation(error);
-        }
+        internal static InvalidOperationException DataAdapter(string error) => InvalidOperation(error);
 
-        internal static ArgumentOutOfRangeException InvalidEnumerationValue(Type type, int value)
-        {
-            return ArgumentOutOfRange(SR.Format(Strings.ADP_InvalidEnumerationValue, type.Name, value.ToString(CultureInfo.InvariantCulture)), type.Name);
-        }
+        internal static ArgumentOutOfRangeException InvalidEnumerationValue(Type type, int value) => ArgumentOutOfRange(SR.Format(Strings.ADP_InvalidEnumerationValue, type.Name, value.ToString(CultureInfo.InvariantCulture)), type.Name);
 
 
         internal static NotSupportedException NotSupported(string error)
@@ -90,39 +70,24 @@ namespace Medella.TdsClient.Exceptions
         }
 
 
-        internal static ArgumentException InvalidMinMaxPoolSizeValues()
-        {
-            return Argument((Strings.ADP_InvalidMinMaxPoolSizeValues));
-        }
+        internal static ArgumentException InvalidMinMaxPoolSizeValues() => Argument(Strings.ADP_InvalidMinMaxPoolSizeValues);
 
 
         //
         // : DbConnectionOptions, DataAccess, SqlClient
         //
-        internal static Exception InvalidConnectionOptionValueLength(string key, int limit)
-        {
-            return Argument(SR.GetString(Strings.ADP_InvalidConnectionOptionValueLength, key, limit));
-        }
+        internal static Exception InvalidConnectionOptionValueLength(string key, int limit) => Argument(SR.GetString(Strings.ADP_InvalidConnectionOptionValueLength, key, limit));
 
-        internal static Exception MissingConnectionOptionValue(string key, string requiredAdditionalKey)
-        {
-            return Argument(SR.GetString(Strings.ADP_MissingConnectionOptionValue, key, requiredAdditionalKey));
-        }
+        internal static Exception MissingConnectionOptionValue(string key, string requiredAdditionalKey) => Argument(SR.GetString(Strings.ADP_MissingConnectionOptionValue, key, requiredAdditionalKey));
 
 
-        internal static Exception InvalidConnectRetryIntervalValue()
-        {
-            return Argument((Strings.SQLCR_InvalidConnectRetryIntervalValue));
-        }
+        internal static Exception InvalidConnectRetryIntervalValue() => Argument(Strings.SQLCR_InvalidConnectRetryIntervalValue);
 
         //
         // : DbDataReader
         //
 
-        internal static string MachineName()
-        {
-            return Environment.MachineName;
-        }
+        internal static string MachineName() => Environment.MachineName;
 
 
         // This method assumes dataSource parameter is in TCP connection string format.
@@ -148,8 +113,10 @@ namespace Medella.TdsClient.Exceptions
         }
 
 
-
-        static partial void TraceException(string trace, Exception e);
+        private static void TraceException(string trace, Exception e)
+        {
+            throw new NotImplementedException();
+        }
 
         internal static void TraceExceptionAsReturnValue(Exception e)
         {
@@ -164,7 +131,6 @@ namespace Medella.TdsClient.Exceptions
         }
 
 
-
         internal static ArgumentOutOfRangeException ArgumentOutOfRange(string message, string parameterName)
         {
             var e = new ArgumentOutOfRangeException(parameterName, message);
@@ -172,15 +138,9 @@ namespace Medella.TdsClient.Exceptions
             return e;
         }
 
-        internal static ArgumentException KeywordNotSupported(string keyword)
-        {
-            return Argument(SR.Format(Strings.ADP_KeywordNotSupported, keyword));
-        }
+        internal static ArgumentException KeywordNotSupported(string keyword) => Argument(SR.Format(Strings.ADP_KeywordNotSupported, keyword));
 
-        internal static Exception InvalidConnectRetryCountValue()
-        {
-            return Argument((Strings.SQLCR_InvalidConnectRetryCountValue));
-        }
+        internal static Exception InvalidConnectRetryCountValue() => Argument(Strings.SQLCR_InvalidConnectRetryCountValue);
 
         internal static void CheckArgumentNull(object value, string parameterName)
         {
@@ -193,10 +153,8 @@ namespace Medella.TdsClient.Exceptions
             TraceExceptionAsReturnValue(e);
             return e;
         }
-        internal static ArgumentException ConvertFailed(Type fromType, Type toType, Exception innerException)
-        {
-            return Argument(SR.Format(Strings.SqlConvert_ConvertFailed, fromType.FullName, toType.FullName), innerException);
-        }
+
+        internal static ArgumentException ConvertFailed(Type fromType, Type toType, Exception? innerException) => Argument(SR.Format(Strings.SqlConvert_ConvertFailed, fromType.FullName, toType.FullName), innerException);
 
 
         internal enum InternalErrorCode

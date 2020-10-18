@@ -16,23 +16,17 @@ namespace Medella.TdsClient.TdsStream.Native
         {
             get
             {
-                if (s_sniMaxComposedSpnLength == -1) s_sniMaxComposedSpnLength = checked((int) GetSniMaxComposedSpnLength());
+                if (s_sniMaxComposedSpnLength == -1) s_sniMaxComposedSpnLength = checked((int)GetSniMaxComposedSpnLength());
                 return s_sniMaxComposedSpnLength;
             }
         }
 
-        public static uint SniGetConnectionId(SniNativeHandle pConn, ref Guid connId)
-        {
-            return SNIGetInfoWrapper(pConn, QTypes.SNI_QUERY_CONN_CONNID, out connId);
-        }
+        public static uint SniGetConnectionId(SniNativeHandle pConn, ref Guid connId) => SNIGetInfoWrapper(pConn, QTypes.SNI_QUERY_CONN_CONNID, out connId);
 
-        internal static uint SNIInitialize()
-        {
-            return SNIInitialize(IntPtr.Zero);
-        }
+        internal static uint SNIInitialize() => SNIInitialize(IntPtr.Zero);
 
 
-        internal static unsafe uint SNIOpenSyncEx(ConsumerInfo consumerInfo, string constring, ref IntPtr pConn, byte[] spnBuffer, byte[] instanceName, bool fOverrideCache, bool fSync, int timeout, bool fParallel)
+        internal static unsafe uint SNIOpenSyncEx(ConsumerInfo consumerInfo, string conString, ref IntPtr pConn, byte[] spnBuffer, byte[] instanceName, bool fOverrideCache, bool fSync, int timeout, bool fParallel)
         {
             fixed (byte* pin_instanceName = &instanceName[0])
             {
@@ -41,11 +35,11 @@ namespace Medella.TdsClient.TdsStream.Native
                 // initialize client ConsumerInfo part first
                 MarshalConsumerInfo(consumerInfo, ref clientConsumerInfo.ConsumerInfo);
 
-                clientConsumerInfo.wszConnectionString = constring;
+                clientConsumerInfo.wszConnectionString = conString;
                 clientConsumerInfo.networkLibrary = PrefixEnum.UNKNOWN_PREFIX;
 
                 clientConsumerInfo.szInstanceName = pin_instanceName;
-                clientConsumerInfo.cchInstanceName = (uint) instanceName.Length;
+                clientConsumerInfo.cchInstanceName = (uint)instanceName.Length;
                 clientConsumerInfo.fOverrideLastConnectCache = fOverrideCache;
                 clientConsumerInfo.fSynchronousConnection = fSync;
                 clientConsumerInfo.timeout = timeout;
@@ -53,13 +47,13 @@ namespace Medella.TdsClient.TdsStream.Native
 
                 clientConsumerInfo.transparentNetworkResolution = TransparentNetworkResolutionMode.DisabledMode;
                 clientConsumerInfo.totalTimeout = SniOpenTimeOut;
-                clientConsumerInfo.isAzureSqlServerEndpoint = ADP.IsAzureSqlServerEndpoint(constring);
+                clientConsumerInfo.isAzureSqlServerEndpoint = ADP.IsAzureSqlServerEndpoint(conString);
 
                 if (spnBuffer != null)
                     fixed (byte* pin_spnBuffer = &spnBuffer[0])
                     {
                         clientConsumerInfo.szSPN = pin_spnBuffer;
-                        clientConsumerInfo.cchSPN = (uint) spnBuffer.Length;
+                        clientConsumerInfo.cchSPN = (uint)spnBuffer.Length;
                         return SNIOpenSyncExWrapper(ref clientConsumerInfo, out pConn);
                     }
 
@@ -72,16 +66,13 @@ namespace Medella.TdsClient.TdsStream.Native
             pPacket = SNIPacketAllocateWrapper(pConn, IOType);
         }
 
-        public static uint SNIPacketGetData(IntPtr packet, byte[] readBuffer, ref uint dataSize)
-        {
-            return SNIPacketGetDataWrapper(packet, readBuffer, (uint) readBuffer.Length, out dataSize);
-        }
+        public static uint SNIPacketGetData(IntPtr packet, byte[] readBuffer, ref uint dataSize) => SNIPacketGetDataWrapper(packet, readBuffer, (uint)readBuffer.Length, out dataSize);
 
         public static unsafe void SNIPacketSetData(SniPacket packet, byte[] data, int length)
         {
             fixed (byte* pin_data = &data[0])
             {
-                SNIPacketSetData(packet, pin_data, (uint) length);
+                SNIPacketSetData(packet, pin_data, (uint)length);
             }
         }
 
@@ -314,7 +305,7 @@ namespace Medella.TdsClient.TdsStream.Native
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         internal static extern unsafe uint SNISecGenClientContextWrapper(
             [In] SniNativeHandle pConn,
-            [In] [Out] byte[] pIn,
+            [In] [Out] byte[]? pIn,
             uint cbIn,
             [In] [Out] byte[] pOut,
             [In] ref uint pcbOut,

@@ -1,11 +1,10 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Controller;
-using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.TDS.Package.Writer;
 using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
-using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
@@ -49,7 +48,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             writer.SendLastMessage();
         }
 
-        public static void WriteValue(TdsPackageWriter writer, object value, TdsMetaType.MetaDataWrite metaData, bool isNull)
+        public static void WriteValue(TdsPackageWriter writer, object? value, TdsMetaType.MetaDataWrite metaData, bool isNull)
         {
             // write the value now
             if (isNull)
@@ -120,7 +119,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             var sb = new StringBuilder();
             foreach (var arg in fstring.GetArguments())
             {
-                TdsParameter p = null;
+                TdsParameter? p;
                 switch (arg)
                 {
                     case string s:
@@ -153,7 +152,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
                     case DateTime d:
                         p = new TdsParameter($"@p{i}", d);
                         break;
-                    default: throw new Exception("Unknow type");
+                    default: throw new Exception("Unknown type");
                 }
 
                 sb.Append($"{(i > 0 ? "," : "")}@p{i} {p.SqlName}");

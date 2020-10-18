@@ -1,7 +1,5 @@
-using System;
 using Medella.TdsClient.Cleanup;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Controller;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Messages.Server;

@@ -1,5 +1,5 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Resources;
 using Medella.TdsClient.TDS.Controller;
 
@@ -41,40 +41,19 @@ namespace Medella.TdsClient.Exceptions
         // SQL.Connection
         //
 
-        internal static Exception InvalidPacketSizeValue()
-        {
-            return ADP.Argument(Strings.SQL_InvalidPacketSizeValue);
-        }
+        internal static Exception InvalidPacketSizeValue() => ADP.Argument(Strings.SQL_InvalidPacketSizeValue);
 
-        internal static Exception InvalidSspiPacketSize()
-        {
-            return ADP.Argument(Strings.SQL_InvalidSSPIPacketSize);
-        }
+        internal static Exception InvalidSspiPacketSize() => ADP.Argument(Strings.SQL_InvalidSSPIPacketSize);
 
-        internal static Exception UserInstanceFailoverNotCompatible()
-        {
-            return ADP.Argument(Strings.SQL_UserInstanceFailoverNotCompatible);
-        }
+        internal static Exception UserInstanceFailoverNotCompatible() => ADP.Argument(Strings.SQL_UserInstanceFailoverNotCompatible);
 
-        internal static Exception InvalidSqlServerVersionUnknown()
-        {
-            return ADP.DataAdapter(Strings.SQL_InvalidSQLServerVersionUnknown);
-        }
+        internal static Exception InvalidSqlServerVersionUnknown() => ADP.DataAdapter(Strings.SQL_InvalidSQLServerVersionUnknown);
 
-        internal static Exception InvalidTdsVersion()
-        {
-            return ADP.InvalidOperation(Strings.SQL_InvalidTDSVersion);
-        }
+        internal static Exception InvalidTdsVersion() => ADP.InvalidOperation(Strings.SQL_InvalidTDSVersion);
 
-        internal static Exception ParsingError()
-        {
-            return ADP.InvalidOperation(Strings.SQL_ParsingError);
-        }
+        internal static Exception ParsingError() => ADP.InvalidOperation(Strings.SQL_ParsingError);
 
-        internal static Exception SniPacketAllocationFailure()
-        {
-            return ADP.InvalidOperation(Strings.SQL_SNIPacketAllocationFailure);
-        }
+        internal static Exception SniPacketAllocationFailure() => ADP.InvalidOperation(Strings.SQL_SNIPacketAllocationFailure);
 
         //
         // MultiSubnetFailover
@@ -93,7 +72,7 @@ namespace Medella.TdsClient.Exceptions
             {
                 // Replacing InvalidOperation with SQL exception
                 var errors = new SqlErrorCollection();
-                errors.Add(new SqlInfoAndError {Class = TdsEnums.FATAL_ERROR_CLASS, Message = msg});
+                errors.Add(new SqlInfoAndError { Class = TdsEnums.FATAL_ERROR_CLASS, Message = msg });
                 var exc = SqlException.CreateException(errors, null);
                 exc._doNotReconnect = true; // disable open retry logic on this error
                 return exc;
@@ -107,10 +86,7 @@ namespace Medella.TdsClient.Exceptions
         // Read-only routing
         //
 
-        internal static Exception ROR_FailoverNotSupportedConnString()
-        {
-            return ADP.Argument(Strings.SQLROR_FailoverNotSupported);
-        }
+        internal static Exception ROR_FailoverNotSupportedConnString() => ADP.Argument(Strings.SQLROR_FailoverNotSupported);
 
 
         //
@@ -118,15 +94,9 @@ namespace Medella.TdsClient.Exceptions
         //
 
         // ProjectK\CoreCLR specific errors
-        internal static Exception UnsupportedKeyword(string keyword)
-        {
-            return ADP.NotSupported(SR.GetString(Strings.SQL_UnsupportedKeyword, keyword));
-        }
+        internal static Exception UnsupportedKeyword(string keyword) => ADP.NotSupported(SR.GetString(Strings.SQL_UnsupportedKeyword, keyword));
 
-        internal static Exception NetworkLibraryKeywordNotSupported()
-        {
-            return ADP.NotSupported(Strings.SQL_NetworkLibraryNotSupported);
-        }
+        internal static Exception NetworkLibraryKeywordNotSupported() => ADP.NotSupported(Strings.SQL_NetworkLibraryNotSupported);
     }
 
     internal class SqlInternalConnectionTds

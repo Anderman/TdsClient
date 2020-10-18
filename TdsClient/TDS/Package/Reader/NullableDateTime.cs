@@ -8,35 +8,35 @@ namespace Medella.TdsClient.TDS.Package.Reader
         {
             var length = ReadLengthNullableData(index);
             return length == null
-                ? (DateTime?) null
+                ? (DateTime?)null
                 : ReadSqlDate();
         }
 
         public TimeSpan? ReadNullableSqlTime(int index)
         {
-            var scale = CurrentResultset.ColumnsMetadata[index].Scale;
+            var scale = CurrentResultSet.ColumnsMetadata[index].Scale;
             var length = ReadLengthNullableData(index);
-            return length == null ? (TimeSpan?) null : ReadSqlTime((int) length, scale);
+            return length == null ? (TimeSpan?)null : ReadSqlTime((int)length, scale);
         }
 
         public DateTime? ReadNullableSqlDateTime2(int index)
         {
-            var scale = CurrentResultset.ColumnsMetadata[index].Scale;
+            var scale = CurrentResultSet.ColumnsMetadata[index].Scale;
             var length = ReadLengthNullableData(index);
-            return length == null ? (DateTime?) null : ReadSqlDateTime((int) length, scale);
+            return length == null ? (DateTime?)null : ReadSqlDateTime((int)length, scale);
         }
 
         public DateTime? ReadNullableSqlDateTime(int index)
         {
             var length = ReadLengthNullableData(index);
-            return length == null ? (DateTime?) null : ReadSqlDateTime((int) length);
+            return length == null ? (DateTime?)null : ReadSqlDateTime((int)length);
         }
 
         public DateTimeOffset? ReadNullableSqlDateTimeOffset(int index)
         {
-            var scale = CurrentResultset.ColumnsMetadata[index].Scale;
+            var scale = CurrentResultSet.ColumnsMetadata[index].Scale;
             var length = ReadLengthNullableData(index);
-            return length == null ? (DateTimeOffset?) null : ReadSqlDateTimeOffset((int) length, scale);
+            return length == null ? (DateTimeOffset?)null : ReadSqlDateTimeOffset((int)length, scale);
         }
     }
 }

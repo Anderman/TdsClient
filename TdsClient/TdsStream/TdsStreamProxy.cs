@@ -10,15 +10,15 @@ namespace Medella.TdsClient.TdsStream
         private const string DefaultHostName = "localhost";
         private const string LocalDbHost = "(localdb)";
 
-        public static ITdsStream CreatedsStream(string dataSource, int timeoutSeconds)
+        public static ITdsStream? CreatedStream(string dataSource, int timeoutSeconds)
         {
             var lowercaseDataSource = dataSource.Trim().ToLowerInvariant();
             if (IsLocalHost(lowercaseDataSource))
                 return new TdsStreamNative(".", timeoutSeconds);
             if (IsLocalDbServer(lowercaseDataSource))
             {
-                var (pipename, serverNameNp) = GetNpProperties(lowercaseDataSource);
-                return new TdsStreamNamedpipes(serverNameNp, pipename, timeoutSeconds);
+                var (pipeName, serverNameNp) = GetNpProperties(lowercaseDataSource);
+                return new TdsStreamNamedPipes(serverNameNp, pipeName, timeoutSeconds);
             }
 
             if (!IsTcpIp(lowercaseDataSource))
@@ -28,15 +28,15 @@ namespace Medella.TdsClient.TdsStream
             return new TdsStreamTcp(serverNameIp, port, timeoutSeconds);
         }
 
-        public static bool IsLocalDbServer(string fullServername)
+        public static bool IsLocalDbServer(string fullServerName)
         {
-            // All LocalDb endpoints are of the format host\instancename where host is always (LocalDb) (case-insensitive)
-            var parts = fullServername.ToLowerInvariant().Split('\\');
+            // All LocalDb endpoints are of the format host\instanceName where host is always (LocalDb) (case-insensitive)
+            var parts = fullServerName.ToLowerInvariant().Split('\\');
 
             return parts.Length == 2 && LocalDbHost.Equals(parts[0].TrimStart());
         }
 
-        //servername=[tcp:]hostname[/intance][,port]
+        //serverName=[tcp:]hostname[/instance][,port]
         private static (int port, string serverName, bool isSsrpRequired) GetTcpProperties(string lower)
         {
             var port = -1;
@@ -55,29 +55,29 @@ namespace Medella.TdsClient.TdsStream
 
         public static (string pipeName, string ServerName) GetNpProperties(string fullServerName)
         {
-            var protocolParts = GetNamedPipename(fullServerName).ToLower().Split('\\');
+            var protocolParts = GetNamedPipeName(fullServerName).ToLower().Split('\\');
 
             var pipeName = string.Join(@"\", protocolParts.Skip(4)); //localdb#678e2031\tsql\query
             var serverName = string.Join(@"\", protocolParts[2]); //.
             return (pipeName, serverName);
         }
 
-        public static string GetNamedPipename(string fullServername)
+        public static string GetNamedPipeName(string fullServerName)
         {
             // All LocalDb endpoints are of the format host\instancename where host is always (LocalDb) (case-insensitive)
-            var localDbInstance = fullServername.ToLowerInvariant().Split('\\')[1];
-            return LocalDb.LocalDb.GetLocalDbConnectionString(localDbInstance);
+            var localDbInstance = fullServerName.ToLowerInvariant().Split('\\')[1];
+            return LocalDb.LocalDb.GetLocalDbConnectionString(localDbInstance)!;
         }
 
         //tcp:hostname,port
-        public static bool IsTcpIp(string servername)
+        public static bool IsTcpIp(string serverName)
         {
-            var temp = servername.Split(';');
+            var temp = serverName.Split(';');
             if (temp.Length > 2)
                 return false;
             if (temp.Length == 2 && !int.TryParse(temp[1], out _))
                 return false;
-            temp = servername.Split(':');
+            temp = serverName.Split(':');
             if (temp.Length > 2)
                 return false;
             if (temp.Length == 2 && temp[0] != "tcp")
@@ -85,9 +85,6 @@ namespace Medella.TdsClient.TdsStream
             return true;
         }
 
-        private static bool IsLocalHost(string serverName)
-        {
-            return string.IsNullOrEmpty(serverName) || ".".Equals(serverName) || "(local)".Equals(serverName) || "localhost".Equals(serverName);
-        }
+        private static bool IsLocalHost(string serverName) => string.IsNullOrEmpty(serverName) || ".".Equals(serverName) || "(local)".Equals(serverName) || "localhost".Equals(serverName);
     }
 }

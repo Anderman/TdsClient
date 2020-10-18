@@ -1,5 +1,5 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.Exceptions;
 using Medella.TdsClient.TDS.Messages.Client;
 using Medella.TdsClient.TDS.Package.Reader;
@@ -20,7 +20,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 if (featureId == TdsEnums.FEATUREEXT_TERMINATOR)
                     break;
                 var dataLen = reader.ReadUInt32();
-                var data = reader.GetBytes(checked((int) dataLen));
+                var data = reader.GetBytes(checked((int)dataLen));
                 if (dataLen > 0)
                     OnFeatureExtAck(featureId, data);
             }
@@ -30,10 +30,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
         {
             var initialState = new byte[MaxNumberOfSessionStates][];
             var delta = new SessionStateRecord[MaxNumberOfSessionStates];
-            object recoverySessionData = null;
-            var isGlobalTransaction = false;
-            var isGlobalTransactionsEnabledForServer = false;
-            var DeltaDirty = false;
+            object? recoverySessionData = null;
             switch (featureId)
             {
                 case TdsEnums.FEATUREEXT_SRECOVERY:
@@ -50,14 +47,9 @@ namespace Medella.TdsClient.TDS.Messages.Server
                         Buffer.BlockCopy(data, i, stateData, 0, len);
                         i += len;
                         if (recoverySessionData == null)
-                        {
                             initialState[stateId] = stateData;
-                        }
                         else
-                        {
-                            delta[stateId] = new SessionStateRecord {Data = stateData, DataLength = len, Recoverable = true, Version = 0};
-                            DeltaDirty = true;
-                        }
+                            delta[stateId] = new SessionStateRecord { Data = stateData, DataLength = len, Recoverable = true, Version = 0 };
                     }
 
                     break;
@@ -67,8 +59,10 @@ namespace Medella.TdsClient.TDS.Messages.Server
                 {
                     if (data.Length < 1) throw SQL.ParsingError();
 
-                    isGlobalTransaction = true;
-                    if (1 == data[0]) isGlobalTransactionsEnabledForServer = true;
+                    if (1 == data[0])
+                    {
+                    }
+
                     break;
                 }
 

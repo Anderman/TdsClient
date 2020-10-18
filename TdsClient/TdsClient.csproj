@@ -3,8 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <ApplicationIcon />
-    <StartupObject />
+    <Nullable>enable</Nullable>
+    <LangVersion>8.0</LangVersion>
     <AssemblyName>Medella.TdsClient</AssemblyName>
     <RootNamespace>Medella.TdsClient</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -13,19 +13,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,8 +26,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="runtime.native.System.Data.SqlClient.sni" Version="4.7.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>

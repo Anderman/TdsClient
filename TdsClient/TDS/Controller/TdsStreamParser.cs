@@ -1,6 +1,6 @@
 using System;
 using System.Globalization;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Messages.Server;
 using Medella.TdsClient.TDS.Messages.Server.Environment;
 using Medella.TdsClient.TDS.Processes;

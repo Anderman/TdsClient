@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.Constants;
+using Medella.TdsClient.TDS.Package.Writer;
 using Medella.TdsClient.TDS.Row.Reader.StringHelpers;
-using TdsPackageWriter = Medella.TdsClient.TDS.Package.Writer.TdsPackageWriter;
 
 namespace Medella.TdsClient.TDS.Messages.Client
 {
@@ -309,10 +308,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             return (totalLength, initialLength, currentLength, writeState);
         }
 
-        private static int StateValueLength(int dataLen)
-        {
-            return dataLen < 0xFF ? dataLen + 1 : dataLen + 5;
-        }
+        private static int StateValueLength(int dataLen) => dataLen < 0xFF ? dataLen + 1 : dataLen + 5;
 
         private static void WriteSessionRecoveryFeatureRequest(TdsPackageWriter writer, SessionData reconnectData)
         {
@@ -332,10 +328,10 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 for (var i = 0; i < SessionData.MaxNumberOfSessionStates; i++)
                     if (reconnectData.InitialState[i] != null)
                     {
-                        writer.WriteByte((byte) i);
+                        writer.WriteByte((byte)i);
                         if (reconnectData.InitialState[i].Length < 0xFF)
                         {
-                            writer.WriteByte((byte) reconnectData.InitialState[i].Length);
+                            writer.WriteByte((byte)reconnectData.InitialState[i].Length);
                         }
                         else
                         {
@@ -353,10 +349,10 @@ namespace Medella.TdsClient.TDS.Messages.Client
                 for (var i = 0; i < SessionData.MaxNumberOfSessionStates; i++)
                     if (writeState[i])
                     {
-                        writer.WriteByte((byte) i);
+                        writer.WriteByte((byte)i);
                         if (reconnectData.Delta[i].DataLength < 0xFF)
                         {
-                            writer.WriteByte((byte) reconnectData.Delta[i].DataLength);
+                            writer.WriteByte((byte)reconnectData.Delta[i].DataLength);
                         }
                         else
                         {
@@ -369,10 +365,7 @@ namespace Medella.TdsClient.TDS.Messages.Client
             }
         }
 
-        internal static int NullAwareStringLength(string str)
-        {
-            return str?.Length ?? 0;
-        }
+        internal static int NullAwareStringLength(string? str) => str?.Length ?? 0;
 
         internal static byte[] ObfuscatePassword(string password)
         {
@@ -381,26 +374,23 @@ namespace Medella.TdsClient.TDS.Messages.Client
             for (var i = 0; i < password.Length; i++)
             {
                 int s = password[i];
-                var bLo = (byte) (s & 0xff);
-                var bHi = (byte) ((s >> 8) & 0xff);
-                bObfuscated[i << 1] = (byte) ((((bLo & 0x0f) << 4) | (bLo >> 4)) ^ 0xa5);
-                bObfuscated[(i << 1) + 1] = (byte) ((((bHi & 0x0f) << 4) | (bHi >> 4)) ^ 0xa5);
+                var bLo = (byte)(s & 0xff);
+                var bHi = (byte)((s >> 8) & 0xff);
+                bObfuscated[i << 1] = (byte)((((bLo & 0x0f) << 4) | (bLo >> 4)) ^ 0xa5);
+                bObfuscated[(i << 1) + 1] = (byte)((((bHi & 0x0f) << 4) | (bHi >> 4)) ^ 0xa5);
             }
 
             return bObfuscated;
         }
 
-        internal static int GetCurrentProcessIdForTdsLoginOnly()
-        {
-            return 0x2a2a2a2a;
-        }
+        internal static int GetCurrentProcessIdForTdsLoginOnly() => 0x2a2a2a2a;
 
         internal static byte[] GetNetworkPhysicalAddressForTdsLoginOnly()
         {
             // For ProjectK\CoreCLR we don't want to take a dependency on the registry to try to read a value
             // that isn't usually set, so we'll just use a random value each time instead
 
-            return new byte[] {0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x2a};
+            return new byte[] { 0x2a, 0x2a, 0x2a, 0x2a, 0x2a, 0x2a };
         }
     }
 }

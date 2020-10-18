@@ -1,5 +1,4 @@
-﻿using System;
-using Medella.TdsClient.Contants;
+﻿
 
 // ReSharper disable once CheckNamespace
 namespace Medella.TdsClient.TDS.Package.Writer
@@ -21,6 +20,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
                 WriteSqlMoneyUnchecked((decimal)value);
             CheckBuffer();
         }
+
         public void WriteNullableSqlDecimal(decimal? value, byte p, byte scale)
         {
             var len = p <= 9 ? 5
@@ -32,8 +32,5 @@ namespace Medella.TdsClient.TDS.Package.Writer
                 WriteSqlDecimalUnchecked((decimal)value, len, scale);
             CheckBuffer();
         }
-
-
-
     }
 }

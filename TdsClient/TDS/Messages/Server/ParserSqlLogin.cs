@@ -1,6 +1,5 @@
-﻿using Medella.TdsClient.Contants;
+﻿using Medella.TdsClient.Constants;
 using Medella.TdsClient.Exceptions;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server
@@ -15,7 +14,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
             reader.ReadByte();
 
             var b = reader.GetBytes(TdsEnums.VERSION_SIZE);
-            var tdsVersion = (uint) ((((((b[0] << 8) | b[1]) << 8) | b[2]) << 8) | b[3]); // bytes are in motorola order (high byte first)
+            var tdsVersion = (uint)((((((b[0] << 8) | b[1]) << 8) | b[2]) << 8) | b[3]); // bytes are in motorola order (high byte first)
             var majorMinor = tdsVersion & 0xff00ffff;
             var increment = (tdsVersion >> 16) & 0xff;
 
@@ -51,7 +50,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
             sqlServerInfo.Name = reader.ReadUnicodeChars(len * 2);
             sqlServerInfo.MajorVersion = reader.ReadByte();
             sqlServerInfo.MinorVersion = reader.ReadByte();
-            sqlServerInfo.BuildNum = (short) ((reader.ReadByte() << 8) + reader.ReadByte());
+            sqlServerInfo.BuildNum = (short)((reader.ReadByte() << 8) + reader.ReadByte());
             return sqlServerInfo;
         }
 
@@ -60,7 +59,7 @@ namespace Medella.TdsClient.TDS.Messages.Server
             public short BuildNum;
             public byte MajorVersion;
             public byte MinorVersion;
-            public string Name;
+            public string? Name;
             public bool IsYukon { get; set; }
             public bool IsKatmaiOrNewer { get; set; }
             public bool IsDenali { get; set; }

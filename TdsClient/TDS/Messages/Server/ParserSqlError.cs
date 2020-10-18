@@ -1,8 +1,6 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.Exceptions;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Controller;
-using Medella.TdsClient.TDS.Package;
 using Medella.TdsClient.TDS.Package.Reader;
 
 namespace Medella.TdsClient.TDS.Messages.Server
@@ -12,14 +10,14 @@ namespace Medella.TdsClient.TDS.Messages.Server
         public static void SqlErrorAndInfo(this TdsPackageReader reader, byte token, int tokenLength)
         {
             var start = reader.GetReadPos();
-           var error =new SqlInfoAndError
+            var error = new SqlInfoAndError
             {
                 Number = reader.ReadInt32(),
                 State = reader.ReadByte(),
                 Class = reader.ReadByte(),
                 Message = reader.ReadString(reader.ReadUInt16()),
                 Server = reader.ReadString(reader.ReadByte()),
-                Procedure = reader.ReadString(reader.ReadByte()),
+                Procedure = reader.ReadString(reader.ReadByte())
             };
             var current = reader.GetReadPos();
             error.LineNumber = tokenLength - (current - start) > 2 ? reader.ReadInt32() : reader.ReadInt16();

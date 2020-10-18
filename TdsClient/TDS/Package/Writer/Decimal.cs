@@ -1,4 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace
+
 namespace Medella.TdsClient.TDS.Package.Writer
 {
     public partial class TdsPackageWriter
@@ -31,7 +32,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
 
         private void WriteSqlMoney4Unchecked(decimal value)
         {
-            WriteInt32Unchecked((int) (value * 10000));
+            WriteInt32Unchecked((int)(value * 10000));
         }
 
         public void WriteSqlMoney(decimal value)
@@ -45,6 +46,7 @@ namespace Medella.TdsClient.TDS.Package.Writer
             WriteSqlDecimalUnchecked(value, length, toScale);
             CheckBuffer();
         }
+
         public void WriteSqlDecimal(decimal value, int length)
         {
             WriteSqlDecimalUnchecked(value, length);
@@ -53,10 +55,11 @@ namespace Medella.TdsClient.TDS.Package.Writer
 
         private void WriteSqlMoneyUnchecked(decimal value)
         {
-            var v = (long) (value * 10000);
-            WriteInt32Unchecked((int) (v >> 0x20));
-            WriteInt32Unchecked((int) (v & 0xFFFF_FFFF));
+            var v = (long)(value * 10000);
+            WriteInt32Unchecked((int)(v >> 0x20));
+            WriteInt32Unchecked((int)(v & 0xFFFF_FFFF));
         }
+
         private void WriteSqlDecimalUnchecked(decimal value, int length, byte toScale)
         {
             var fromScale = (byte)(decimal.GetBits(value)[3] >> 16);
@@ -85,6 +88,5 @@ namespace Medella.TdsClient.TDS.Package.Writer
             value = value * DecimalToScale[15];
             return value * DecimalToScale[corr - 15];
         }
-
     }
 }

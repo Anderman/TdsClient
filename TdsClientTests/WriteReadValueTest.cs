@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Messages.Server.Internal;
 using Medella.TdsClient.TDS.Package.Reader;
 using Medella.TdsClient.TDS.Package.Writer;
@@ -207,7 +207,7 @@ namespace TdsClientTests
         private void SetupColMetaData(TdsPackageReader reader, TdsPackageWriter writer, int tdsType, byte precision, byte scale, bool isPlp)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var r = reader.CurrentResultset.ColumnsMetadata = new ColumnsMetadata(1);
+            var r = reader.CurrentResultSet.ColumnsMetadata = new ColumnsMetadata(1);
             var w = writer.ColumnsMetadata = new MetadataBulkCopy[1];
             var collation = new SqlCollations { Info = 0x00d00409, SortId = 0x34 };
             var encoding = Encoding.GetEncoding(collation.GetCodePage());

@@ -15,11 +15,11 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 return string.Empty;
 
 
-            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int) chungLength;
-            if (plpLength == (ulong) bytesToRead)
+            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int)chungLength;
+            if (plpLength == (ulong)bytesToRead)
             {
                 var v = ReadString(encoding, bytesToRead);
-                ReadUInt32(); //read the 0 chunklen
+                ReadUInt32(); //read the 0 chunkLen
                 return v;
             }
 
@@ -28,16 +28,16 @@ namespace Medella.TdsClient.TDS.Package.Reader
             var bytesRead = 0;
             while (true)
             {
-                bytesToRead = ((uint) bytesRead + chungLength > int.MaxValue) ? int.MaxValue - bytesRead : (int)chungLength; //read not futher than 2Gb
+                bytesToRead = (uint)bytesRead + chungLength > int.MaxValue ? int.MaxValue - bytesRead : (int)chungLength; //read not futher than 2Gb
 
                 ReadString(sb, encoding, bytesToRead);
                 bytesRead += bytesToRead;
-                chungLength -= (uint) bytesToRead;
+                chungLength -= (uint)bytesToRead;
 
                 // Read the next chunk or cleanup state if hit the end
                 if (chungLength == 0)
                     chungLength = ReadUInt32();
-                if (chungLength == 0 || bytesRead == int.MaxValue) // Data read complete. bytesleft>0 if len > blob.Length and SQL_PLP_UNKNOWNLEN
+                if (chungLength == 0 || bytesRead == int.MaxValue) // Data read complete. bytesLeft>0 if len > blob.Length and SQL_PLP_UNKNOWNLEN
                     break;
             }
 
@@ -49,7 +49,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
             if (plpLength == 0)
                 return string.Empty;
 
-            var chungLength = ReadUInt32(); //chunck is always smaller than packetsize
+            var chungLength = ReadUInt32(); //chunk is always smaller than packetSize
             if (chungLength == 0)
                 return string.Empty;
 
@@ -57,8 +57,8 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
             if (plpLength == chungLength)
             {
-                var v = ReadUnicodeChars((int) chungLength);
-                ReadUInt32(); //read the 0 chunklen
+                var v = ReadUnicodeChars((int)chungLength);
+                ReadUInt32(); //read the 0 chunkLen
                 return v;
             }
 
@@ -69,7 +69,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 if (byte1 != null)
                 {
                     var byte2 = ReadByte();
-                    sb.Append((char) ((int) (byte1 << 8) + byte2));
+                    sb.Append((char)((int)(byte1 << 8)! + byte2));
                     chungLength--;
                     byte1 = null;
                 }
@@ -77,30 +77,28 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 var byteToRead = chungLength & 0xFFFFFFFE;
                 if (byteToRead != chungLength)
                 {
-                    ReadUnicodeChars(sb, (int) byteToRead);
+                    ReadUnicodeChars(sb, (int)byteToRead);
                     byte1 = ReadByte();
                 }
                 else
                 {
-                    ReadUnicodeChars(sb, (int) chungLength);
+                    ReadUnicodeChars(sb, (int)chungLength);
                 }
 
                 // Read the next chunk or cleanup state if hit the end
                 chungLength = ReadUInt32();
-                if (chungLength == 0) // Data read complete. bytesleft>0 if len > blob.Length and SQL_PLP_UNKNOWNLEN
+                if (chungLength == 0) // Data read complete. bytesLeft>0 if len > blob.Length and SQL_PLP_UNKNOWNLEN
                     break;
             }
 
             return sb.ToString();
         }
 
-        public SqlCollations ReadCollation()
-        {
-            return new SqlCollations
+        public SqlCollations ReadCollation() =>
+            new SqlCollations
             {
                 Info = ReadUInt32(),
                 SortId = ReadByte()
             };
-        }
     }
 }

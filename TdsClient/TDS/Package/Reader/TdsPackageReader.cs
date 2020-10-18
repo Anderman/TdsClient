@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TdsStream;
 
 namespace Medella.TdsClient.TDS.Package.Reader
@@ -11,7 +11,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
     public partial class TdsPackageReader
     {
         private const int BufferSize = 16000;
-        private const int Guidsize = 16;
+        private const int GuidSize = 16;
         private readonly byte[] _splitValueBuffer = new byte[TdsEnums.MaxSizeSqlValue];
         private readonly ITdsStream _tdsStream;
         private bool _isSplitValueBuffer;
@@ -19,14 +19,14 @@ namespace Medella.TdsClient.TDS.Package.Reader
         private byte _packageStatus;
         private int _pos;
         private int _readEndPos;
+        private Task<int>? _readTask;
         private int _savedPos;
-        private byte[] _savedReadBuffer;
+        private byte[]? _savedReadBuffer;
         private int _savedReadEndPos;
+        private int _savedReadPackageEnd;
         public byte[] ReadBuffer = new byte[BufferSize];
         public byte[] ReadBuffer1 = new byte[BufferSize];
         public byte[] ReadBuffer2 = new byte[BufferSize];
-        private int _savedReadPackageEnd;
-        private Task<int> _readTask;
 
         public TdsPackageReader(ITdsStream tdsStream)
         {
@@ -34,7 +34,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
         }
 
         public TdsSession CurrentSession { get; } = new TdsSession();
-        public TdsResultset CurrentResultset { get; } = new TdsResultset();
+        public TdsResultSet CurrentResultSet { get; } = new TdsResultSet();
         public TdsRow CurrentRow { get; } = new TdsRow();
 
         [Conditional("DEBUG")]
@@ -65,7 +65,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
             if (_isSplitValueBuffer)
             {
-                RestoreReadbuffer();
+                RestoreReadBuffer();
                 _isSplitValueBuffer = false;
                 return;
             }
@@ -74,9 +74,9 @@ namespace Medella.TdsClient.TDS.Package.Reader
             _pos = +8;
         }
 
-        private void RestoreReadbuffer()
+        private void RestoreReadBuffer()
         {
-            ReadBuffer = _savedReadBuffer;
+            ReadBuffer = _savedReadBuffer!;
             _readEndPos = _savedReadEndPos;
             _packageEnd = _savedReadPackageEnd;
 
@@ -100,7 +100,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
 
         public void Receive()
         {
-            if (_packageEnd < _readEndPos)//more than one package in buffer. move this one to the beginning of the buffer
+            if (_packageEnd < _readEndPos) //more than one package in buffer. move this one to the beginning of the buffer
             {
                 var count = _readEndPos - _packageEnd;
                 Buffer.BlockCopy(ReadBuffer, _packageEnd, ReadBuffer, 0, count);
@@ -128,10 +128,10 @@ namespace Medella.TdsClient.TDS.Package.Reader
                     {
                         ReadBuffer = ReadBuffer1;
                         _readTask = _tdsStream.ReceiveAsync(ReadBuffer2, 0, ReadBuffer.Length);
-
                     }
                 }
             }
+
             _packageStatus = ReadBuffer[1];
             _packageEnd = (ReadBuffer[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1];
             if (_readEndPos < _packageEnd)
@@ -142,12 +142,11 @@ namespace Medella.TdsClient.TDS.Package.Reader
         private void CheckCompletePackage()
         {
             if (ReferenceEquals(ReadBuffer, ReadBuffer1))
-                while (_readEndPos<8 || ((ReadBuffer2[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer2[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1])>_readEndPos)
+                while (_readEndPos < 8 || ((ReadBuffer2[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer2[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1]) > _readEndPos)
                     _readEndPos = _tdsStream.Receive(ReadBuffer2, _readEndPos, BufferSize);
             else
                 while (_readEndPos < 8 || ((ReadBuffer1[TdsEnums.HEADER_LEN_FIELD_OFFSET] << 8) | ReadBuffer1[TdsEnums.HEADER_LEN_FIELD_OFFSET + 1]) > _readEndPos)
                     _readEndPos = _tdsStream.Receive(ReadBuffer1, _readEndPos, BufferSize);
-
         }
 
 
@@ -156,15 +155,9 @@ namespace Medella.TdsClient.TDS.Package.Reader
             _pos = _packageEnd;
         }
 
-        public int GetReadPos()
-        {
-            return _pos;
-        }
+        public int GetReadPos() => _pos;
 
-        public int GetReadEndPos()
-        {
-            return _readEndPos;
-        }
+        public int GetReadEndPos() => _readEndPos;
 
 
         public byte[] GetBytes(int length)
@@ -279,21 +272,18 @@ namespace Medella.TdsClient.TDS.Package.Reader
             var b = ReadBuffer;
             var i = _pos;
             var guid = new Guid(new[] { b[i + 0], b[i + 1], b[i + 2], b[i + 3], b[i + 4], b[i + 5], b[i + 6], b[i + 7], b[i + 8], b[i + 9], b[i + 10], b[i + 11], b[i + 12], b[i + 13], b[i + 14], b[i + 15] });
-            _pos += Guidsize;
+            _pos += GuidSize;
             return guid;
         }
 
-        public string ReadString(int length)
+        public string? ReadString(int length)
         {
             if (length == 0) return null;
             CheckBuffer(length);
             return ReadUnicodeChars(length * 2);
         }
 
-        public bool IsFinsched()
-        {
-            return _pos == _readEndPos;
-        }
+        public bool IsFinished() => _pos == _readEndPos;
     }
 
     public enum ParseState

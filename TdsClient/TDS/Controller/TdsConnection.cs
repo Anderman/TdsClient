@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Medella.TdsClient.Cleanup;
-using Medella.TdsClient.TdsStream;
 using Medella.TdsClient.TDS.Processes;
+using Medella.TdsClient.TdsStream;
 
 namespace Medella.TdsClient.TDS.Controller
 {
     public class TdsConnection : IDisposable
     {
-        private readonly int _messageCountAfterlogin;
+        private readonly int _messageCountAfterLogin;
         private readonly ITdsStream _tdsStream;
         public readonly TdsStreamParser StreamParser;
         public readonly TdsPackage TdsPackage;
@@ -27,7 +27,7 @@ namespace Medella.TdsClient.TDS.Controller
             var loginProcessor = new LoginProcessor(TdsPackage, dbConnectionOptions);
             StreamParser = new TdsStreamParser(TdsPackage, loginProcessor);
             StreamParser.ParseInput();
-            _messageCountAfterlogin = SqlMessages.Count;
+            _messageCountAfterLogin = SqlMessages.Count;
         }
 
         public long SqlTransactionId { get; set; }
@@ -36,17 +36,17 @@ namespace Medella.TdsClient.TDS.Controller
 
         public void Dispose()
         {
-            Debug.WriteLine($"Dispose connection");
+            Debug.WriteLine("Dispose connection");
             _tdsStream.Dispose();
         }
 
         public void ResetToInitialState()
         {
-            if (SqlMessages.Count > _messageCountAfterlogin)
-                SqlMessages.RemoveAt(_messageCountAfterlogin - 1);
+            if (SqlMessages.Count > _messageCountAfterLogin)
+                SqlMessages.RemoveAt(_messageCountAfterLogin - 1);
             SqlTransactionId = 0;
-            if (!TdsPackage.Reader.IsFinsched())
-                throw new Exception("reader not finised");
+            if (!TdsPackage.Reader.IsFinished())
+                throw new Exception("reader not finished");
         }
     }
 }

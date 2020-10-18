@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
-using Medella.TdsClient.Contants;
-using Medella.TdsClient.TDS.Package;
+using Medella.TdsClient.Constants;
 using Medella.TdsClient.TDS.Package.Reader;
-using SqlClient.TDS.Messages.Server.Environment;
 
 namespace Medella.TdsClient.TDS.Messages.Server.Environment
 {
-    public static class ParserEnvChangeExtentions
+    public static class ParserEnvChangeExtensions
     {
         public static void EnvChange(this TdsPackageReader reader, int tokenLength, Action<int> transactionAction)
         {
@@ -49,10 +47,10 @@ namespace Medella.TdsClient.TDS.Messages.Server.Environment
                     case TdsEnums.ENV_ENLISTDTC:
                     case TdsEnums.ENV_DEFECTDTC:
                     case TdsEnums.ENV_TRANSACTIONENDED:
-                       if(transactionAction==null)
-                           reader.EnvSqlTransaction();
-                       else
-                           transactionAction(type);
+                        if (transactionAction == null)
+                            reader.EnvSqlTransaction();
+                        else
+                            transactionAction(type);
                         break;
 
                     case TdsEnums.ENV_LOGSHIPNODE:

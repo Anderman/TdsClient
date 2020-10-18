@@ -1,5 +1,5 @@
 ﻿using System;
-using Medella.TdsClient.Contants;
+using Medella.TdsClient.Constants;
 
 namespace Medella.TdsClient.TDS.Package.Reader
 {
@@ -23,16 +23,16 @@ namespace Medella.TdsClient.TDS.Package.Reader
                 : new byte[plpLength > int.MaxValue ? int.MaxValue : plpLength];
 
             var offset = 0;
-            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int) chungLength;
+            var bytesToRead = chungLength > int.MaxValue ? int.MaxValue : (int)chungLength;
             while (true)
             {
-                bytesToRead = (uint) offset + (uint) bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
+                bytesToRead = (uint)offset + (uint)bytesToRead > int.MaxValue ? int.MaxValue - bytesToRead : bytesToRead;
                 if (buff.Length < offset + bytesToRead)
                     ResizeArray(ref buff, bytesToRead);
 
                 ReadByteArray(buff, offset, bytesToRead);
                 offset += bytesToRead;
-                chungLength -= (uint) bytesToRead;
+                chungLength -= (uint)bytesToRead;
 
                 // Read the next chunk or cleanup state if hit the end
                 if (chungLength == 0)
