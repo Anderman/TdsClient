@@ -46,7 +46,7 @@ namespace Medella.TdsClient.TDS.Processes
                 UseSspi = opt.IntegratedSecurity,
                 PacketSize = opt.PacketSize,
                 ReadOnlyIntent = opt.ApplicationIntent == ApplicationIntent.ReadOnly,
-                ClientToken = opt.IntegratedSecurity ? _package.Writer.GetClientToken(null) : null,
+                ClientToken = opt.IntegratedSecurity ? _package.Reader.GetClientToken(null) : null,
                 RequestedFeatures = GetRequestedFeatures(opt)
             };
             _package.Writer.SendTdsLogin(login, _recoverySessionData);
@@ -72,7 +72,7 @@ namespace Medella.TdsClient.TDS.Processes
         public void VerifyToken(int tokenLength)
         {
             var token = _package.Reader.GetBytes(tokenLength);
-            var clientToken = _package.Writer.GetClientToken(token);
+            var clientToken = _package.Reader.GetClientToken(token);
 
             if (clientToken.Length != 0)
                 _package.Writer.SendSspi(clientToken);

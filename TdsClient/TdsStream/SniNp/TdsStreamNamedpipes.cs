@@ -61,10 +61,9 @@ namespace Medella.TdsClient.TdsStream.SniNp
             Stream.Write(writeBuffer, 0, count);
         }
 
-        public byte[] GetClientToken(byte[] serverToken)
+        public byte[] GetClientToken(byte[]? serverToken)
         {
-            _sspi.CreateClientToken(serverToken);
-            return _sspi.ClientToken;
+            return _sspi.CreateClientToken(serverToken);
         }
 
         public void Dispose()
@@ -77,12 +76,12 @@ namespace Medella.TdsClient.TdsStream.SniNp
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
-            var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            var sb = new StringBuilder($"{prefix}length:{length,4:##0} ");
             sb.Append("data: ");
             for (var i = 0; i < length; i++)
                 sb.Append($"{buffer[i],2:X2} ");
             Debug.WriteLine(sb.ToString());
-            sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            sb = new StringBuilder($"{prefix}length:{length,4:##0} ");
             sb.Append("data: ");
             for (var i = 0; i < length; i++)
                 if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)

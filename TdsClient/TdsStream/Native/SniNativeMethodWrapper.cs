@@ -2,8 +2,6 @@
 using System.Runtime.InteropServices;
 using Medella.TdsClient.Exceptions;
 
-//using Medella.TdsConnectionPools.SNI.Internal;
-
 namespace Medella.TdsClient.TdsStream.Native
 {
     public static class SniNativeMethodWrapper
@@ -93,11 +91,6 @@ namespace Medella.TdsClient.TdsStream.Native
                 ? Marshal.GetFunctionPointerForDelegate(consumerInfo.writeDelegate)
                 : IntPtr.Zero;
             native_consumerInfo.ConsumerKey = consumerInfo.key;
-        }
-
-        internal enum SniSpecialErrors : uint
-        {
-            MaxErrorValue = SniCommon.MaxErrorValue
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -251,8 +244,7 @@ namespace Medella.TdsClient.TdsStream.Native
 
         #region DLL Imports
 
-        [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern uint SNIQueryInfo(QTypes QType, ref IntPtr pbQInfo);
+        
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void SNIGetLastError(out SNI_Error pErrorStruct);
@@ -262,9 +254,6 @@ namespace Medella.TdsClient.TdsStream.Native
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SNICloseWrapper")]
         internal static extern uint SNIClose(IntPtr pConn);
-
-        [DllImport(SNI, CallingConvention = CallingConvention.Cdecl, EntryPoint = "SNIReadAsyncWrapper")]
-        internal static extern uint SNIReadAsync(SniNativeHandle pConn, ref IntPtr ppNewPacket);
 
         [DllImport(SNI, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint SNIReadSyncOverAsync(SniNativeHandle pConn, ref IntPtr ppNewPacket, int timeout);

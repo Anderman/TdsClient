@@ -21,6 +21,6 @@ namespace Medella.TdsClient.TDS.Messages.Client
         public bool UseSspi = false; // use integrated security
         public TdsEnums.FeatureExtension RequestedFeatures { get; set; }
 
-        public byte[] ClientToken { get; set; }
+        public byte[]? ClientToken { get; set; }
     }
 }

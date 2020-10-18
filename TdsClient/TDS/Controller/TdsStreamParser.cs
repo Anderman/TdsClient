@@ -26,7 +26,7 @@ namespace Medella.TdsClient.TDS.Controller
             ParseInput(null);
         }
 
-        internal void ParseInput(Action<int> customParser)
+        internal void ParseInput(Action<int>? customParser)
         {
             Status = ParseStatus.Unknown;
             while (true)
@@ -80,7 +80,7 @@ namespace Medella.TdsClient.TDS.Controller
 
                     case TdsEnums.SQLENVCHANGE:
                     {
-                        _tdsPackage.Reader.EnvChange(tokenLength, customParser);
+                        _tdsPackage.Reader.EnvChange(tokenLength, customParser!);
                         // ENVCHANGE must be processed synchronously (since it can modify the state of many objects)
                         break;
                     }

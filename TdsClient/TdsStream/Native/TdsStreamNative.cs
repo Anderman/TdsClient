@@ -61,7 +61,7 @@ namespace Medella.TdsClient.TdsStream.Native
             return (int)dataSize;
         }
 
-        public byte[] GetClientToken(byte[] serverToken) => _sspi.GetClientToken(serverToken);
+        public byte[] GetClientToken(byte[]? serverToken) => _sspi.GetClientToken(serverToken);
 
         public void Dispose()
         {
@@ -73,7 +73,7 @@ namespace Medella.TdsClient.TdsStream.Native
         [Conditional("DEBUG")]
         private static void GetBytesString(string prefix, byte[] buffer, int length)
         {
-            //var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            //var sb = new StringBuilder($"{prefix}length:{length,4:##0} ");
             //sb.Append("data: ");
             //for (var i = 0; i < length; i++)
             //    sb.Append($"{buffer[i],2:X2} ");

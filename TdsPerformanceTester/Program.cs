@@ -44,12 +44,12 @@ namespace TdsPerformanceTester
         [Conditional("DEBUG")]
         private static void LogBytesString(string prefix, byte[] buffer, int length)
         {
-            var sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            var sb = new StringBuilder($"{prefix}length:{length,4:##0} ");
             sb.Append("data: ");
             for (var i = 0; i < length; i++)
                 sb.Append($"{buffer[i],2:X2} ");
             Console.WriteLine(sb.ToString());
-            sb = new StringBuilder($"{prefix}lentgh:{length,4:##0} ");
+            sb = new StringBuilder($"{prefix}length:{length,4:##0} ");
             sb.Append("data: ");
             for (var i = 0; i < length; i++)
                 if (buffer[i] >= 0x20 && buffer[i] <= 0x7f)

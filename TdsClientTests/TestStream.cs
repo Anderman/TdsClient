@@ -20,7 +20,7 @@ namespace TdsClientTests
 
         public Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count)
         {
-            throw new NotFiniteNumberException();
+            throw new NotImplementedException();
         }
 
         public int Receive(byte[] readBuffer, int offset, int count)
@@ -30,7 +30,7 @@ namespace TdsClientTests
             return package.Length;
         }
 
-        public byte[] GetClientToken(byte[] serverToken)
+        public byte[] GetClientToken(byte[]? serverToken)
         {
             throw new NotImplementedException();
         }

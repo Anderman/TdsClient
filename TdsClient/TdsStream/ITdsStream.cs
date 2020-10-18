@@ -10,6 +10,6 @@ namespace Medella.TdsClient.TdsStream
         int Receive(byte[] readBuffer, int offset, int count);
         Task<int> ReceiveAsync(byte[] readBuffer, int offset, int count);
 
-        byte[] GetClientToken(byte[] serverToken);
+        byte[] GetClientToken(byte[]? serverToken);
     }
 }

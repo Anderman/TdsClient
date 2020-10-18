@@ -40,7 +40,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
         [Conditional("DEBUG")]
         public void WriteDebugString(string prefix)
         {
-            //var sb = new StringBuilder($"{prefix}lentgh:{_packageEnd - _pos,4:##0} ");
+            //var sb = new StringBuilder($"{prefix}length:{_packageEnd - _pos,4:##0} ");
             //sb.Append("data: ");
             //for (var i = _pos; i < _packageEnd; i++)
             //    sb.Append($"{ReadBuffer[i],2:X2} ");
@@ -154,6 +154,7 @@ namespace Medella.TdsClient.TDS.Package.Reader
         {
             _pos = _packageEnd;
         }
+        public byte[] GetClientToken(byte[]? serverToken) => _tdsStream.GetClientToken(serverToken);
 
         public int GetReadPos() => _pos;
 

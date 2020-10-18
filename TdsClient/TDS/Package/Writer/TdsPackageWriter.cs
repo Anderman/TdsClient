@@ -22,8 +22,6 @@ namespace Medella.TdsClient.TDS.Package.Writer
         public string InstanceName => _tdsStream.InstanceName;
         public MetadataBulkCopy[]? ColumnsMetadata { get; set; }
 
-        public byte[] GetClientToken(byte[] serverToken) => _tdsStream.GetClientToken(serverToken);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void CheckBuffer()
         {

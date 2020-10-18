@@ -28,8 +28,6 @@ namespace Medella.TdsClient.TdsStream.Sspi
             _genSspiClientContextMethod = sniProxy!.GetMethod("GenSspiClientContext");
         }
 
-        public byte[]? ClientToken { get; set; }
-
         public byte[] CreateClientToken(byte[] serverToken)
         {
             if (serverToken == null)
@@ -37,8 +35,7 @@ namespace Medella.TdsClient.TdsStream.Sspi
 
             var args = new[] { _sspiClientContextStatus, serverToken, null, _serverSpn };
             _genSspiClientContextMethod!.Invoke(_sniInstance, args);
-            ClientToken = (byte[])args[2]!;
-            return ClientToken;
+            return (byte[])args[2]!; ;
         }
     }
 }
